@@ -1,0 +1,30 @@
+@startuml
+!include style.iuml
+title AD-7: Blocker Reporting and Handling (WF-13)
+|Reporter|
+start
+:Select task and describe blocker;
+|System|
+:Create blocker record;
+if (Reporter is the assignee?) then (yes)
+  :Set task status Blocked;
+else (no)
+endif
+:Notify Team Leader;
+|AI Supervisor|
+:Identify affected dependent tasks;
+:Recommend action;
+|Team Leader|
+:Review blocker;
+if (Action?) then (resolve)
+  :Resolve blocker;
+elseif (Reassign task or adjust dependency or deadline) then
+  :Apply change;
+else (escalate)
+  :Escalate to Supervisor;
+endif
+|System|
+:Record resolution and close blocker;
+:Return task to In Progress;
+stop
+@enduml

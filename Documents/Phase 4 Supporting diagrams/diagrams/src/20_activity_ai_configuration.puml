@@ -1,0 +1,29 @@
+@startuml
+!include style.iuml
+title AD-11: AI Configuration and Health Check (WF-26)
+|Sub Admin|
+start
+:Open AI configuration page;
+|System|
+:Show current settings and service status;
+|Sub Admin|
+:Set Ollama connection, model settings,\nRAG settings and service availability;
+|System|
+:Validate input;
+:Run health check on AI service;
+if (Ollama answers and model installed?) then (yes)
+  :Save configuration;
+  :Log configuration change;
+else (no)
+  :Reject change and show error;
+endif
+|Sub Admin|
+:Monitor AI service errors and performance;
+|System|
+if (AI service disabled or unreachable?) then (yes)
+  :AI actions show unavailable message;
+  :Rest of platform keeps working;
+else (no)
+endif
+stop
+@enduml

@@ -1,0 +1,105 @@
+@startuml
+!include style.iuml
+title ER-3: Evidence Submission, Verification, Completion and Certification
+hide circle
+
+entity "projects" as projects {
+  * _id <<PK>>
+}
+entity "users" as users {
+  * _id <<PK>>
+}
+entity "tasks" as tasks {
+  * _id <<PK>>
+}
+
+entity "submissions" as sub {
+  * _id <<PK>>
+  --
+  * taskId <<FK tasks>>
+  * projectId <<FK projects>>
+  phaseId <<FK phases>>
+  sprintId <<FK sprints>>
+  * submittedBy <<FK users>>
+  * version
+  * githubUrl
+  commitLinks[ ]
+  pullRequestLinks[ ]
+  attachments[ ]
+  notes
+  * verificationStatus : Pending Verification | Verified | Partially Verified | Rejected | Requires Resubmission
+  * submittedAt
+}
+
+entity "verificationReports" as vr {
+  * _id <<PK>>
+  --
+  * submissionId <<FK submissions>>
+  * taskId <<FK tasks>>
+  * status
+  findings
+  issues
+  recommendations
+  modelVersion, promptVersion
+  * createdAt
+}
+
+entity "verificationReports.criteriaEvaluations[ ]" as ce <<embedded>> {
+  * criterion
+  * result : met | partially met | not met | insufficient evidence
+  evidenceReferences[ ]
+}
+
+entity "verificationReports.supervisorReview" as sr <<embedded>> {
+  * decision
+  * reason
+  * by <<FK users>>
+  * at
+}
+
+entity "completionReports" as cr {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  evaluation
+  pendingItems[ ]
+  eligibleMembers[ ] <<FK users>>
+  supervisorDecision
+  * createdAt
+}
+
+entity "certificates" as cert {
+  * _id <<PK>>
+  --
+  * certificateId <<unique>>
+  * userId <<FK users>>
+  * projectId <<FK projects>>
+  * fullName
+  * projectTitle
+  * completionDate
+  * status : valid | revoked
+  * issuedAt
+  * integrityHash
+}
+
+entity "certificateVerifications" as cv {
+  * _id <<PK>>
+  --
+  * certificateId : value entered
+  * result
+  * at
+}
+
+tasks ||--o{ sub : evidence for
+users ||--o{ sub : submittedBy
+projects ||--o{ sub
+sub ||--o{ vr : verified by
+tasks ||--o{ vr
+vr ||..o{ ce : embeds
+vr ||..o| sr : embeds
+users |o--o{ sr : by
+projects ||--o{ cr
+projects ||--o{ cert
+users ||--o{ cert : earns
+cert |o..o{ cv : certificateId
+@enduml

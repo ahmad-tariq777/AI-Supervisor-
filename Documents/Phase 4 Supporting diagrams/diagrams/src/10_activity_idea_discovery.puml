@@ -1,0 +1,70 @@
+@startuml
+!include style.iuml
+title AD-1: Start Project and AI-Guided Idea Discovery (WF-03, WF-04, WF-05)
+|Student|
+start
+:Select Start New Project;
+|System|
+:Show options: find idea using AI or\ncontinue with existing idea;
+|Student|
+if (Chosen option?) then (Find idea using AI)
+  |System|
+  if (AI service available?) then (yes)
+  else (no)
+    :Show AI unavailable message;
+    |Student|
+    :Continue with existing idea;
+    detach
+  endif
+  |AI Supervisor|
+  repeat
+    :Ask next discovery question\n(domain, interests, skills, target users, region,\nbudget, resources, preferences, constraints);
+    |Student|
+    :Answer question;
+    |AI Supervisor|
+    :Update requirement profile;
+  repeat while (Required fields missing?) is (yes)
+  |Student|
+  :Review and update collected information;
+  |System|
+  :Save confirmed profile with project;
+  repeat
+    |AI Supervisor|
+    :Identify relevant real-world problems;
+    :Retrieve passages from papers, reports and websites (RAG);
+    if (Relevant sources found?) then (yes)
+      :Compare existing solutions and limitations;
+      :Evaluate problems from target users' view;
+    else (no)
+      :State that no sources were found;
+    endif
+    |System|
+    :Store findings with references and source links\nlabelled Sourced or AI-generated;
+    |AI Supervisor|
+    :Generate multiple project ideas;
+    :Rank ideas by six SRS criteria;
+    |Student|
+    :View and compare ideas;
+  repeat while (Profile changed and new ideas requested?) is (yes)
+  if (Select a recommended idea?) then (yes)
+    |System|
+    :Save selected idea;
+  else (no, submit own idea)
+    |Student|
+    :Enter idea title and description;
+    |System|
+    :Validate that an idea was provided;
+    :Save idea marked student-submitted;
+  endif
+else (Continue with existing idea)
+  |System|
+  :Show idea submission form\n(skip discovery questionnaire);
+  |Student|
+  :Enter idea title and description;
+  |System|
+  :Validate that an idea was provided;
+  :Save idea marked student-submitted;
+endif
+:Forward idea to Project Analysis and Planning;
+stop
+@enduml

@@ -1,0 +1,75 @@
+@startuml
+!include style.iuml
+title ER-0: MongoDB Collection Overview and References
+hide circle
+skinparam linetype ortho
+skinparam entity {
+  FontSize 13
+}
+entity users
+entity projects
+entity discoveryProfiles
+entity researchFindings
+entity ideas
+entity requirements
+entity timelines
+entity teams
+entity invitations
+entity phases
+entity sprints
+entity tasks
+entity taskHistory
+entity blockers
+entity submissions
+entity verificationReports
+entity progressSnapshots
+entity aiRecommendations
+entity notifications
+entity completionReports
+entity certificates
+entity certificateVerifications
+entity auditLogs
+entity aiJobs
+entity aiInteractionLogs
+entity aiConfigurations
+entity systemSettings
+
+users ||--o{ projects : creatorId
+users |o--o{ projects : supervisorId
+projects ||--o| teams : projectId
+users ||--o{ teams : leaderId
+projects ||--o{ invitations
+users ||--o{ invitations : inviterId
+users ||--o{ invitations : inviteeId
+projects ||--o| discoveryProfiles
+projects ||--o{ researchFindings
+projects ||--o{ ideas
+projects |o--o| ideas : selectedIdeaId
+projects ||--o{ requirements
+projects |o--o| requirements : baselineRequirementsId
+projects ||--o{ timelines
+projects |o--o| timelines : approvedTimelineId
+projects ||--o{ phases
+phases ||--o{ sprints
+phases ||--o{ tasks
+sprints |o--o{ tasks
+users |o--o{ tasks : assigneeId
+tasks ||--o{ taskHistory
+tasks ||--o{ blockers
+tasks ||--o{ submissions
+submissions ||--o{ verificationReports
+projects ||--o{ progressSnapshots
+projects ||--o{ aiRecommendations
+users ||--o{ notifications
+projects |o--o{ notifications
+projects ||--o{ completionReports
+projects ||--o{ certificates
+users ||--o{ certificates
+certificates |o..o{ certificateVerifications : certificateId
+users |o--o{ auditLogs : actorId
+aiJobs ||--o| aiInteractionLogs : jobId
+aiJobs |o--o{ researchFindings : jobId
+projects |o--o{ aiJobs
+users |o--o{ aiJobs : requestedBy
+users |o--o{ aiConfigurations : updatedBy
+@enduml

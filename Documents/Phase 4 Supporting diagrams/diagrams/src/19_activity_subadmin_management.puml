@@ -1,0 +1,41 @@
+@startuml
+!include style.iuml
+title AD-10: User Role Management and Sub Admin Promotion or Demotion (WF-22, WF-23)
+|Super Admin|
+start
+:Search and select a user;
+if (Action?) then (Promote to Sub Admin)
+  :Choose Promote to Sub Admin;
+  |System|
+  if (User is a registered user?) then (no)
+    :Reject request;
+    stop
+  else (yes)
+  endif
+  :Ask for confirmation;
+  |Super Admin|
+  :Confirm;
+  |System|
+  :Grant Sub Admin privileges;
+elseif (Demote Sub Admin) then
+  :Choose Demote;
+  |System|
+  :Ask for confirmation;
+  |Super Admin|
+  :Confirm;
+  |System|
+  :Remove Sub Admin privileges immediately;
+  :Return user to Student role;
+elseif (Activate or deactivate account) then
+  |System|
+  :Apply status;
+  :Reject sessions of deactivated user;
+else (Assign or update role)
+  |System|
+  :Apply role from next authorization check;
+endif
+:Log actor, target, old and new values and time;
+|Super Admin|
+:Review role change records;
+stop
+@enduml

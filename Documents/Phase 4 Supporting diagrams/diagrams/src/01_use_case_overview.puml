@@ -1,0 +1,78 @@
+@startuml
+!include style.iuml
+title UC-0: System Use Case Overview - AI Project Supervisor (Module 1)
+left to right direction
+
+actor "Student" as S
+actor "Team Leader" as TL
+actor "Team Member" as TM
+actor "Supervisor" as SV
+actor "Super Admin" as SA
+actor "Sub Admin" as SB
+actor "AI Supervisor\n<<system>>" as AI
+actor "GitHub\n<<external>>" as GH
+actor "External Research\nSources\n<<external>>" as EXT
+
+S <|-- TL
+
+rectangle "AI Project Supervisor" {
+  usecase "Register, Log In and\nManage Profile" as A1
+  usecase "Discover or Submit\nProject Idea" as A2
+  usecase "Analyze and Plan Project" as A3
+  usecase "Form and Manage Team" as A4
+  usecase "Generate and Manage\nExecution Plan" as A5
+  usecase "Monitor Progress and\nHandle Blockers" as A6
+  usecase "Submit and Verify\nDeliverables" as A7
+  usecase "Complete Project and\nObtain Certificate" as A8
+  usecase "Verify Certificate" as A9
+  usecase "Manage Users, Roles and\nSub Admins" as A10
+  usecase "Oversee Platform" as A11
+  usecase "Configure AI Services" as A12
+  usecase "Manage Platform Operations\nand Certificate Records" as A13
+}
+
+S -- A1
+TM -- A1
+SV -- A1
+
+A1 -- SB
+S -- A2
+A1 -- SA
+A1 -- SB
+S -- A3
+SV -- A3
+S -- A4
+TM -- A4
+SV -- A4
+TL -- A5
+S -- A5
+TM -- A5
+SV -- A5
+S -- A6
+TM -- A6
+SV -- A6
+A6 -- SB
+S -- A7
+TM -- A7
+SV -- A7
+S -- A8
+TM -- A8
+SV -- A8
+S -- A9
+TM -- A9
+SV -- A9
+A9 -- SA
+A9 -- SB
+A10 -- SA
+A11 -- SA
+A12 -- SB
+A13 -- SB
+A2 -- AI
+A3 -- AI
+A5 -- AI
+A6 -- AI
+A7 -- AI
+A8 -- AI
+A2 -- EXT
+A7 -- GH
+@enduml

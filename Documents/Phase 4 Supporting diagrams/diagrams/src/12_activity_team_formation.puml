@@ -1,0 +1,48 @@
+@startuml
+!include style.iuml
+title AD-3: Team Formation and Invitations (WF-08)
+|Student (Creator)|
+start
+:Choose individual or team-based development;
+|System|
+if (Team-based?) then (no)
+  :Student remains sole participant;
+  stop
+else (yes)
+  :Create team;
+  :Set project creator as Team Leader;
+endif
+repeat
+  |Team Leader|
+  :Select registered student to invite;
+  |System|
+  :Create invitation with status Pending;
+  :Notify invitee;
+  |Invitee|
+  :Open invitation;
+  if (Accept invitation?) then (accept)
+    |System|
+    :Set invitation Accepted;
+    :Add student to team members;
+  else (reject)
+    |System|
+    :Set invitation Rejected;
+    :Notify Team Leader\n(no membership created);
+  endif
+  |Team Leader|
+repeat while (Invite another student?) is (yes)
+:View team members and membership status;
+if (Change team?) then (remove member)
+  |System|
+  :Remove member subject to project rules\nand supervisor oversight;
+  :Record removal;
+elseif (Designate another Team Leader) then
+  |System|
+  :Transfer leadership so exactly one\nTeam Leader exists;
+  :Record change;
+else (no change)
+endif
+|Team Leader|
+:Open responsibilities view;
+stop
+@enduml

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+ai-service/ml_data/vector_store/
+*.log
+.DS_Store
+.idea/
+.vscode/

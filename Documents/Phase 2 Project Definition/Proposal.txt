@@ -1,0 +1,37 @@
+An AI-Powered Platform for Project Idea Discovery, Planning, Progress Monitoring and
+Certification
+Goal: To guide students through their entire project journey, from idea discovery and planning
+to progress tracking, evidence-based verification and a verifiable completion certificate, using an
+AI supervisor.
+Overview: AI Project Supervisor is a web-based platform that acts as a virtual supervisor for student
+projects. It guides students from finding a project idea, through analysis, planning and execution, to
+monitored progress, verified delivery and a completion certificate.
+Objective: To build an AI supervisor that helps students discover and validate project ideas, plan them
+with clear tasks and deadlines, track progress, verify submitted deliverables against acceptance criteria, and
+issue a verifiable project completion certificate.
+Motivation: Students often struggle to choose a viable idea, plan realistically and coordinate in teams,
+while supervisors cannot monitor every project continuously. Running a small language model locally
+keeps the solution affordable and private.
+Scope of the Project: Students without an idea are guided by AI through their domain, interests, skills
+and resources, and receive ranked, researched ideas; students with an idea enter it directly. The AI then
+analyzes requirements, recommends a methodology (Agile/Scrum, Kanban or Waterfall), builds a timeline
+and execution plan, supports individual or team work, tracks progress and delays, and verifies GitHub-
+based deliverables before a certificate is generated.
+Target Users: Students working individually or in teams, team leaders, and project supervisors.
+Tools & Technologies Used: Ollama (model runner), Llama 3.2 3B (small language model), Node.js,
+Express, MongoDB, Python, Scikit-learn, LangChain or LlamaIndex (RAG), GitHub.
+Expected Outcomes/Result: An intelligent web-based AI supervisor that helps students find ideas, plan
+and execute projects, monitors their progress, verifies submitted work and issues verifiable completion
+certificates.
+Future Scope: Support for additional evidence sources, supervisor analytics dashboards, multilingual
+support and further modules of the platform.
+Which real world problem shall be solved by this project?
+Students lack guided support in choosing a project idea, planning it realistically, coordinating their team
+and staying on schedule, and supervisors have no scalable way to track progress or verify that submitted
+work meets requirements. This project provides an AI supervisor that guides, tracks and verifies student
+projects from start to certified completion.
+Development Related Information:
+Tools: Visual Studio Code, Python, Node.js, Ollama, Git/GitHub
+DBMS: MongoDB
+Platform: Web (Windows/Linux)
+

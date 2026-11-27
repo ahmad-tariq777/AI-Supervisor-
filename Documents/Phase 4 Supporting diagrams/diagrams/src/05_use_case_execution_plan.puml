@@ -1,0 +1,64 @@
+@startuml
+!include style.iuml
+title UC-4: Component 3 - AI-Generated Project Execution Plan
+left to right direction
+
+actor "Student" as S
+actor "Team Leader" as TL
+actor "Team Member" as TM
+actor "Supervisor" as SV
+actor "AI Supervisor\n<<system>>" as AI
+
+S <|-- TL
+
+rectangle "AI Project Supervisor" {
+  usecase "Generate Execution Plan" as U40
+  usecase "Generate Project Phases" as U41
+  usecase "Generate Sprints" as U42
+  usecase "Generate Tasks" as U43
+  usecase "Recommend Task\nAssignments" as U44
+  usecase "View Execution Plan" as U45
+  usecase "Assign or Reassign Tasks" as U46
+  usecase "Modify AI-Recommended\nAssignments" as U47
+  usecase "Modify Task Priorities\nand Deadlines" as U48
+  usecase "Request Plan Adjustment" as U49
+  usecase "Recommend Plan Changes" as U50
+  usecase "View Assigned Tasks" as U51
+  usecase "Update Task Status" as U52
+}
+
+U40 -- AI
+U44 -- AI
+U50 -- AI
+TL -- U46
+TL -- U48
+TL -- U49
+S -- U45
+S -- U51
+S -- U52
+TM -- U45
+TM -- U51
+TM -- U52
+SV -- U45
+SV -- U46
+
+U40 ..> U41 : <<include>>
+U40 ..> U43 : <<include>>
+U42 .> U40 : <<extend>>
+U47 .> U46 : <<extend>>
+U46 ..> U44 : <<include>>
+U49 ..> U50 : <<include>>
+
+note bottom of U42
+  Only when the approved methodology
+  is Agile/Scrum. Kanban and Waterfall
+  use their own planning structure.
+end note
+
+note bottom of U46
+  Supervisor role: Review only
+  (RBAC matrix). Task update by
+  Student and Team Member is Limited
+  to tasks assigned to them.
+end note
+@enduml

@@ -1,0 +1,65 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-2: AI Idea Discovery - Research and Ranked Ideas (WF-04, asynchronous job)
+actor "Student" as S
+participant "React SPA" as R
+participant "Express API\n(middleware, discovery)" as A
+participant "AI Gateway" as G
+participant "Python AI Service" as AI
+participant "RAG pipeline" as RAG
+participant "Ollama\n(Llama 3.2 3B)" as O
+database "MongoDB" as DB
+participant "External Research\nSources" as X
+
+S -> R : Request research and ideas
+R -> A : POST /projects/:id/research
+activate A
+A -> A : Authenticate, check role and project membership, validate
+A -> G : Create AI request
+activate G
+G -> G : Build authorized context and remove secrets
+G -> DB : Insert aiJobs (status = queued)
+G --> A : Job ID
+deactivate G
+A --> R : 202 Accepted with job ID
+deactivate A
+loop Until job finishes
+  R -> A : GET /ai-jobs/:id
+  A --> R : Job status
+end
+G -> DB : Set job status = running
+G -> AI : POST /v1/research (envelope with profile)
+activate AI
+AI -> RAG : Formulate queries (topic keywords only)
+RAG -> X : Fetch candidate documents
+X --> RAG : Papers, reports, pages
+RAG -> RAG : Clean, chunk, embed, store vectors
+RAG --> AI : Top relevant chunks with source IDs
+alt No relevant sources
+  AI --> G : Result stating that no sources were found
+else Sources retrieved
+  AI -> O : Generate findings (schema output, retrieved context)
+  O --> AI : Structured findings
+  AI -> AI : Validate schema and cited IDs, attach references, label origin
+  AI --> G : Findings with references
+end
+deactivate AI
+G -> AI : POST /v1/ideas/generate
+activate AI
+AI -> AI : Score ideas (ML model M5)
+AI -> O : Generate ideas with required fields
+O --> AI : Structured ideas
+AI --> G : Ranked ideas
+deactivate AI
+alt Output invalid after one retry or AI unavailable
+  G -> DB : Set job status = failed, write interaction log
+else Valid result
+  G -> DB : Store researchFindings and ideas with projectId
+  G -> DB : Write aiInteractionLogs, set job status = succeeded
+end
+R -> A : GET /ai-jobs/:id then GET /projects/:id/ideas
+A --> R : Stored findings and ranked ideas
+R --> S : Display ideas
+@enduml

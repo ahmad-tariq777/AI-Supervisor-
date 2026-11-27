@@ -1,0 +1,394 @@
+Module 2: Project Analysis and Planning - Directory Structure
+
+AI Project Supervisor (Module 1 of the larger platform) | Based on SRS v1.0 and SDD v1.0 | Draft for review
+
+1. Module summary
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Item                                                             Detail
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  Type                                                             Component 2 of 5
+
+  Purpose                                                          Analyzes the selected idea, defines requirements, scope,
+                                                                   deliverables and acceptance criteria, recommends a methodology,
+                                                                   builds a feasible timeline, and forms the team through
+                                                                   invitations.
+
+  Principal output                                                 Approved requirements baseline, methodology, timeline and
+                                                                   registered team.
+
+  Actors                                                           Student, Team Leader, Team Member (invitee), Supervisor
+                                                                   (reviewer), Sub Admin (administrative resolution), AI Supervisor
+
+  Use cases                                                        UC-04, UC-05, UC-06
+
+  Workflows                                                        WF-06, WF-07, WF-08
+
+  Requirements                                                     FR-REQ-001..010; BR-REQ-1..2; FR-PLN-001..009; BR-PLN-1..2;
+                                                                   FR-TEM-001..008; BR-TEM-1..3; MLR (M1 methodology)
+
+  MongoDB collections                                              requirements, timelines, teams, invitations
+
+  API groups                                                       Requirements; Planning; Teams
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+2. How this module fits the repository
+
+The platform is one Express API (modular monolith), one Python AI service and one React single-page app (SDD 6.2). This module is
+therefore a set of folders inside those three applications, not a separate application. Each backend module folder holds its own
+routes, controller, service, validators and models (SDD 6.5).
+
+-   Backend (Node.js + Express): backend/
+-   AI service (Python + FastAPI, Ollama, Scikit-learn, RAG): ai-service/
+-   Frontend (React): frontend/
+
+3. Backend directory structure
+
+3.1 Node.js + Express API
+
+    backend/
+    ├── src/
+    │   └── modules/
+    │       ├── planning/
+    │       │   ├── inputValidation.js
+    │       │   ├── planning.controller.js
+    │       │   ├── planning.routes.js
+    │       │   ├── planning.service.js
+    │       │   ├── planning.validators.js
+    │       │   ├── timeline.model.js
+    │       │   └── timelineValidator.js
+    │       ├── requirements/
+    │       │   ├── requirement.model.js
+    │       │   ├── requirements.controller.js
+    │       │   ├── requirements.routes.js
+    │       │   ├── requirements.service.js
+    │       │   └── requirements.validators.js
+    │       └── teams/
+    │           ├── invitation.model.js
+    │           ├── team.model.js
+    │           ├── teams.controller.js
+    │           ├── teams.routes.js
+    │           ├── teams.service.js
+    │           └── teams.validators.js
+    └── tests/
+        └── analysis-planning/
+            ├── planning.test.js
+            ├── requirements.test.js
+            └── teams.test.js
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  src/modules/requirements/requirements.routes.js                  analyze, GET/PUT requirements, approve
+
+  src/modules/requirements/requirements.controller.js              HTTP layer
+
+  src/modules/requirements/requirements.service.js                 Analysis job, clarification Q&A, edit, versioned baseline,
+                                                                   re-approval trigger (FR-REQ-010)
+
+  src/modules/requirements/requirements.validators.js              Request schemas
+
+  src/modules/requirements/requirement.model.js                    requirements collection (version, status draft/approved)
+
+  src/modules/planning/planning.routes.js                          planning inputs, methodology, timeline, timeline approve
+
+  src/modules/planning/planning.controller.js                      HTTP layer
+
+  src/modules/planning/planning.service.js                         Inputs, methodology and timeline jobs, approval
+
+  src/modules/planning/inputValidation.js                          Planning-input checks, e.g. deadline in the future (FR-PLN-002)
+
+  src/modules/planning/timelineValidator.js                        Checks returned dates against deadline and working days
+
+  src/modules/planning/planning.validators.js                      Request schemas
+
+  src/modules/planning/timeline.model.js                           timelines collection
+
+  src/modules/teams/teams.routes.js                                team, invitations, accept/reject, remove member, transfer leader
+
+  src/modules/teams/teams.controller.js                            HTTP layer
+
+  src/modules/teams/teams.service.js                               Create team, invite, respond, remove, leader transfer (exactly
+                                                                   one leader)
+
+  src/modules/teams/teams.validators.js                            Request schemas
+
+  src/modules/teams/team.model.js                                  teams collection (projectId unique, leaderId, members)
+
+  src/modules/teams/invitation.model.js                            invitations collection (pending, accepted, rejected)
+
+  tests/analysis-planning/requirements.test.js                     Baseline versioning and approval tests
+
+  tests/analysis-planning/planning.test.js                         Inputs, feasibility and approval tests
+
+  tests/analysis-planning/teams.test.js                            Invitation and leader-transfer tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+3.2 Python AI service
+
+    ai-service/
+    ├── app/
+    │   ├── ml/
+    │   │   └── methodology/
+    │   │       ├── __init__.py
+    │   │       ├── evaluate.py
+    │   │       ├── fallback_rules.py
+    │   │       ├── features.py
+    │   │       ├── generate_synthetic.py
+    │   │       ├── predict.py
+    │   │       └── train.py
+    │   └── modules/
+    │       ├── planning/
+    │       │   ├── prompts/
+    │       │   │   ├── methodology_rationale_v1.txt
+    │       │   │   └── timeline_draft_v1.txt
+    │       │   ├── __init__.py
+    │       │   ├── feasibility.py
+    │       │   ├── router.py
+    │       │   ├── scheduling.py
+    │       │   ├── schemas.py
+    │       │   └── service.py
+    │       └── requirements/
+    │           ├── prompts/
+    │           │   ├── clarification_questions_v1.txt
+    │           │   ├── requirements_analysis_v1.txt
+    │           │   └── scope_acceptance_criteria_v1.txt
+    │           ├── __init__.py
+    │           ├── router.py
+    │           ├── schemas.py
+    │           └── service.py
+    ├── ml_data/
+    │   └── methodology/
+    │       └── .gitkeep
+    ├── ml_models/
+    │   └── M1_methodology/
+    │       └── .gitkeep
+    └── tests/
+        └── analysis-planning/
+            ├── test_methodology.py
+            └── test_scheduling.py
+
+  ------------------------------------------------------------------------------------------------------------------------------------
+  File                                                                Responsibility
+  ------------------------------------------------------------------- ----------------------------------------------------------------
+  app/modules/requirements/__init__.py                                Package marker
+
+  app/modules/requirements/router.py                                  POST /v1/requirements/analyze
+
+  app/modules/requirements/schemas.py                                 Requirements, scope, deliverables, criteria, questions
+
+  app/modules/requirements/service.py                                 One task per model call
+
+  app/modules/requirements/prompts/requirements_analysis_v1.txt       Functional, non-functional, constraints, objectives
+
+  app/modules/requirements/prompts/clarification_questions_v1.txt     Missing or unclear requirements
+
+  app/modules/requirements/prompts/scope_acceptance_criteria_v1.txt   Scope, measurable deliverables, acceptance criteria
+
+  app/modules/planning/__init__.py                                    Package marker
+
+  app/modules/planning/router.py                                      POST /v1/planning/methodology, /v1/planning/timeline
+
+  app/modules/planning/schemas.py                                     Methodology and timeline schemas
+
+  app/modules/planning/service.py                                     Combines M1, effort model, scheduling code and the language
+                                                                      model
+
+  app/modules/planning/scheduling.py                                  Deterministic dates and durations; the model never computes
+                                                                      dates (FR-PLN-005)
+
+  app/modules/planning/feasibility.py                                 Flags unrealistic deadlines and proposes adjustments
+                                                                      (FR-PLN-006/007)
+
+  app/modules/planning/prompts/methodology_rationale_v1.txt           Explains the recommended methodology
+
+  app/modules/planning/prompts/timeline_draft_v1.txt                  Phases, milestones, dependencies
+
+  app/ml/methodology/__init__.py                                      Package marker
+
+  app/ml/methodology/features.py                                      Team size, weeks, hours, complexity, requirement count, skill
+                                                                      coverage, constraints
+
+  app/ml/methodology/generate_synthetic.py                            Synthetic scenarios from agreed methodology rules
+
+  app/ml/methodology/train.py                                         M1 training: Decision Tree or Random Forest in a Scikit-learn
+                                                                      Pipeline
+
+  app/ml/methodology/evaluate.py                                      Stratified k-fold, macro F1, confusion matrix
+
+  app/ml/methodology/predict.py                                       Agile/Scrum, Kanban or Waterfall with probabilities
+
+  app/ml/methodology/fallback_rules.py                                Rule-based default (MLR-002)
+
+  ml_models/M1_methodology/.gitkeep                                   Versioned M1 artifacts
+
+  ml_data/methodology/.gitkeep                                        M1 training data
+
+  tests/analysis-planning/test_methodology.py                         M1 and fallback tests
+
+  tests/analysis-planning/test_scheduling.py                          Date computation and feasibility tests
+  ------------------------------------------------------------------------------------------------------------------------------------
+
+4. Frontend directory structure (React)
+
+    frontend/
+    └── src/
+        └── features/
+            └── analysis-planning/
+                ├── __tests__/
+                │   └── analysisPlanning.test.jsx
+                ├── api/
+                │   ├── planningApi.js
+                │   ├── requirementsApi.js
+                │   └── teamsApi.js
+                ├── components/
+                │   ├── AcceptanceCriteriaList.jsx
+                │   ├── ApprovalPanel.jsx
+                │   ├── ClarificationPanel.jsx
+                │   ├── FeasibilityAlert.jsx
+                │   ├── InviteMembersDialog.jsx
+                │   ├── MemberList.jsx
+                │   ├── MethodologyCard.jsx
+                │   ├── PlanningInputsForm.jsx
+                │   ├── RemoveMemberDialog.jsx
+                │   ├── RequirementEditor.jsx
+                │   ├── ScopeDeliverablesView.jsx
+                │   ├── TimelineView.jsx
+                │   └── TransferLeaderDialog.jsx
+                ├── hooks/
+                │   ├── usePlanning.js
+                │   ├── useRequirementAnalysis.js
+                │   └── useTeam.js
+                ├── pages/
+                │   ├── BaselineHistoryPage.jsx
+                │   ├── InvitationsPage.jsx
+                │   ├── MethodologyTimelinePage.jsx
+                │   ├── PlanningInputsPage.jsx
+                │   ├── RequirementAnalysisPage.jsx
+                │   ├── RequirementReviewPage.jsx
+                │   └── TeamPage.jsx
+                └── routes.jsx
+
+  ---------------------------------------------------------------------------------------------------------------------------------------
+  File                                                                   Responsibility
+  ---------------------------------------------------------------------- ----------------------------------------------------------------
+  src/features/analysis-planning/routes.jsx                              Route table of this module
+
+  src/features/analysis-planning/api/requirementsApi.js                  Requirements API calls
+
+  src/features/analysis-planning/api/planningApi.js                      Planning API calls
+
+  src/features/analysis-planning/api/teamsApi.js                         Team and invitation API calls
+
+  src/features/analysis-planning/hooks/useRequirementAnalysis.js         Analysis job and clarification loop
+
+  src/features/analysis-planning/hooks/usePlanning.js                    Inputs, methodology, timeline
+
+  src/features/analysis-planning/hooks/useTeam.js                        Team, members, invitations
+
+  src/features/analysis-planning/pages/RequirementAnalysisPage.jsx       Analysis results and clarification questions (WF-06)
+
+  src/features/analysis-planning/pages/RequirementReviewPage.jsx         Edit and approve the baseline; Supervisor review view
+
+  src/features/analysis-planning/pages/BaselineHistoryPage.jsx           Versioned baselines
+
+  src/features/analysis-planning/pages/PlanningInputsPage.jsx            Deadline, hours, team size, skills, complexity (WF-07)
+
+  src/features/analysis-planning/pages/MethodologyTimelinePage.jsx       Methodology with rationale; timeline; approve
+
+  src/features/analysis-planning/pages/TeamPage.jsx                      Members, status, responsibilities (WF-08)
+
+  src/features/analysis-planning/pages/InvitationsPage.jsx               My invitations: accept or reject
+
+  src/features/analysis-planning/components/ClarificationPanel.jsx       Questions and answers
+
+  src/features/analysis-planning/components/RequirementEditor.jsx        Edit requirements by category
+
+  src/features/analysis-planning/components/ScopeDeliverablesView.jsx    Scope and measurable deliverables
+
+  src/features/analysis-planning/components/AcceptanceCriteriaList.jsx   Criteria per deliverable
+
+  src/features/analysis-planning/components/ApprovalPanel.jsx            Approve; Team Leader approves in team projects
+
+  src/features/analysis-planning/components/PlanningInputsForm.jsx       Inputs pre-filled from profile skills
+
+  src/features/analysis-planning/components/MethodologyCard.jsx          Recommendation, probabilities, rationale
+
+  src/features/analysis-planning/components/TimelineView.jsx             Phases, milestones, dependencies; labelled as estimates
+
+  src/features/analysis-planning/components/FeasibilityAlert.jsx         Unrealistic deadline and suggested adjustments
+
+  src/features/analysis-planning/components/InviteMembersDialog.jsx      Invite registered students
+
+  src/features/analysis-planning/components/MemberList.jsx               Team members and membership status
+
+  src/features/analysis-planning/components/TransferLeaderDialog.jsx     Designate another leader
+
+  src/features/analysis-planning/components/RemoveMemberDialog.jsx       Remove a member with recorded reason
+
+  src/features/analysis-planning/__tests__/analysisPlanning.test.jsx     Approval, planning and invitation tests
+  ---------------------------------------------------------------------------------------------------------------------------------------
+
+5. API endpoints (SDD Table 33, prefix /api/v1)
+
+Roles: S Student, TL Team Leader, TM Team Member, SV Supervisor, SA Super Admin, SB Sub Admin.
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Roles
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /projects/:id/requirements/analyze;    Analyze, edit, approve baseline             S, TL; SV (review)
+  GET and PUT /projects/:id/requirements;                                                 
+  POST /projects/:id/requirements/approve                                                 
+
+  POST /projects/:id/planning/inputs; POST    Planning inputs, methodology, timeline,     S, TL
+  /projects/:id/planning/methodology; POST    approval                                    
+  /projects/:id/planning/timeline; POST                                                   
+  /projects/:id/planning/timeline/approve                                                 
+
+  POST /projects/:id/team; POST               Create team; invite; respond; remove        S, TL; invitee for responses; SB
+  /projects/:id/team/invitations; GET         member; transfer leadership                 (administrative resolution)
+  /invitations/me; POST                                                                   
+  /invitations/:id/accept and /reject; DELETE                                             
+  /projects/:id/team/members/:userId; POST                                                
+  /projects/:id/team/leader                                                               
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+6. AI service endpoints (SDD Table 29, internal)
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Uses
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /v1/requirements/analyze               Requirements, scope, deliverables,          Language model
+                                              acceptance criteria, questions              
+
+  POST /v1/planning/methodology               Methodology recommendation with rationale   M1, language model
+
+  POST /v1/planning/timeline                  Timeline draft and feasibility result       M2, language model, scheduling code
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+7. Dependencies on other modules
+
+-   Module 0: authentication, project context, aiGateway jobs, notifications (invitations), audit.
+-   Module 1: consumes projects.selectedIdeaId.
+-   Module 3: the approved baseline and approved timeline are the preconditions for plan generation (FR-EXE-001).
+-   The effort-estimation model M2 is owned by Module 3 and is also called by /v1/planning/timeline.
+
+8. Notes, assumptions and open points
+
+-   Order conflict recorded in SDD Appendix A, item 6: the SRS lists timeline planning before team formation, but team size and
+    member skills are planning inputs. Either start team formation before planning inputs, or accept a provisional team size that
+    is updated when invitations are accepted (BR-PLN-2).
+-   SDD Table 33 has no endpoint for answering clarification questions (FR-REQ-004). Proposal: send the answers in the body of
+    POST /requirements/analyze, or add a dedicated answers endpoint (to be confirmed).
+-   Sub Admin team actions are limited to administrative resolution, not ordinary team creation (SDD Appendix A, item 9).
+-   A change to approved requirements requires re-approval and triggers a review of the timeline and plan (FR-REQ-010, BR-REQ-2).
+-   Team members cannot modify the approved timeline (FR-PLN-008).
+
+9. Suggested build order
+
+1.  Teams and invitations (they feed planning inputs), with notifications.
+2.  Requirements analysis endpoint, clarification loop, edit, approval and versioned baseline.
+3.  Planning inputs and validation; scheduling.py and feasibility.py.
+4.  M1: synthetic data, training, evaluation, predict, fallback.
+5.  Methodology and timeline jobs; approval.
+6.  Frontend pages in the same order; Supervisor review view.

@@ -1,0 +1,62 @@
+@startuml
+!include style.iuml
+title UC-7: Platform Administration (Super Admin and Sub Admin)
+left to right direction
+
+actor "Super Admin" as SA
+actor "Sub Admin" as SB
+
+rectangle "AI Project Supervisor" {
+  usecase "Log In" as U100
+  usecase "Manage User Accounts\n(view, search, activate, deactivate)" as U101
+  usecase "Assign and Update User Roles" as U102
+  usecase "Promote User to Sub Admin" as U103
+  usecase "Demote Sub Admin" as U104
+  usecase "Review Role Change and\nSub Admin Activity Records" as U105
+  usecase "Log Administrative Action" as U106
+  usecase "Inspect Projects, Teams, Tasks,\nEvidence and Verification Reports" as U107
+  usecase "Inspect AI Configuration,\nService Status and Logs" as U108
+  usecase "View Usage Statistics\nand System Reports" as U109
+  usecase "Monitor Projects and Teams" as U110
+  usecase "Manage Invalid Project Records" as U111
+  usecase "Configure AI Services" as U112
+  usecase "Configure Ollama Connection\nand RAG Settings" as U113
+  usecase "Monitor AI Errors\nand Performance" as U114
+  usecase "Manage Platform Settings\nand Notifications" as U115
+  usecase "Monitor System Logs and\nDatabase and Backend Health" as U116
+}
+
+SA -- U100
+SA -- U101
+SA -- U102
+SA -- U103
+SA -- U104
+SA -- U105
+SA -- U107
+SA -- U108
+SA -- U109
+SB -- U100
+SB -- U109
+SB -- U110
+SB -- U111
+SB -- U112
+SB -- U114
+SB -- U115
+SB -- U116
+
+U101 ..> U106 : <<include>>
+U102 ..> U106 : <<include>>
+U103 ..> U106 : <<include>>
+U104 ..> U106 : <<include>>
+U111 ..> U106 : <<include>>
+U112 ..> U113 : <<include>>
+U112 ..> U106 : <<include>>
+U103 .> U102 : <<extend>>
+U104 .> U102 : <<extend>>
+
+note bottom of U103
+  Only the Super Admin can promote or
+  demote Sub Admins. A Sub Admin cannot
+  manage users or the Super Admin account.
+end note
+@enduml

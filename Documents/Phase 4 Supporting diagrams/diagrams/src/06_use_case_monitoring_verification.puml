@@ -1,0 +1,84 @@
+@startuml
+!include style.iuml
+title UC-5: Component 4 - Progress Monitoring and Deliverable Verification
+left to right direction
+
+actor "Student" as S
+actor "Team Leader" as TL
+actor "Team Member" as TM
+actor "Supervisor" as SV
+actor "AI Supervisor\n<<system>>" as AI
+actor "GitHub\n<<external>>" as GH
+
+S <|-- TL
+
+rectangle "AI Project Supervisor" {
+  usecase "Monitor Project Progress" as U60
+  usecase "Review Team Workload" as U61
+  usecase "Analyze Progress and\nDetect Delays" as U62
+  usecase "Generate Corrective\nRecommendations" as U63
+  usecase "Receive Notifications\nand Alerts" as U64
+  usecase "Accept or Dismiss\nRecommendation" as U65
+  usecase "Report Blocker" as U66
+  usecase "Manage Reported Blockers" as U67
+  usecase "Submit Deliverable" as U68
+  usecase "Provide GitHub\nRepository Link" as U69
+  usecase "Attach Supporting\nEvidence" as U70
+  usecase "Verify Submitted Evidence" as U71
+  usecase "Check Repository\nAccessibility" as U72
+  usecase "Generate Verification\nReport" as U73
+  usecase "View Verification Report" as U74
+  usecase "Resubmit Evidence" as U75
+  usecase "Review Submitted Evidence\nand Reports" as U76
+  usecase "Approve or Reject\nDeliverable" as U77
+  usecase "Override Verification Result\n(with recorded reason)" as U78
+  usecase "Request Resubmission\nand Give Feedback" as U79
+}
+
+S -- U60
+TM -- U60
+SV -- U60
+SV -- U61
+TL -- U61
+S -- U64
+TM -- U64
+TL -- U65
+S -- U66
+TM -- U66
+SV -- U66
+TL -- U67
+S -- U68
+TM -- U68
+S -- U74
+TM -- U74
+S -- U75
+TM -- U75
+TL -- U76
+SV -- U76
+SV -- U77
+SV -- U79
+U62 -- AI
+U63 -- AI
+U71 -- AI
+U73 -- AI
+U72 -- GH
+
+U62 ..> U63 : <<include>>
+U62 ..> U64 : <<include>>
+U68 ..> U69 : <<include>>
+U70 .> U68 : <<extend>>
+U71 ..> U72 : <<include>>
+U71 ..> U73 : <<include>>
+U75 ..> U68 : <<include>>
+U78 .> U76 : <<extend>>
+U77 .> U76 : <<extend>>
+U79 .> U76 : <<extend>>
+U65 .> U63 : <<extend>>
+U67 .> U66 : <<extend>>
+
+note bottom of U71
+  Result is a recommendation, never
+  absolute proof. Inaccessible or insufficient
+  evidence is never treated as Verified.
+end note
+@enduml

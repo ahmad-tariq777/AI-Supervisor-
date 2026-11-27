@@ -1,0 +1,352 @@
+Module 3: AI-Generated Execution Plan - Directory Structure
+
+AI Project Supervisor (Module 1 of the larger platform) | Based on SRS v1.0 and SDD v1.0 | Draft for review
+
+1. Module summary
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Item                                                             Detail
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  Type                                                             Component 3 of 5
+
+  Purpose                                                          Divides the approved project into phases, sprints (Agile/Scrum
+                                                                   only) and tasks, recommends assignments and priorities, enforces
+                                                                   task status rules and dependencies, keeps the task history, and
+                                                                   applies plan adjustments.
+
+  Principal output                                                 Phases, sprints and tasks with owners, priorities and deadlines.
+
+  Actors                                                           Team Leader, Student, Team Member, Supervisor (view), Sub Admin
+                                                                   (view), AI Supervisor
+
+  Use cases                                                        UC-07, UC-08, UC-09
+
+  Workflows                                                        WF-09, WF-10, WF-11, WF-18
+
+  Requirements                                                     FR-EXE-001..022; BR-EXE-1..8; MLR (M2 effort, M3 assignment)
+
+  MongoDB collections                                              phases, sprints, tasks, taskHistory
+
+  API groups                                                       Execution plan; Tasks; Plan adjustment
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+2. How this module fits the repository
+
+The platform is one Express API (modular monolith), one Python AI service and one React single-page app (SDD 6.2). This module is
+therefore a set of folders inside those three applications, not a separate application. Each backend module folder holds its own
+routes, controller, service, validators and models (SDD 6.5).
+
+-   Backend (Node.js + Express): backend/
+-   AI service (Python + FastAPI, Ollama, Scikit-learn, RAG): ai-service/
+-   Frontend (React): frontend/
+
+3. Backend directory structure
+
+3.1 Node.js + Express API
+
+    backend/
+    ├── src/
+    │   └── modules/
+    │       └── execution/
+    │           ├── adjustment.service.js
+    │           ├── assignment.service.js
+    │           ├── execution.controller.js
+    │           ├── execution.routes.js
+    │           ├── execution.service.js
+    │           ├── execution.validators.js
+    │           ├── phase.model.js
+    │           ├── planGenerator.service.js
+    │           ├── planValidator.js
+    │           ├── rollup.service.js
+    │           ├── sprint.model.js
+    │           ├── task.model.js
+    │           ├── taskHistory.model.js
+    │           ├── taskHistory.service.js
+    │           └── taskStatus.js
+    └── tests/
+        └── execution-plan/
+            ├── assignment.test.js
+            ├── planValidator.test.js
+            └── taskStatus.test.js
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  src/modules/execution/execution.routes.js                        plan, phases, sprints, tasks, assign, status, history,
+                                                                   adjustments
+
+  src/modules/execution/execution.controller.js                    HTTP layer
+
+  src/modules/execution/execution.service.js                       Reads the plan; edits tasks, priorities and deadlines
+
+  src/modules/execution/planGenerator.service.js                   Requires approved baseline and timeline; starts the job; stores
+                                                                   the plan
+
+  src/modules/execution/planValidator.js                           Mandatory fields, no dependency cycle, dates inside phase and
+                                                                   timeline (FR-EXE-011)
+
+  src/modules/execution/taskStatus.js                              Status transitions: To Do, In Progress, Under Review, Completed,
+                                                                   Blocked (FR-EXE-010)
+
+  src/modules/execution/assignment.service.js                      AI recommendation, manual assign/reassign, assignmentSource
+                                                                   (FR-EXE-012..014)
+
+  src/modules/execution/taskHistory.service.js                     Append-only history of status and assignment changes
+                                                                   (FR-EXE-017)
+
+  src/modules/execution/adjustment.service.js                      Plan adjustment after a change; previous plan and completed work
+                                                                   stay recorded (FR-EXE-020)
+
+  src/modules/execution/rollup.service.js                          Completion status of sprints, phases and project from tasks
+                                                                   (FR-EXE-022)
+
+  src/modules/execution/execution.validators.js                    Request schemas
+
+  src/modules/execution/phase.model.js                             phases collection
+
+  src/modules/execution/sprint.model.js                            sprints collection (Agile/Scrum only)
+
+  src/modules/execution/task.model.js                              tasks collection
+
+  src/modules/execution/taskHistory.model.js                       taskHistory collection
+
+  tests/execution-plan/planValidator.test.js                       Cycle, field and date validation tests
+
+  tests/execution-plan/taskStatus.test.js                          Transition and dependency-gating tests
+
+  tests/execution-plan/assignment.test.js                          Assignment source and override tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+3.2 Python AI service
+
+    ai-service/
+    ├── app/
+    │   ├── ml/
+    │   │   ├── assignment/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── scoring.py
+    │   │   │   ├── skill_taxonomy.json
+    │   │   │   └── weights.json
+    │   │   └── effort_estimation/
+    │   │       ├── __init__.py
+    │   │       ├── evaluate.py
+    │   │       ├── fallback_rules.py
+    │   │       ├── features.py
+    │   │       ├── predict.py
+    │   │       └── train.py
+    │   └── modules/
+    │       ├── assignments/
+    │       │   ├── prompts/
+    │       │   │   └── assignment_rationale_v1.txt
+    │       │   ├── __init__.py
+    │       │   ├── router.py
+    │       │   ├── schemas.py
+    │       │   └── service.py
+    │       └── plan/
+    │           ├── prompts/
+    │           │   ├── plan_phases_v1.txt
+    │           │   ├── plan_sprints_v1.txt
+    │           │   └── plan_tasks_v1.txt
+    │           ├── __init__.py
+    │           ├── router.py
+    │           ├── schemas.py
+    │           └── service.py
+    ├── ml_data/
+    │   └── effort/
+    │       └── .gitkeep
+    ├── ml_models/
+    │   └── M2_effort/
+    │       └── .gitkeep
+    └── tests/
+        └── execution-plan/
+            ├── test_assignment_scoring.py
+            └── test_effort_estimation.py
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  app/modules/plan/__init__.py                                     Package marker
+
+  app/modules/plan/router.py                                       POST /v1/plan/generate
+
+  app/modules/plan/schemas.py                                      Phase, sprint and task schemas
+
+  app/modules/plan/service.py                                      Phases, then sprints (Agile/Scrum), then tasks; effort from M2
+
+  app/modules/plan/prompts/plan_phases_v1.txt                      Phases with objectives and completion criteria
+
+  app/modules/plan/prompts/plan_sprints_v1.txt                     Sprints for Agile/Scrum projects
+
+  app/modules/plan/prompts/plan_tasks_v1.txt                       Tasks with description, priority, criteria
+
+  app/modules/assignments/__init__.py                              Package marker
+
+  app/modules/assignments/router.py                                POST /v1/assignments/recommend
+
+  app/modules/assignments/schemas.py                               Ranked assignee schema
+
+  app/modules/assignments/service.py                               M3 scoring plus language-model rationale
+
+  app/modules/assignments/prompts/assignment_rationale_v1.txt      Short rationale per recommendation
+
+  app/ml/effort_estimation/__init__.py                             Package marker
+
+  app/ml/effort_estimation/features.py                             TF-IDF text features, type, priority, dependencies, complexity
+
+  app/ml/effort_estimation/train.py                                M2 training: Random Forest or Gradient Boosting regressor
+
+  app/ml/effort_estimation/evaluate.py                             MAE, RMSE, R2 on a held-out test set
+
+  app/ml/effort_estimation/predict.py                              Estimated effort in hours
+
+  app/ml/effort_estimation/fallback_rules.py                       Rule-based default (MLR-002)
+
+  app/ml/assignment/__init__.py                                    Package marker
+
+  app/ml/assignment/scoring.py                                     M3: weighted scoring with TF-IDF cosine similarity
+
+  app/ml/assignment/skill_taxonomy.json                            Skill taxonomy
+
+  app/ml/assignment/weights.json                                   Configurable weights
+
+  ml_models/M2_effort/.gitkeep                                     Versioned M2 artifacts
+
+  ml_data/effort/.gitkeep                                          M2 training data
+
+  tests/execution-plan/test_effort_estimation.py                   M2 and fallback tests
+
+  tests/execution-plan/test_assignment_scoring.py                  M3 scoring tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+4. Frontend directory structure (React)
+
+    frontend/
+    └── src/
+        └── features/
+            └── execution-plan/
+                ├── __tests__/
+                │   └── executionPlan.test.jsx
+                ├── api/
+                │   └── executionApi.js
+                ├── components/
+                │   ├── AdjustmentReview.jsx
+                │   ├── AssignmentSelector.jsx
+                │   ├── DependencyView.jsx
+                │   ├── PhaseList.jsx
+                │   ├── SprintPanel.jsx
+                │   ├── TaskBoard.jsx
+                │   ├── TaskCard.jsx
+                │   ├── TaskHistoryTimeline.jsx
+                │   └── TaskStatusSelect.jsx
+                ├── hooks/
+                │   ├── usePlan.js
+                │   └── useTasks.js
+                ├── pages/
+                │   ├── ExecutionPlanPage.jsx
+                │   ├── GeneratePlanPage.jsx
+                │   ├── MyTasksPage.jsx
+                │   ├── PlanAdjustmentPage.jsx
+                │   ├── TaskAssignmentPage.jsx
+                │   └── TaskDetailPage.jsx
+                └── routes.jsx
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  src/features/execution-plan/routes.jsx                           Route table of this module
+
+  src/features/execution-plan/api/executionApi.js                  Plan, task and adjustment API calls
+
+  src/features/execution-plan/hooks/usePlan.js                     Plan loading and generation job
+
+  src/features/execution-plan/hooks/useTasks.js                    Task list, update, status change
+
+  src/features/execution-plan/pages/GeneratePlanPage.jsx           Start generation; job progress (WF-09)
+
+  src/features/execution-plan/pages/ExecutionPlanPage.jsx          Complete structure of phases, sprints, tasks
+
+  src/features/execution-plan/pages/TaskAssignmentPage.jsx         Team Leader accepts, modifies, reassigns (WF-10)
+
+  src/features/execution-plan/pages/MyTasksPage.jsx                Assigned tasks, criteria, priorities, deadlines (WF-11)
+
+  src/features/execution-plan/pages/TaskDetailPage.jsx             Task detail, status update, history
+
+  src/features/execution-plan/pages/PlanAdjustmentPage.jsx         Request and apply plan changes (WF-18)
+
+  src/features/execution-plan/components/PhaseList.jsx             Phases with dependencies and status
+
+  src/features/execution-plan/components/SprintPanel.jsx           Sprint details and progress (Agile/Scrum)
+
+  src/features/execution-plan/components/TaskBoard.jsx             Tasks by status
+
+  src/features/execution-plan/components/TaskCard.jsx              Task summary
+
+  src/features/execution-plan/components/TaskStatusSelect.jsx      Only allowed transitions are offered
+
+  src/features/execution-plan/components/AssignmentSelector.jsx    AI recommendation with rationale; manual override
+
+  src/features/execution-plan/components/TaskHistoryTimeline.jsx   Who, when, old and new value, reason
+
+  src/features/execution-plan/components/DependencyView.jsx        Prerequisite tasks
+
+  src/features/execution-plan/components/AdjustmentReview.jsx      AI-suggested changes before applying
+
+  src/features/execution-plan/__tests__/executionPlan.test.jsx     Plan view, assignment and status tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+5. API endpoints (SDD Table 33, prefix /api/v1)
+
+Roles: S Student, TL Team Leader, TM Team Member, SV Supervisor, SA Super Admin, SB Sub Admin.
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Roles
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /projects/:id/plan/generate; GET       Generate (job) and view the plan            TL generates; S, TM, SV, SB view; SA
+  /projects/:id/plan; GET                                                                 inspect
+  /projects/:id/phases, /sprints, /tasks                                                  
+
+  PATCH /tasks/:id; POST /tasks/:id/assign;   Edit tasks; assign or reassign; update      TL (edit, assign); assignee (status)
+  PATCH /tasks/:id/status; GET                status; read history                        
+  /tasks/:id/history                                                                      
+
+  POST /projects/:id/plan/adjustments         Request and apply plan changes              TL
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+6. AI service endpoints (SDD Table 29, internal)
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Uses
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /v1/plan/generate                      Phases, sprints and tasks                   Language model, M2
+
+  POST /v1/assignments/recommend              Ranked assignees with rationale             M3, language model
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+7. Dependencies on other modules
+
+-   Module 0: authentication, project context, aiGateway, notifications (assignments), audit.
+-   Module 2: approved requirements baseline, approved timeline and methodology, registered team.
+-   Module 4: progress, alerts and verification read tasks; a verification result moves tasks to Completed or back to In Progress
+    (FR-VER-010). Module 4 must call taskStatus.js, not write status directly.
+
+8. Notes, assumptions and open points
+
+-   The SDD does not define where the previous plan version is stored when an adjustment is applied (FR-EXE-020 requires that it
+    remains recorded). No planVersions collection exists in SDD Table 31. Proposal: mark replaced phases, sprints and tasks as
+    superseded and keep them, or add a planVersions collection (to be decided).
+-   Deadline changes: SRS 2.2.3 says Team Leaders modify deadlines, SRS 3.2.2 says they propose them. The design lets the Team
+    Leader apply a change, recorded in task history and visible to the Supervisor; whether Supervisor approval is required is open
+    (SDD Appendix A, item 2).
+-   A task cannot be Completed without meeting its criteria and submission requirements (BR-EXE-7). Task completion normally
+    happens through verification in Module 4 (SDD Appendix A, item 5).
+-   Sprints exist only for Agile/Scrum projects; Kanban and Waterfall use their own structure (FR-EXE-004, FR-EXE-006).
+-   taskHistory is append-only (FR-AUD-002).
+
+9. Suggested build order
+
+1.  Models; task status machine (taskStatus.js) with tests.
+2.  planValidator.js (fields, cycles, dates) with tests.
+3.  M2 effort model; /v1/plan/generate; planGenerator.service.js.
+4.  Task assignment: M3 scoring, assignment.service.js, history.
+5.  Task update endpoints and dependency gating; rollup service.
+6.  Plan adjustment flow; frontend pages in the same order.

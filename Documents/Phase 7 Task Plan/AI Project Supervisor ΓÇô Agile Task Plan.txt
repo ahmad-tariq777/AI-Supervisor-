@@ -1,0 +1,877 @@
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+  AI Project Supervisor – Agile Task Plan
+  Based on SRS v1.0, SDD v1.0 and the Phase 6 module structures | Draft for review
+
+
+  1. How to use this plan
+  This plan breaks the whole project into small tasks grouped into 2-week sprints (Scrum).
+  Every task is meant to take 1 to 5 hours, so one person can finish it in a single sitting and
+  show a working result. If a task grows past 6 hours, split it.
+
+
+     Item                             Rule
+
+     Method                           Agile / Scrum, 2-week sprints, one goal per sprint
+
+     Task size                        1 to 5 hours; one task = one small, testable result
+
+     Types                            BE = backend (Node/Express), FE = frontend
+                                      (React), AI = Python AI service / ML / RAG, OPS =
+                                      setup and deployment, DOC = documents
+
+     Priority                         Must = needed for the project to work, Should =
+                                      important, Could = if time remains
+
+     Board columns                    Backlog, To Do, In Progress, In Review, Done
+
+     Sprint rhythm                    Sprint planning (day 1), short daily check-in, sprint
+                                      review and demo (last day), retrospective
+
+     Order of work                    Foundation first (Module 0), then Modules 1 to 5 in
+                                      lifecycle order, then hardening
+
+
+  Definition of Done (applies to every task):
+
+          Code works locally and follows the folder structure from the Phase 6 module
+          documents.
+          Inputs are validated and errors use the shared error format.
+          A test or a manual check proves it works.
+          Code is merged to the develop branch through a pull request.
+          Any new config value is added to the .env.example file.
+
+  Note: Hours are estimates. Adjust sprint length or scope to your real deadline and team
+  size.
+
+
+
+                                                                                              Page 1 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+  2. Sprint overview
+
+     Sprint           Goal                                                  Module
+
+     0                Setup, skeletons, open decisions confirmed            Setup
+
+     1                Registration, login, tokens                           Module 0
+
+     2                Roles, profile, projects, app layout                  Module 0
+
+     3                Notifications, audit log, middleware chain            Module 0
+
+     4                AI service core and AI gateway                        Module 0
+
+     5                Administration consoles                               Module 0
+
+     6                Discovery conversation and own idea                   Module 1
+
+     7                RAG research and ranked ideas                         Module 1
+
+     8                Requirement analysis and baseline                     Module 2
+
+     9                Teams, invitations, methodology model                 Module 2
+
+     10               Timeline and planning                                 Module 2
+
+     11               Execution plan generation, effort model               Module 3
+
+     12               Task assignment and status rules                      Module 3
+
+     13               Progress monitoring, risk model, blockers             Module 4
+
+     14               Deliverable submission                                Module 4
+
+     15               AI verification, supervisor review, plan adjustment   Module 4 and 3
+
+     16               Completion and certificates                           Module 5
+
+     17               Testing, security, deployment, final demo             Release
+
+
+
+
+  3. Sprint tasks
+
+  Sprint 0 – Setup and decisions
+  Goal: everyone can run the backend, AI service, frontend and Ollama on their own
+  machine.
+
+
+
+                                                                                             Page 2 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID              Task                                                   Type   Hrs   Priority
+
+     S0-01           Create the GitHub repo with backend/, ai-service/,     OPS    1     Must
+                     frontend/ folders
+
+     S0-02           Set branch rules (main, develop, feature/*) and a      OPS    1     Must
+                     PR template
+
+     S0-03           Create backend skeleton: package.json, server.js,      BE     3     Must
+                     app.js, env.js
+
+     S0-04           Connect MongoDB with Mongoose in db.js                 BE     2     Must
+
+     S0-05           Create ai-service skeleton: FastAPI main.py,           AI     3     Must
+                     config.py, requirements.txt
+
+     S0-06           Install Ollama, pull Llama 3.2 3B, run a test prompt   AI     2     Must
+
+     S0-07           Create the React app with Vite, router and             FE     3     Must
+                     global.css
+
+     S0-08           Add .env.example files for all three apps              OPS    1     Must
+
+     S0-09           Add AppError, error codes, asyncHandler and            BE     3     Must
+                     logger
+
+     S0-10           Write the README with run steps for each app           DOC    1     Should
+
+     S0-11           Create the task board and load this backlog            DOC    1     Must
+
+     S0-12           Confirm open decisions with your supervisor            DOC    2     Must
+                     (supervisor assignment, deadline changes, public
+                     certificate verification, who issues certificates)
+
+
+
+  Sprint 1 – Accounts and login
+  Goal: a student can register, log in and stay logged in.
+
+
+     ID              Task                                                   Type   Hrs   Priority
+
+     S1-01           Define roles.js and statuses.js constants              BE     1     Must
+
+     S1-02           Create user.model.js (unique email, passwordHash,      BE     2     Must
+                     role, isActive, skills)
+
+
+
+
+                                                                                                    Page 3 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID              Task                                                Type   Hrs   Priority
+
+     S1-03           Add password hashing helper                         BE     2     Must
+
+     S1-04           Register endpoint (Student role) with validators    BE     3     Must
+
+     S1-05           Login endpoint                                      BE     3     Must
+
+     S1-06           token.service.js: access and refresh tokens         BE     3     Must
+
+     S1-07           Refresh and logout endpoints                        BE     2     Must
+
+     S1-08           authenticate.js middleware (reject deactivated      BE     2     Must
+                     accounts)
+
+     S1-09           validate.js middleware (schema check, block         BE     2     Must
+                     NoSQL operator keys)
+
+     S1-10           seedSuperAdmin.js script                            BE     2     Must
+
+     S1-11           Write auth tests                                    BE     3     Must
+
+     S1-12           apiClient.js (attach token, refresh on expiry)      FE     3     Must
+
+     S1-13           AuthContext.jsx                                     FE     2     Must
+
+     S1-14           LoginPage and RegisterPage                          FE     4     Must
+
+     S1-15           ProtectedRoute and roleHome                         FE     2     Must
+
+
+
+  Sprint 2 – Roles, profile, projects
+  Goal: users have profiles and can create and open projects with correct access.
+
+
+     ID              Task                                                Type   Hrs   Priority
+
+     S2-01           authorizeRole.js middleware                         BE     2     Must
+
+     S2-02           GET and PATCH /users/me                             BE     3     Must
+
+     S2-03           Change password endpoint                            BE     2     Must
+
+     S2-04           Technical skills in the profile                     BE     2     Must
+
+     S2-05           project.model.js                                    BE     2     Must
+
+     S2-06           Create project endpoint (individual or team mode)   BE     3     Must
+
+
+
+
+                                                                                                 Page 4 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID              Task                                                Type   Hrs   Priority
+
+     S2-07           List and view projects within the user's access     BE     3     Must
+
+     S2-08           projectContext.js middleware (project-level role)   BE     3     Must
+
+     S2-09           Write RBAC tests                                    BE     3     Must
+
+     S2-10           ProfilePage, SkillsEditor, ChangePasswordForm       FE     4     Must
+
+     S2-11           AppLayout, Sidebar (filtered by role), Topbar       FE     4     Must
+
+     S2-12           ProjectListPage and CreateProjectPage               FE     4     Must
+
+     S2-13           ProjectOverviewPage and StageTracker                FE     3     Must
+
+     S2-14           StudentDashboard                                    FE     2     Should
+
+
+
+  Sprint 3 – Notifications, audit, middleware
+  Goal: in-app notifications work and sensitive actions are logged.
+
+
+     ID              Task                                                Type   Hrs   Priority
+
+     S3-01           notification.model.js and notifications.service     BE     3     Must
+                     (create, list, unread count)
+
+     S3-02           Notification routes (list, mark as read)            BE     2     Must
+
+     S3-03           NotificationBell, useNotifications,                 FE     4     Must
+                     NotificationsPage
+
+     S3-04           auditLog.model.js and audit.service (append-only)   BE     3     Must
+
+     S3-05           auditLogger.js middleware                           BE     2     Must
+
+     S3-06           requestId.js and security.js (headers, CORS, size   BE     2     Must
+                     limit)
+
+     S3-07           rateLimiter.js (stricter on login and AI routes)    BE     2     Should
+
+     S3-08           errorHandler.js (no internals in responses)         BE     2     Must
+
+     S3-09           Wire the full middleware chain in app.js and        BE     2     Must
+                     routes/index.js
+
+
+
+
+                                                                                                 Page 5 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+  Sprint 4 – AI service core and AI gateway
+  Goal: the backend can start an AI job, the Python service runs it on Ollama, and the result
+  comes back validated.
+
+
+     ID              Task                                                 Type   Hrs   Priority
+
+     S4-01           security.py: shared service-key check                AI     2     Must
+
+     S4-02           ollama_client.py (context window, low                AI     4     Must
+                     temperature, JSON output)
+
+     S4-03           envelope.py request and response models              AI     2     Must
+
+     S4-04           prompt_loader.py for versioned prompt templates      AI     2     Must
+
+     S4-05           output_validation.py (reject invalid model output)   AI     3     Must
+
+     S4-06           GET /health with model and Ollama status             AI     1     Must
+
+     S4-07           aiServiceClient.js in the backend                    BE     2     Must
+
+     S4-08           aiJob.model.js and aiInteractionLog.model.js         BE     2     Must
+
+     S4-09           Job lifecycle: queued, running, succeeded, failed    BE     4     Must
+
+     S4-10           contextBuilder.js (minimal, authorized context)      BE     3     Must
+
+     S4-11           secretFilter.js (remove tokens, keys, passwords)     BE     2     Must
+
+     S4-12           resultValidator.js                                   BE     2     Must
+
+     S4-13           GET /ai-jobs/:id                                     BE     1     Must
+
+     S4-14           usePolling, useAiJob, JobProgress                    FE     3     Must
+
+     S4-15           Tests: gateway, envelope, health                     BE     3     Should
+
+
+
+  Sprint 5 – Administration
+  Goal: Super Admin and Sub Admin can manage users, AI settings and view system status.
+
+
+     ID              Task                                                 Type   Hrs   Priority
+
+     S5-01           Users list and activate/deactivate endpoints         BE     3     Must
+
+
+
+
+                                                                                                  Page 6 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID              Task                                                 Type   Hrs   Priority
+
+     S5-02           Role change and Sub Admin promote/demote with        BE     3     Must
+                     history
+
+     S5-03           aiConfiguration.model.js and AI config endpoints     BE     3     Must
+
+     S5-04           systemSettings.model.js and settings endpoints       BE     2     Must
+                     (supervisorApprovalRequired)
+
+     S5-05           health.service.js (database, backend, AI service)    BE     2     Should
+
+     S5-06           stats.service.js (usage and completion statistics)   BE     3     Should
+
+     S5-07           Oversight, audit log and AI log endpoints            BE     3     Should
+
+     S5-08           UserManagementPage and                               FE     4     Must
+                     SubAdminManagementPage
+
+     S5-09           AiConfigPage and AiStatusPage                        FE     3     Must
+
+     S5-10           SystemSettingsPage and LogsHealthPage                FE     3     Should
+
+     S5-11           AuditLogPage and RoleChangeHistoryPage               FE     3     Should
+
+     S5-12           OversightPage, ProjectAdminPage, StatisticsPage      FE     4     Should
+
+     S5-13           Supervisor, Sub Admin and Super Admin                FE     3     Must
+                     dashboards
+
+
+
+  Sprint 6 – Idea discovery: conversation
+  Goal: a student with no idea answers AI questions; a student with an idea submits it
+  directly.
+
+
+     ID              Task                                                 Type   Hrs   Priority
+
+     S6-01           discoveryProfiles model                              BE     2     Must
+
+     S6-02           Start-project choice: need ideas or have an idea     BE     3     Must
+
+     S6-03           L1 discovery conversation prompt and output          AI     4     Must
+                     schema
+
+     S6-04           Discovery endpoint: answer in, next question and     BE     4     Must
+                     updated profile out
+
+
+
+
+                                                                                                  Page 7 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID              Task                                                 Type   Hrs   Priority
+
+     S6-05           Rule check for missing profile fields (domain,       BE     3     Must
+                     users, skills, budget)
+
+     S6-06           Submit an existing idea endpoint                     BE     3     Must
+
+     S6-07           Discovery chat page                                  FE     4     Must
+
+     S6-08           Profile summary review and edit                      FE     3     Should
+
+     S6-09           Existing idea form page                              FE     2     Must
+
+     S6-10           Tests for the discovery flow                         BE     3     Should
+
+
+
+  Sprint 7 – Idea discovery: research and ranking
+  Goal: the AI researches with sources and shows ranked project ideas the student can
+  select.
+
+
+     ID              Task                                                 Type   Hrs   Priority
+
+     S7-01           Choose vector store (Chroma or FAISS) and            AI     2     Must
+                     embedding model; note the decision
+
+     S7-02           Ingest knowledge sources into the vector store       AI     4     Must
+
+     S7-03           RAG retrieval function that returns source IDs       AI     4     Must
+
+     S7-04           L2 research synthesis prompt (Sourced or AI-         AI     4     Must
+                     generated labels)
+
+     S7-05           researchFindings model and research job endpoint     BE     4     Must
+
+     S7-06           M5 scoring rules for the six ranking criteria        AI     3     Must
+
+     S7-07           M5 TF-IDF similarity for skills and idea match       AI     3     Should
+
+     S7-08           L3 idea generation with the twelve required fields   AI     4     Must
+
+     S7-09           ideas model and ranked ideas endpoint                BE     3     Must
+
+     S7-10           Select an idea endpoint                              BE     2     Must
+
+     S7-11           Research findings page with sources                  FE     3     Must
+
+     S7-12           Ranked ideas list, idea detail and select button     FE     4     Must
+
+
+
+                                                                                                  Page 8 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID              Task                                                Type   Hrs   Priority
+
+     S7-13           Tests for RAG and ranking                           AI     3     Should
+
+
+
+  Sprint 8 – Requirement analysis
+  Goal: the selected idea becomes an approved requirements baseline.
+
+
+     ID              Task                                                Type   Hrs   Priority
+
+     S8-01           requirements model                                  BE     2     Must
+
+     S8-02           L4 requirement analysis prompt and schema           AI     4     Must
+
+     S8-03           Requirement analysis job endpoint                   BE     3     Must
+
+     S8-04           Clarifying questions: submit answers and            BE     3     Must
+                     regenerate
+
+     S8-05           Store scope, deliverables and acceptance criteria   BE     2     Must
+
+     S8-06           Baseline approval endpoint (locks the baseline)     BE     3     Must
+
+     S8-07           Supervisor comment on the baseline                  BE     3     Should
+
+     S8-08           Requirements page: view and edit                    FE     4     Must
+
+     S8-09           Clarifying questions screen                         FE     3     Must
+
+     S8-10           Baseline approval screen                            FE     2     Must
+
+     S8-11           Tests for requirements flow                         BE     3     Should
+
+
+
+  Sprint 9 – Teams and methodology
+  Goal: students form a team, and the system recommends a methodology.
+
+
+     ID              Task                                                Type   Hrs   Priority
+
+     S9-01           teams and invitations models                        BE     2     Must
+
+     S9-02           Create team and set the leader                      BE     3     Must
+
+     S9-03           Send invitation endpoint                            BE     3     Must
+
+
+
+
+                                                                                                 Page 9 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID              Task                                                  Type   Hrs   Priority
+
+     S9-04           Accept or reject invitation, with notification        BE     3     Must
+
+     S9-05           Leader transfer that keeps exactly one leader         BE     2     Should
+
+     S9-06           Team pages: create, invite, member list               FE     4     Must
+
+     S9-07           Invitation inbox and accept screen                    FE     3     Must
+
+     S9-08           TeamAdminPage for Sub Admin                           FE     3     Could
+
+     S9-09           M1 data: build synthetic methodology scenarios        AI     4     Must
+
+     S9-10           Train M1 and check macro F1                           AI     4     Must
+
+     S9-11           Save M1 with joblib and metadata; add rule-based      AI     3     Must
+                     fallback
+
+     S9-12           L5 methodology rationale prompt                       AI     2     Should
+
+
+
+  Sprint 10 – Timeline and planning
+  Goal: the team enters constraints and approves a realistic timeline.
+
+
+     ID                Task                                                Type   Hrs   Priority
+
+     S10-01            timelines model                                     BE     2     Must
+
+     S10-02            Deterministic date and duration calculator          BE     4     Must
+
+     S10-03            Methodology recommendation endpoint (M1 and         BE     3     Must
+                       L5)
+
+     S10-04            Feasibility check that flags impossible deadlines   BE     3     Must
+
+     S10-05            Timeline generation (phases, start dates,           BE     4     Must
+                       deadlines)
+
+     S10-06            Review, regenerate and approve timeline             BE     3     Must
+                       endpoints
+
+     S10-07            Planning inputs form (deadline, daily hours, team   FE     3     Must
+                       size, constraints)
+
+     S10-08            Methodology result page                             FE     2     Must
+
+
+
+
+                                                                                                   Page 10 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID                Task                                                 Type   Hrs    Priority
+
+     S10-09            Timeline page with approve button                    FE     4      Must
+
+     S10-10            Tests for timeline logic                             BE     3      Should
+
+
+
+  Sprint 11 – Execution plan generation
+  Goal: the approved project is split into phases, sprints and tasks with all required fields.
+
+
+     ID               Task                                                  Type   Hrs   Priority
+
+     S11-01           phases, sprints, tasks and taskHistory models         BE     3     Must
+
+     S11-02           L6 plan generation prompt and schema                  AI     4     Must
+
+     S11-03           Plan generation job with mandatory field validation   BE     4     Must
+
+     S11-04           Create sprints only for Agile/Scrum projects          BE     2     Must
+
+     S11-05           M2 data: curated task descriptions with effort        AI     4     Must
+
+     S11-06           Train M2 and check mean absolute error                AI     4     Should
+
+     S11-07           Dependency check (no circular dependencies)           BE     3     Must
+
+     S11-08           Plan overview page (phases, sprints, tasks)           FE     4     Must
+
+     S11-09           Task detail page                                      FE     3     Must
+
+     S11-10           Tests for plan generation                             BE     3     Should
+
+
+
+  Sprint 12 – Task assignment and status
+  Goal: tasks get owners and move through allowed statuses.
+
+
+     ID                Task                                                 Type   Hrs    Priority
+
+     S12-01            M3 skill match with TF-IDF cosine similarity         AI     3      Must
+
+     S12-02            M3 workload and availability weights                 AI     2      Must
+
+     S12-03            Assignment recommendation endpoint with L7           BE     3      Must
+                       rationale
+
+
+
+
+                                                                                                     Page 11 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID                Task                                           Type   Hrs   Priority
+
+     S12-04            Manual assignment by Team Leader               BE     2     Must
+
+     S12-05            Auto-distribute tasks                          BE     2     Should
+
+     S12-06            Task status transition rules in the service    BE     3     Must
+
+     S12-07            Task update endpoint with history entry        BE     3     Must
+
+     S12-08            Block a task while its dependencies are open   BE     2     Must
+
+     S12-09            My Tasks page                                  FE     3     Must
+
+     S12-10            Assignment screen for the Team Leader          FE     3     Must
+
+     S12-11            Status update control                          FE     2     Must
+
+     S12-12            Tests for assignment and status rules          BE     3     Should
+
+
+
+  Sprint 13 – Progress monitoring and blockers
+  Goal: the system tracks progress, predicts risk and handles blockers.
+
+
+     ID                Task                                           Type   Hrs   Priority
+
+     S13-01            progressSnapshots model                        BE     2     Must
+
+     S13-02            Progress calculation (completion, overdue,     BE     3     Must
+                       workload)
+
+     S13-03            Scheduled snapshot job in jobs/index.js        BE     2     Must
+
+     S13-04            M4 data: simulated project timelines with      AI     4     Should
+                       outcomes
+
+     S13-05            Train M4 and check recall for High risk        AI     4     Should
+
+     S13-06            Risk endpoint and delay alerts through         BE     3     Must
+                       notifications
+
+     S13-07            aiRecommendations model and L7 corrective      BE     3     Should
+                       advice
+
+     S13-08            blockers model, report and resolve endpoints   BE     4     Must
+
+     S13-09            Progress dashboard page                        FE     4     Must
+
+
+
+                                                                                              Page 12 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID                Task                                                  Type   Hrs   Priority
+
+     S13-10            Blocker form and list                                 FE     3     Must
+
+     S13-11            Alerts and recommendations panel                      FE     2     Should
+
+     S13-12            Tests for monitoring                                  BE     3     Should
+
+
+
+  Sprint 14 – Deliverable submission
+  Goal: students submit GitHub evidence and the system collects it safely.
+
+
+     ID                Task                                                  Type   Hrs   Priority
+
+     S14-01            submissions model                                     BE     2     Must
+
+     S14-02            Submit GitHub link and notes endpoint with URL        BE     3     Must
+                       check
+
+     S14-03            GitHub collector (commits, file list, README; read-   BE     4     Must
+                       only)
+
+     S14-04            Evidence excerpt extractor with size limits           AI     4     Must
+
+     S14-05            Resubmission flow                                     BE     3     Must
+
+     S14-06            Submission page                                       FE     3     Must
+
+     S14-07            Submission history view                               FE     2     Should
+
+     S14-08            Tests for submission                                  BE     3     Should
+
+
+
+  Sprint 15 – Verification, review and plan changes
+  Goal: AI checks evidence against acceptance criteria and a supervisor can override.
+
+
+     ID                Task                                                  Type   Hrs   Priority
+
+     S15-01            verificationReports model                             BE     2     Must
+
+     S15-02            L8 criterion evaluation prompt and schema             AI     4     Must
+
+     S15-03            Status rules: met, partially met, not met,            AI     3     Must
+                       insufficient evidence
+
+
+
+
+                                                                                                     Page 13 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID                Task                                                   Type   Hrs      Priority
+
+     S15-04            Verification job endpoint                              BE     4        Must
+
+     S15-05            L9 verification report writing                         AI     3        Should
+
+     S15-06            Move task to Completed when Verified                   BE     2        Must
+
+     S15-07            Supervisor review and override with recorded           BE     4        Must
+                       reason
+
+     S15-08            Verification report page                               FE     4        Must
+
+     S15-09            Supervisor review page                                 FE     4        Must
+
+     S15-10            Plan adjustment after a change (backend)               BE     4        Should
+
+     S15-11            Plan adjustment screen                                 FE     3        Should
+
+     S15-12            Tests for verification                                 BE     3        Should
+
+
+
+  Sprint 16 – Completion and certificates
+  Goal: finished projects produce unique, verifiable certificates.
+
+
+     ID                Task                                            Type   Hrs    Priority
+
+     S16-01            completionReports model                         BE     2      Must
+
+     S16-02            Completion check (all deliverables verified)    BE     4      Must
+
+     S16-03            Final report writing with L9                    AI     3      Should
+
+     S16-04            Supervisor approval when the setting is on      BE     3      Should
+
+     S16-05            certificates model with unique certificate ID   BE     3      Must
+
+     S16-06            Eligibility check per student                   BE     3      Must
+
+     S16-07            Certificate PDF with QR code                    BE     4      Must
+
+     S16-08            Verify-by-ID endpoint                           BE     3      Must
+
+     S16-09            certificateVerifications logging                BE     2      Should
+
+     S16-10            Sub Admin: records, re-issue and revoke         BE     4      Should
+
+     S16-11            Completion page                                 FE     3      Must
+
+
+
+                                                                                                         Page 14 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+     ID                Task                                                Type   Hrs    Priority
+
+     S16-12            Certificate view and download page                  FE     3      Must
+
+     S16-13            Certificate verification page                       FE     3      Must
+
+     S16-14            Certificate records admin page                      FE     4      Should
+
+     S16-15            Tests for certificates                              BE     3      Should
+
+
+
+  Sprint 17 – Hardening and release
+  Goal: the full system is tested, secure and ready to demo.
+
+
+     ID                Task                                                       Type   Hrs      Priority
+
+     S17-01            End-to-end test of the full student journey                BE     4        Must
+
+     S17-02            Check every role against the permission matrix             BE     4        Must
+
+     S17-03            Security review (injection, rate limits, secrets)          BE     4        Must
+
+     S17-04            AI quality check (invalid output, fallbacks, slow          AI     4        Must
+                       responses)
+
+     S17-05            Test response speed on the demo machine                    OPS    3        Should
+
+     S17-06            Fix known bugs                                             BE     5        Must
+
+     S17-07            Docker Compose and Nginx configuration                     OPS    4        Should
+
+     S17-08            HTTPS, backup and recovery notes                           OPS    3        Should
+
+     S17-09            Seed demo data and demo accounts                           OPS    2        Must
+
+     S17-10            Short user guide                                           DOC    3        Should
+
+     S17-11            Final demo and retrospective                               DOC    2        Must
+
+
+
+
+  4. Risks to watch
+          Small model quality: Llama 3.2 3B may give weak or invalid output. Keep strict
+          schemas, fallbacks and short prompts.
+          Slow AI on weak hardware: use asynchronous jobs and test early in Sprint 4.
+
+
+
+                                                                                                             Page 15 of 16
+AI Project Supervisor – Agile Task Plan
+
+
+
+
+          Cold-start ML data: the models start with synthetic data. Label their results as
+          estimates.
+          Open decisions: answers from Sprint 0 (S0-12) can change tasks in Sprints 5, 9, 15 and
+          16.
+          Scope: if time runs short, drop Could and Should tasks first, never the Must tasks of
+          the core lifecycle.
+
+
+
+
+                                                                                             Page 16 of 16
+

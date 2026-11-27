@@ -1,0 +1,35 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-7: Supervisor Review and Override of Verification Result (WF-17)
+actor "Supervisor" as SV
+participant "React SPA" as R
+participant "Express API\n(middleware, verification)" as A
+database "MongoDB" as DB
+
+SV -> R : Open assigned project and submission
+R -> A : GET /submissions/:id/verification
+A -> A : Authenticate, check role and supervisor assignment to project
+alt Project not assigned to supervisor
+  A --> R : 403 Forbidden
+else Authorized
+  A -> DB : Read submission and verification report
+  A --> R : Evidence and AI report
+end
+SV -> R : Decide with reason
+R -> A : POST /verifications/:id/review (decision, reason)
+alt Reason missing
+  A --> R : 400 Bad Request
+else Reason provided
+  A -> DB : Store supervisorReview (decision, reason, by, at)
+  A -> DB : Insert auditLogs (category = verification decision)
+  alt Approve deliverable
+    A -> DB : Set task Completed, insert taskHistory
+  else Reject or request resubmission
+    A -> DB : Set task In Progress, set Requires Resubmission
+  end
+  A -> DB : Keep AI result in history, insert notifications for team
+  A --> R : 200 OK
+end
+@enduml

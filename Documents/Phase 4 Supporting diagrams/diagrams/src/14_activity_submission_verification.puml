@@ -1,0 +1,66 @@
+@startuml
+!include style.iuml
+title AD-5: Task Execution, Deliverable Submission and Evidence Verification (WF-11, WF-14, WF-15, WF-16, WF-17)
+|Assignee|
+start
+:Open assigned task;
+:Set status In Progress;
+|System|
+if (User is assignee and dependencies satisfied?) then (no)
+  :Reject status change;
+  stop
+else (yes)
+  :Store status change in task history;
+endif
+|Assignee|
+repeat
+  :Submit GitHub repository URL and optional\ncommit, pull request, screenshots, documents;
+  |System|
+  :Validate GitHub URL, file types and sizes;
+  :Store new submission version\nset Pending Verification and task Under Review;
+  :Notify Team Leader and queue verification;
+  repeat
+    |GitHub|
+    :Return repository access result;
+    |System|
+    if (Temporary access failure?) then (yes)
+      :Keep Pending Verification and retry;
+    else (no)
+    endif
+  repeat while (Retry pending?) is (yes)
+  if (Repository accessible?) then (no)
+    :Record evidence as inaccessible;
+    :Set Requires Resubmission;
+  else (yes)
+    |GitHub|
+    :Provide file tree, README, files, commits;
+    |AI Supervisor|
+    :Evaluate each acceptance criterion\nagainst evidence excerpts;
+    |System|
+    :Map criterion results to status by fixed rules;
+  endif
+  :Store verification report and notify student and Team Leader;
+  |Supervisor|
+  if (Supervisor reviews result?) then (yes)
+    :Review evidence and AI report;
+    if (Override or decide?) then (yes)
+      :Approve, reject or request resubmission\nwith recorded reason;
+      |System|
+      :Store decision and keep AI result in history;
+    else (no)
+    endif
+  else (no)
+  endif
+  |System|
+  if (Verified or supervisor approved?) then (yes)
+    :Set task Completed;
+    :Recalculate sprint, phase and project progress;
+    stop
+  else (no)
+    :Set task In Progress with feedback;
+  endif
+  |Assignee|
+  :Review verification feedback and correct issues;
+repeat while (Resubmit?) is (yes)
+stop
+@enduml

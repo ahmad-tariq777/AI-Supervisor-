@@ -1,0 +1,692 @@
+Module 0: Platform and Administration - Directory Structure
+
+AI Project Supervisor (Module 1 of the larger platform) | Based on SRS v1.0 and SDD v1.0 | Draft for review
+
+1. Module summary
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Item                                                             Detail
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  Type                                                             Foundation module (supports all five components)
+
+  Purpose                                                          Provides everything the five components stand on: accounts and
+                                                                   login, role-based access control, the project record, in-app
+                                                                   notifications, administration and oversight, audit logging, and
+                                                                   the AI gateway (AI jobs and interaction logs). It also owns the
+                                                                   shared application shells: the Express request pipeline, the
+                                                                   Python AI-service core (Ollama client, envelopes, validation)
+                                                                   and the React shell (router, API client, layout).
+
+  Principal output                                                 Authenticated, role-checked sessions; project records;
+                                                                   notifications; audit trail; asynchronous AI jobs; admin
+                                                                   consoles.
+
+  Actors                                                           Student, Team Leader, Team Member, Supervisor, Sub Admin, Super
+                                                                   Admin, AI Supervisor (through the gateway)
+
+  Use cases                                                        UC-01, UC-17, UC-18, UC-19, UC-20
+
+  Workflows                                                        WF-01, WF-02, WF-22, WF-23, WF-24, WF-25, WF-26, WF-27
+
+  Requirements                                                     FR-ACC-001..009; FR-NOT-001..004; FR-ADM-001..014;
+                                                                   FR-AUD-001..004; RBAC-001..012; AIS-001..007;
+                                                                   ARC-003/004/009..015; DBR-001..012; EIR-001/002/005..014;
+                                                                   AIR-002/009
+
+  MongoDB collections                                              users, projects, notifications, auditLogs, aiJobs,
+                                                                   aiInteractionLogs, aiConfigurations, systemSettings
+
+  API groups                                                       Authentication; Profile; User management; Projects; AI
+                                                                   configuration; System; Oversight; Notifications; AI jobs
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+2. How this module fits the repository
+
+The platform is one Express API (modular monolith), one Python AI service and one React single-page app (SDD 6.2). This module is
+therefore a set of folders inside those three applications, not a separate application. Each backend module folder holds its own
+routes, controller, service, validators and models (SDD 6.5).
+
+-   Backend (Node.js + Express): backend/
+-   AI service (Python + FastAPI, Ollama, Scikit-learn, RAG): ai-service/
+-   Frontend (React): frontend/
+
+3. Backend directory structure
+
+3.1 Node.js + Express API
+
+    backend/
+    ├── scripts/
+    │   └── seedSuperAdmin.js
+    ├── src/
+    │   ├── config/
+    │   │   ├── db.js
+    │   │   └── env.js
+    │   ├── integrations/
+    │   │   └── aiServiceClient.js
+    │   ├── jobs/
+    │   │   └── index.js
+    │   ├── middleware/
+    │   │   ├── auditLogger.js
+    │   │   ├── authenticate.js
+    │   │   ├── authorizeRole.js
+    │   │   ├── errorHandler.js
+    │   │   ├── projectContext.js
+    │   │   ├── rateLimiter.js
+    │   │   ├── requestId.js
+    │   │   ├── security.js
+    │   │   └── validate.js
+    │   ├── modules/
+    │   │   ├── admin/
+    │   │   │   ├── admin.controller.js
+    │   │   │   ├── admin.routes.js
+    │   │   │   ├── admin.service.js
+    │   │   │   ├── admin.validators.js
+    │   │   │   ├── aiConfiguration.model.js
+    │   │   │   ├── audit.service.js
+    │   │   │   ├── auditLog.model.js
+    │   │   │   ├── health.service.js
+    │   │   │   ├── stats.service.js
+    │   │   │   └── systemSettings.model.js
+    │   │   ├── aiGateway/
+    │   │   │   ├── aiGateway.controller.js
+    │   │   │   ├── aiGateway.routes.js
+    │   │   │   ├── aiGateway.service.js
+    │   │   │   ├── aiInteractionLog.model.js
+    │   │   │   ├── aiJob.model.js
+    │   │   │   ├── contextBuilder.js
+    │   │   │   ├── resultValidator.js
+    │   │   │   └── secretFilter.js
+    │   │   ├── auth/
+    │   │   │   ├── auth.controller.js
+    │   │   │   ├── auth.routes.js
+    │   │   │   ├── auth.service.js
+    │   │   │   ├── auth.validators.js
+    │   │   │   └── token.service.js
+    │   │   ├── notifications/
+    │   │   │   ├── notification.model.js
+    │   │   │   ├── notifications.controller.js
+    │   │   │   ├── notifications.routes.js
+    │   │   │   ├── notifications.service.js
+    │   │   │   └── notifications.validators.js
+    │   │   ├── projects/
+    │   │   │   ├── project.model.js
+    │   │   │   ├── projects.controller.js
+    │   │   │   ├── projects.routes.js
+    │   │   │   ├── projects.service.js
+    │   │   │   └── projects.validators.js
+    │   │   └── users/
+    │   │       ├── user.model.js
+    │   │       ├── users.controller.js
+    │   │       ├── users.routes.js
+    │   │       ├── users.service.js
+    │   │       └── users.validators.js
+    │   ├── routes/
+    │   │   └── index.js
+    │   ├── shared/
+    │   │   ├── constants/
+    │   │   │   ├── roles.js
+    │   │   │   └── statuses.js
+    │   │   ├── errors/
+    │   │   │   ├── AppError.js
+    │   │   │   └── errorCodes.js
+    │   │   └── utils/
+    │   │       ├── asyncHandler.js
+    │   │       ├── logger.js
+    │   │       └── pagination.js
+    │   ├── app.js
+    │   └── server.js
+    ├── tests/
+    │   └── platform/
+    │       ├── aiGateway.test.js
+    │       ├── auth.test.js
+    │       └── rbac.test.js
+    ├── .env.example
+    └── package.json
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  package.json                                                     Node package manifest and scripts (no dependencies pinned yet)
+
+  .env.example                                                     Variables from SDD Table 38 used by the Express API
+
+  scripts/seedSuperAdmin.js                                        Creates the first Super Admin at installation (FR-ACC-009)
+
+  src/server.js                                                    Starts the HTTP server and connects to MongoDB
+
+  src/app.js                                                       Builds the Express app and the middleware chain (SDD Table 27)
+
+  src/routes/index.js                                              Mounts every module router under /api/v1
+
+  src/config/env.js                                                Reads and validates environment variables
+
+  src/config/db.js                                                 MongoDB connection (Mongoose)
+
+  src/shared/constants/roles.js                                    Account roles and project-level roles
+
+  src/shared/constants/statuses.js                                 Task, verification and priority names exactly as in the SRS
+
+  src/shared/errors/AppError.js                                    Application error class with code, message, field details
+
+  src/shared/errors/errorCodes.js                                  Consistent API error codes
+
+  src/shared/utils/asyncHandler.js                                 Wraps async controllers
+
+  src/shared/utils/logger.js                                       Structured logs with request IDs
+
+  src/shared/utils/pagination.js                                   Page/limit helpers for list endpoints
+
+  src/middleware/requestId.js                                      Creates the request ID shared with the AI service
+
+  src/middleware/security.js                                       HTTPS headers, CORS for the frontend origin, request size limit
+                                                                   (stage 1)
+
+  src/middleware/rateLimiter.js                                    Per-IP and per-user limits; stricter on login, AI, verification
+                                                                   (stage 2)
+
+  src/middleware/authenticate.js                                   Verifies the token, loads the user, rejects deactivated accounts
+                                                                   (stage 3)
+
+  src/middleware/authorizeRole.js                                  Checks the account role for the endpoint (stage 4)
+
+  src/middleware/projectContext.js                                 Resolves project-level role; rejects users outside the project
+                                                                   (stage 5)
+
+  src/middleware/validate.js                                       Schema validation; rejects NoSQL operator keys (stage 6)
+
+  src/middleware/auditLogger.js                                    Records sensitive actions (stage 8)
+
+  src/middleware/errorHandler.js                                   Consistent error format without internals (stage 9)
+
+  src/integrations/aiServiceClient.js                              HTTP client for the internal AI service with the shared service
+                                                                   key
+
+  src/jobs/index.js                                                Registers and starts scheduled jobs (job code lives in the
+                                                                   modules)
+
+  src/modules/auth/auth.routes.js                                  POST /auth/register, /login, /refresh, /logout
+
+  src/modules/auth/auth.controller.js                              HTTP layer for authentication
+
+  src/modules/auth/auth.service.js                                 Registration (Student role), login, logout
+
+  src/modules/auth/token.service.js                                Short-lived access and longer-lived refresh tokens (FR-ACC-008)
+
+  src/modules/auth/auth.validators.js                              Request schemas for auth endpoints
+
+  src/modules/users/users.routes.js                                GET/PATCH /users/me; GET /users; PATCH /users/:id/status, /role
+
+  src/modules/users/users.controller.js                            HTTP layer for profiles and user management
+
+  src/modules/users/users.service.js                               Profile, skills, activate/deactivate, role and Sub Admin
+                                                                   promotion/demotion
+
+  src/modules/users/users.validators.js                            Request schemas for user endpoints
+
+  src/modules/users/user.model.js                                  users collection (unique email, passwordHash, role, isActive,
+                                                                   profile.skills)
+
+  src/modules/projects/projects.routes.js                          POST /projects; GET /projects; GET /projects/:id
+
+  src/modules/projects/projects.controller.js                      HTTP layer for projects
+
+  src/modules/projects/projects.service.js                         Create/view projects within the user’s access; stage and
+                                                                   supervisor link
+
+  src/modules/projects/projects.validators.js                      Request schemas for project endpoints
+
+  src/modules/projects/project.model.js                            projects collection (stage, mode, methodology, supervisorId,
+                                                                   baseline and timeline refs)
+
+  src/modules/notifications/notifications.routes.js                GET /notifications; PATCH /notifications/:id/read
+
+  src/modules/notifications/notifications.controller.js            HTTP layer for notifications
+
+  src/modules/notifications/notifications.service.js               Create (used by all modules), list, unread count, mark read
+
+  src/modules/notifications/notifications.validators.js            Request schemas
+
+  src/modules/notifications/notification.model.js                  notifications collection
+
+  src/modules/admin/admin.routes.js                                /admin/ai-config, ai-status, stats, logs, health, settings,
+                                                                   audit, role-changes
+
+  src/modules/admin/admin.controller.js                            HTTP layer for administration
+
+  src/modules/admin/admin.service.js                               AI configuration, system settings (supervisorApprovalRequired),
+                                                                   oversight queries
+
+  src/modules/admin/stats.service.js                               Usage and completion statistics (FR-ADM-012)
+
+  src/modules/admin/health.service.js                              Database, backend and AI-service health (FR-ADM-011)
+
+  src/modules/admin/audit.service.js                               Writes and reads the append-only audit log (FR-AUD-001/002)
+
+  src/modules/admin/admin.validators.js                            Request schemas for admin endpoints
+
+  src/modules/admin/aiConfiguration.model.js                       aiConfigurations collection (Ollama URL, model, RAG settings)
+
+  src/modules/admin/systemSettings.model.js                        systemSettings collection (global flags)
+
+  src/modules/admin/auditLog.model.js                              auditLogs collection (append-only)
+
+  src/modules/aiGateway/aiGateway.routes.js                        GET /ai-jobs/:id
+
+  src/modules/aiGateway/aiGateway.controller.js                    HTTP layer for AI job status
+
+  src/modules/aiGateway/aiGateway.service.js                       Creates jobs (queued->running->succeeded/failed), calls the AI
+                                                                   service, stores results
+
+  src/modules/aiGateway/contextBuilder.js                          Builds the authorized, minimal context for each AI task
+                                                                   (AIS-001, AIS-007)
+
+  src/modules/aiGateway/secretFilter.js                            Removes tokens, keys and passwords before prompts (AIS-002)
+
+  src/modules/aiGateway/resultValidator.js                         Validates AI results against business rules before storing
+                                                                   (ARC-010)
+
+  src/modules/aiGateway/aiJob.model.js                             aiJobs collection
+
+  src/modules/aiGateway/aiInteractionLog.model.js                  aiInteractionLogs collection (traceability, FR-AUD-003)
+
+  tests/platform/auth.test.js                                      Auth, token and deactivated-account tests
+
+  tests/platform/rbac.test.js                                      Role and project-level access tests
+
+  tests/platform/aiGateway.test.js                                 Job lifecycle and secret-filter tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+3.2 Python AI service
+
+    ai-service/
+    ├── app/
+    │   ├── api/
+    │   │   ├── __init__.py
+    │   │   └── health.py
+    │   ├── core/
+    │   │   ├── __init__.py
+    │   │   ├── envelope.py
+    │   │   ├── logging.py
+    │   │   ├── ollama_client.py
+    │   │   ├── output_validation.py
+    │   │   ├── prompt_loader.py
+    │   │   └── security.py
+    │   ├── ml/
+    │   │   ├── common/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── evaluation.py
+    │   │   │   ├── fallback.py
+    │   │   │   └── model_registry.py
+    │   │   └── __init__.py
+    │   ├── modules/
+    │   │   └── __init__.py
+    │   ├── __init__.py
+    │   ├── config.py
+    │   └── main.py
+    ├── ml_data/
+    │   └── .gitkeep
+    ├── ml_models/
+    │   └── .gitkeep
+    ├── tests/
+    │   └── platform/
+    │       ├── test_envelope.py
+    │       └── test_health.py
+    ├── .env.example
+    └── requirements.txt
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  requirements.txt                                                 Python dependencies (FastAPI, Uvicorn, scikit-learn, joblib,
+                                                                   LangChain or LlamaIndex)
+
+  .env.example                                                     OLLAMA_BASE_URL, OLLAMA_MODEL, EMBEDDING_MODEL,
+                                                                   VECTOR_STORE_PATH, AI_SERVICE_KEY
+
+  app/__init__.py                                                  Package marker
+
+  app/main.py                                                      FastAPI application; mounts the module routers
+
+  app/config.py                                                    Settings loaded from the environment
+
+  app/api/__init__.py                                              Package marker
+
+  app/api/health.py                                                GET /health: service, model and Ollama status (AIR-009)
+
+  app/core/__init__.py                                             Package marker
+
+  app/core/security.py                                             Shared service-key check; internal network only (EIR-010)
+
+  app/core/ollama_client.py                                        Only caller of Ollama; explicit context window, low temperature,
+                                                                   JSON-schema output
+
+  app/core/envelope.py                                             Request and response envelope models (SDD 6.6)
+
+  app/core/prompt_loader.py                                        Loads versioned prompt templates (AIR-007)
+
+  app/core/output_validation.py                                    Validates model output against the task schema; rejects invalid
+                                                                   output (AIS-006)
+
+  app/core/logging.py                                              Structured logging with the shared request ID
+
+  app/ml/__init__.py                                               Package marker
+
+  app/ml/common/__init__.py                                        Package marker
+
+  app/ml/common/model_registry.py                                  Loads a named joblib version and its metadata at start-up
+                                                                   (MLR-007)
+
+  app/ml/common/fallback.py                                        Rule-based fallback marker and helpers (MLR-002)
+
+  app/ml/common/evaluation.py                                      Shared metrics: macro F1, recall, MAE, RMSE, R2, confusion
+                                                                   matrix
+
+  app/modules/__init__.py                                          Package marker for module routers
+
+  ml_models/.gitkeep                                               Trained pipelines are stored here as // (joblib + metadata +
+                                                                   metrics)
+
+  ml_data/.gitkeep                                                 Training datasets (synthetic or curated) per model
+
+  tests/platform/test_health.py                                    Health endpoint test
+
+  tests/platform/test_envelope.py                                  Envelope and validation tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+4. Frontend directory structure (React)
+
+    frontend/
+    ├── src/
+    │   ├── app/
+    │   │   └── App.jsx
+    │   ├── features/
+    │   │   └── platform/
+    │   │       ├── __tests__/
+    │   │       │   └── platform.test.jsx
+    │   │       ├── admin/
+    │   │       │   ├── api/
+    │   │       │   │   └── adminApi.js
+    │   │       │   └── pages/
+    │   │       │       ├── AiConfigPage.jsx
+    │   │       │       ├── AiStatusPage.jsx
+    │   │       │       ├── AuditLogPage.jsx
+    │   │       │       ├── LogsHealthPage.jsx
+    │   │       │       ├── OversightPage.jsx
+    │   │       │       ├── ProjectAdminPage.jsx
+    │   │       │       ├── RoleChangeHistoryPage.jsx
+    │   │       │       ├── StatisticsPage.jsx
+    │   │       │       ├── SubAdminManagementPage.jsx
+    │   │       │       ├── SystemSettingsPage.jsx
+    │   │       │       ├── TeamAdminPage.jsx
+    │   │       │       └── UserManagementPage.jsx
+    │   │       ├── auth/
+    │   │       │   ├── api/
+    │   │       │   │   └── authApi.js
+    │   │       │   └── pages/
+    │   │       │       ├── LoginPage.jsx
+    │   │       │       └── RegisterPage.jsx
+    │   │       ├── dashboards/
+    │   │       │   └── pages/
+    │   │       │       ├── StudentDashboard.jsx
+    │   │       │       ├── SubAdminDashboard.jsx
+    │   │       │       ├── SuperAdminDashboard.jsx
+    │   │       │       └── SupervisorDashboard.jsx
+    │   │       ├── notifications/
+    │   │       │   ├── api/
+    │   │       │   │   └── notificationsApi.js
+    │   │       │   ├── components/
+    │   │       │   │   └── NotificationBell.jsx
+    │   │       │   ├── hooks/
+    │   │       │   │   └── useNotifications.js
+    │   │       │   └── pages/
+    │   │       │       └── NotificationsPage.jsx
+    │   │       ├── profile/
+    │   │       │   ├── api/
+    │   │       │   │   └── profileApi.js
+    │   │       │   ├── components/
+    │   │       │   │   ├── ChangePasswordForm.jsx
+    │   │       │   │   └── SkillsEditor.jsx
+    │   │       │   └── pages/
+    │   │       │       └── ProfilePage.jsx
+    │   │       ├── projects/
+    │   │       │   ├── api/
+    │   │       │   │   └── projectsApi.js
+    │   │       │   ├── components/
+    │   │       │   │   ├── ProjectCard.jsx
+    │   │       │   │   └── StageTracker.jsx
+    │   │       │   └── pages/
+    │   │       │       ├── CreateProjectPage.jsx
+    │   │       │       ├── ProjectListPage.jsx
+    │   │       │       └── ProjectOverviewPage.jsx
+    │   │       └── routes.jsx
+    │   ├── shared/
+    │   │   ├── api/
+    │   │   │   ├── apiClient.js
+    │   │   │   └── errorMessages.js
+    │   │   ├── components/
+    │   │   │   ├── common/
+    │   │   │   │   ├── ConfirmDialog.jsx
+    │   │   │   │   ├── EmptyState.jsx
+    │   │   │   │   ├── ErrorBanner.jsx
+    │   │   │   │   ├── FieldError.jsx
+    │   │   │   │   └── JobProgress.jsx
+    │   │   │   └── layout/
+    │   │   │       ├── AppLayout.jsx
+    │   │   │       ├── Sidebar.jsx
+    │   │   │       └── Topbar.jsx
+    │   │   ├── context/
+    │   │   │   └── AuthContext.jsx
+    │   │   ├── hooks/
+    │   │   │   ├── useAiJob.js
+    │   │   │   └── usePolling.js
+    │   │   ├── router/
+    │   │   │   ├── AppRouter.jsx
+    │   │   │   ├── ProjectRoute.jsx
+    │   │   │   ├── ProtectedRoute.jsx
+    │   │   │   └── roleHome.js
+    │   │   └── styles/
+    │   │       └── global.css
+    │   └── main.jsx
+    ├── .env.example
+    ├── index.html
+    ├── package.json
+    └── vite.config.js
+
+  --------------------------------------------------------------------------------------------------------------------------------------
+  File                                                                  Responsibility
+  --------------------------------------------------------------------- ----------------------------------------------------------------
+  package.json                                                          Frontend package manifest and scripts (Vite assumed; not named
+                                                                        in the SRS)
+
+  index.html                                                            SPA entry page
+
+  vite.config.js                                                        Build and dev-server configuration
+
+  .env.example                                                          VITE_API_BASE_URL
+
+  src/main.jsx                                                          React entry point
+
+  src/app/App.jsx                                                       Root component and providers
+
+  src/shared/router/AppRouter.jsx                                       Composes the route tables exported by every feature
+
+  src/shared/router/ProtectedRoute.jsx                                  Checks session and role (EIR-005)
+
+  src/shared/router/ProjectRoute.jsx                                    Checks the user belongs to the project (EIR-005)
+
+  src/shared/router/roleHome.js                                         Maps the account role to its dashboard (FR-ACC-005)
+
+  src/shared/api/apiClient.js                                           Attaches the token, refreshes it, maps error codes to messages
+
+  src/shared/api/errorMessages.js                                       Error-code to message map
+
+  src/shared/context/AuthContext.jsx                                    Session user and role
+
+  src/shared/hooks/usePolling.js                                        Generic polling hook
+
+  src/shared/hooks/useAiJob.js                                          Starts an AI job and polls GET /ai-jobs/:id (EIR-002)
+
+  src/shared/components/layout/AppLayout.jsx                            Page frame
+
+  src/shared/components/layout/Sidebar.jsx                              Navigation filtered by role (EIR-001)
+
+  src/shared/components/layout/Topbar.jsx                               User menu and notification bell slot
+
+  src/shared/components/common/JobProgress.jsx                          Progress display for AI jobs
+
+  src/shared/components/common/ErrorBanner.jsx                          Consistent error display
+
+  src/shared/components/common/FieldError.jsx                           Validation error next to a field (EIR-006)
+
+  src/shared/components/common/ConfirmDialog.jsx                        Confirmation dialog
+
+  src/shared/components/common/EmptyState.jsx                           Empty list placeholder
+
+  src/shared/styles/global.css                                          Global styles and layout tokens
+
+  src/features/platform/routes.jsx                                      Route table of this module
+
+  src/features/platform/auth/pages/LoginPage.jsx                        Login (WF-01)
+
+  src/features/platform/auth/pages/RegisterPage.jsx                     Student registration (WF-01)
+
+  src/features/platform/auth/api/authApi.js                             Auth API calls
+
+  src/features/platform/profile/pages/ProfilePage.jsx                   View and update profile (WF-02)
+
+  src/features/platform/profile/components/SkillsEditor.jsx             Technical skills used to pre-fill planning (FR-ACC-007)
+
+  src/features/platform/profile/components/ChangePasswordForm.jsx       Password change (FR-ACC-006)
+
+  src/features/platform/profile/api/profileApi.js                       GET/PATCH /users/me
+
+  src/features/platform/projects/pages/ProjectListPage.jsx              Projects within the user’s access
+
+  src/features/platform/projects/pages/CreateProjectPage.jsx            Create a project (individual or team mode)
+
+  src/features/platform/projects/pages/ProjectOverviewPage.jsx          Stage, supervisor and links to each stage
+
+  src/features/platform/projects/components/ProjectCard.jsx             Project summary card
+
+  src/features/platform/projects/components/StageTracker.jsx            Five-stage lifecycle indicator
+
+  src/features/platform/projects/api/projectsApi.js                     Project API calls
+
+  src/features/platform/dashboards/pages/StudentDashboard.jsx           Student, Team Leader, Team Member home
+
+  src/features/platform/dashboards/pages/SupervisorDashboard.jsx        Assigned projects
+
+  src/features/platform/dashboards/pages/SubAdminDashboard.jsx          Platform operations home
+
+  src/features/platform/dashboards/pages/SuperAdminDashboard.jsx        Users and oversight home
+
+  src/features/platform/notifications/pages/NotificationsPage.jsx       Notification list
+
+  src/features/platform/notifications/components/NotificationBell.jsx   Unread count, refreshed by polling
+
+  src/features/platform/notifications/hooks/useNotifications.js         Polling and mark-as-read
+
+  src/features/platform/notifications/api/notificationsApi.js           Notification API calls
+
+  src/features/platform/admin/pages/UserManagementPage.jsx              Search, filter, activate, assign roles (Super Admin)
+
+  src/features/platform/admin/pages/SubAdminManagementPage.jsx          Promote/demote Sub Admins (Super Admin)
+
+  src/features/platform/admin/pages/RoleChangeHistoryPage.jsx           Promotion and demotion records
+
+  src/features/platform/admin/pages/OversightPage.jsx                   Read-only inspection of projects, evidence, certificates
+
+  src/features/platform/admin/pages/AuditLogPage.jsx                    Audit trail viewer
+
+  src/features/platform/admin/pages/ProjectAdminPage.jsx                All projects (Sub Admin)
+
+  src/features/platform/admin/pages/TeamAdminPage.jsx                   All teams, administrative resolution (Sub Admin)
+
+  src/features/platform/admin/pages/AiConfigPage.jsx                    Ollama, model and RAG settings (Sub Admin)
+
+  src/features/platform/admin/pages/AiStatusPage.jsx                    AI service status and errors
+
+  src/features/platform/admin/pages/SystemSettingsPage.jsx              Platform settings and system notifications
+
+  src/features/platform/admin/pages/LogsHealthPage.jsx                  Logs, database and backend health
+
+  src/features/platform/admin/pages/StatisticsPage.jsx                  Usage and completion statistics
+
+  src/features/platform/admin/api/adminApi.js                           Admin API calls
+
+  src/features/platform/__tests__/platform.test.jsx                     Auth, routing and role-guard tests
+  --------------------------------------------------------------------------------------------------------------------------------------
+
+5. API endpoints (SDD Table 33, prefix /api/v1)
+
+Roles: S Student, TL Team Leader, TM Team Member, SV Supervisor, SA Super Admin, SB Sub Admin.
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Roles
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /auth/register, /auth/login,           Register, log in, refresh and end sessions  Public / authenticated
+  /auth/refresh, /auth/logout                                                             
+
+  GET and PATCH /users/me                     View and update own profile                 All human roles
+
+  GET /users; PATCH /users/:id/status; PATCH  List users; activate or deactivate; assign  SA
+  /users/:id/role                             roles; promote or demote Sub Admins         
+
+  POST /projects; GET /projects; GET          Create and view projects within the user’s  S, TL, TM; SV (assigned); SB; SA (inspect)
+  /projects/:id                               access                                      
+
+  GET and PUT /admin/ai-config; GET           Configure Ollama and RAG; view status       SB; SA (view)
+  /admin/ai-status                                                                        
+
+  GET /admin/stats, /admin/logs,              Statistics, logs, health, settings          SB; SA (view)
+  /admin/health; GET and PUT /admin/settings                                              
+
+  GET /admin/audit; GET /admin/role-changes   Audit trail and promotion and demotion      SA
+                                              records                                     
+
+  GET /notifications; PATCH                   List and mark notifications                 All human roles
+  /notifications/:id/read                                                                 
+
+  GET /ai-jobs/:id                            Job status and result reference             Requester
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+6. AI service endpoints (SDD Table 29, internal)
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Uses
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  GET /health                                 Service, model and Ollama status            Ollama health check
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+7. Dependencies on other modules
+
+-   No dependency on the other modules. Every other module depends on this one for authentication, role checks, project context,
+    notifications, audit logging and the AI gateway.
+
+8. Notes, assumptions and open points
+
+-   The SDD lists the notifications collection under the monitoring module (Table 28), while the SRS traceability table (Table 86)
+    lists notifications under Platform and Administration. This scaffold follows the SRS: Platform owns the notifications module
+    and every other module creates notifications by calling notifications.service.js.
+-   The projects module is not assigned to a component in SRS Table 86. It is placed here because it is shared by all components
+    (assumption).
+-   Supervisor assignment mechanism is an open decision (SDD Appendix A, item 1). The projects module stores supervisorId either
+    way; FR-ADM-014 requires recording who assigned the supervisor. No endpoint for assignment is defined in SDD Table 33, so none
+    is scaffolded.
+-   The SDD defines no endpoint for the Sub Admin to list all teams or to manage invalid project records (FR-ADM-008/009). The
+    pages ProjectAdminPage and TeamAdminPage are scaffolded, but their endpoints must be added to the API design (proposal: under
+    /admin).
+-   Public certificate verification (no login) is an open decision (SDD Appendix A, item 4) and belongs to Module 5.
+
+9. Suggested build order
+
+1.  Environment, config, logger, error classes, constants.
+2.  Express app, middleware chain (security, rate limit, authenticate, authorizeRole, validate, errorHandler).
+3.  users + auth + token service; seedSuperAdmin script.
+4.  projects module and projectContext middleware.
+5.  notifications and audit log (needed by every other module).
+6.  aiGateway (jobs, context builder, secret filter, validator) and aiServiceClient.
+7.  AI service core: config, security, Ollama client, envelope, validation, health.
+8.  Admin module (AI config, settings, stats, health, oversight).
+9.  React shell: router, guards, API client, AuthContext, layout, dashboards, admin pages.

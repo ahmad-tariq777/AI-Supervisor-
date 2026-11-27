@@ -1,0 +1,64 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-6: Task Status Update, Deliverable Submission and AI Verification (WF-11, WF-14, WF-15)
+actor "Assignee" as S
+participant "React SPA" as R
+participant "Express API\n(tasks, submissions,\nverification)" as A
+participant "GitHub REST API" as GH
+participant "AI Gateway" as G
+participant "Python AI Service" as AI
+participant "Ollama\n(Llama 3.2 3B)" as O
+database "MongoDB" as DB
+
+S -> R : Set task In Progress
+R -> A : PATCH /tasks/:id/status
+A -> DB : Check assignee and satisfied dependencies
+alt Not assignee or dependencies open
+  A --> R : 403 or 409
+else Allowed
+  A -> DB : Update status, insert taskHistory
+  A --> R : 200 OK
+end
+S -> R : Submit GitHub URL and supporting evidence
+R -> A : POST /tasks/:id/submissions
+A -> A : Check assignee, validate GitHub URL and files
+A -> DB : Insert submission (new version, Pending Verification)
+A -> DB : Set task Under Review, insert taskHistory
+A -> DB : Insert notification for Team Leader
+A --> R : 201 Created
+A -> G : Queue verification job
+G -> DB : Insert aiJobs (queued), set running
+A -> GH : Check repository access (server-side token)
+GH --> A : Access result
+alt Temporary failure
+  A -> DB : Keep Pending Verification and schedule retry
+else Confirmed inaccessible
+  A -> DB : Store report (inaccessible), status = Requires Resubmission
+else Accessible
+  A -> GH : Read file tree, README, relevant files, commits
+  GH --> A : Repository data
+  A -> G : Evidence excerpts and acceptance criteria
+  G -> AI : POST /v1/verification/evaluate
+  activate AI
+  loop For each acceptance criterion
+    AI -> O : Evaluate criterion against excerpts
+    O --> AI : met, partially met, not met or insufficient evidence
+  end
+  AI -> AI : Map criterion results to status by fixed rules
+  AI --> G : Criteria evaluations, findings, issues, recommendations
+  deactivate AI
+  G -> DB : Store verificationReports and update submission status
+  G -> DB : Write aiInteractionLogs, set job succeeded
+end
+alt Status = Verified
+  A -> DB : Set task Completed, insert taskHistory
+  A -> DB : Store progressSnapshots
+else Other status
+  A -> DB : Set task In Progress
+end
+A -> DB : Insert notifications for student and Team Leader
+R -> A : GET /submissions/:id/verification
+A --> R : Verification report
+@enduml

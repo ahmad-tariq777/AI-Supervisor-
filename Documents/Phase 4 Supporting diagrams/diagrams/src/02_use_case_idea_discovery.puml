@@ -1,0 +1,49 @@
+@startuml
+!include style.iuml
+title UC-1: Component 1 - AI-Powered Project Idea Discovery
+left to right direction
+
+actor "Student" as S
+actor "Team Leader" as TL
+actor "AI Supervisor\n<<system>>" as AI
+actor "External Research\nSources\n<<external>>" as EXT
+
+S <|-- TL
+
+rectangle "AI Project Supervisor" {
+  usecase "Start New Project" as U10
+  usecase "Discover Project Ideas\nwith AI" as U11
+  usecase "Submit Existing\nProject Idea" as U12
+  usecase "Provide Preferences,\nSkills and Resources" as U13
+  usecase "Review and Update\nCollected Information" as U14
+  usecase "Research Market\nand Problems" as U15
+  usecase "Retrieve Sources (RAG)" as U16
+  usecase "Generate Ranked\nProject Ideas" as U17
+  usecase "View and Compare\nRecommended Ideas" as U18
+  usecase "Select Project Idea" as U19
+}
+
+S -- U10
+S -- U13
+S -- U14
+S -- U18
+S -- U19
+U15 -- AI
+U17 -- AI
+U16 -- EXT
+
+U11 .> U10 : <<extend>>
+U12 .> U10 : <<extend>>
+U11 ..> U13 : <<include>>
+U14 .> U11 : <<extend>>
+U11 ..> U15 : <<include>>
+U15 ..> U16 : <<include>>
+U11 ..> U17 : <<include>>
+U19 ..> U18 : <<include>>
+
+S -- U12
+
+note bottom of U12
+  Skips the discovery questionnaire.
+end note
+@enduml

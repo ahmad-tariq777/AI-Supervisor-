@@ -1,0 +1,45 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-4: Team Creation and Invitation Response (WF-08)
+actor "Team Leader" as TL
+actor "Invitee" as I
+participant "React SPA" as R
+participant "Express API\n(teams)" as A
+database "MongoDB" as DB
+
+TL -> R : Choose team-based project
+R -> A : POST /projects/:id/team
+A -> DB : Insert team (projectId, leaderId = creator)
+A --> R : 201 Created
+TL -> R : Select registered student and invite
+R -> A : POST /projects/:id/team/invitations
+A -> A : Check caller is Team Leader of the project
+A -> DB : Check invitee is a registered student
+alt Invitee not registered
+  A --> R : 404 Not Found
+else Invitee registered
+  A -> DB : Insert invitation (status = pending)
+  A -> DB : Insert notification for invitee
+  A --> R : 201 Created
+end
+I -> R : Open invitations
+R -> A : GET /invitations/me
+A --> R : Pending invitations
+alt Invitee accepts
+  I -> R : Accept
+  R -> A : POST /invitations/:id/accept
+  A -> A : Check invitee owns pending invitation
+  A -> DB : Set invitation status = accepted
+  A -> DB : Add member (userId, joinedAt) to team
+  A -> DB : Insert notification for Team Leader
+  A --> R : 200 OK
+else Invitee rejects
+  I -> R : Reject
+  R -> A : POST /invitations/:id/reject
+  A -> DB : Set invitation status = rejected
+  A -> DB : Insert notification for Team Leader
+  A --> R : 200 OK (no membership created)
+end
+@enduml

@@ -1,0 +1,65 @@
+@startuml
+!include style.iuml
+title AR-1: Layered System Architecture - AI Project Supervisor
+skinparam linetype ortho
+skinparam componentStyle rectangle
+
+actor "Users\n(Student, Team Leader, Team Member,\nSupervisor, Sub Admin, Super Admin)" as USERS
+
+package "Presentation Layer" {
+  component "React SPA\nrole-based dashboards, API client,\nAI job polling" as REACT
+}
+
+package "Edge" {
+  component "Nginx\nHTTPS, static hosting, reverse proxy" as NGINX
+}
+
+package "Application Layer - Node.js + Express.js (only public backend)" {
+  component "Middleware chain\nrate limit, JWT authentication, RBAC,\nproject context, validation, audit" as MW
+  component "Business modules\nauth, users, projects, discovery, requirements,\nplanning, teams, execution, monitoring, submissions,\nverification, completion, certificates, admin" as MOD
+  component "aiGateway\ncontext builder, secret filter, AI jobs,\nresult validation, interaction log" as GW
+  component "github module\nrepository access and data (server-side token)" as GHM
+  component "scheduler\nperiodic scans, job retries" as SCH
+  component "Certificate PDF + QR generator" as PDF
+}
+
+package "AI Layer (internal)" {
+  component "Python AI Service (FastAPI)\nprompt builder, output validator" as AIS
+  component "RAG pipeline\nLangChain or LlamaIndex" as RAG
+  component "ML models (Scikit-learn)\nM1 methodology, M2 effort, M3 assignment,\nM4 delay risk, M5 idea ranking" as ML
+  component "Ollama\nLlama 3.2 3B + embedding model" as OLL
+}
+
+package "Data Layer" {
+  database "MongoDB\n27 collections" as DB
+  database "Vector store\nChroma or FAISS" as VS
+  database "File storage\nuploads, trained model files" as FS
+}
+
+package "External Systems" {
+  cloud "GitHub REST API" as GH
+  cloud "Research sources\narXiv, Semantic Scholar, Crossref,\nOpenAlex, reports, websites" as SRC
+}
+
+USERS --> NGINX : HTTPS
+NGINX --> REACT : static files
+REACT --> MW : REST JSON /api/v1
+NGINX --> MW : proxy
+MW --> MOD
+MOD --> DB : Mongoose
+MOD --> GW : AI request
+MOD --> PDF
+MOD --> FS
+SCH --> MOD
+GW --> DB : aiJobs, aiInteractionLogs
+GW --> AIS : HTTP + service key
+MOD --> GHM
+GHM --> GH : HTTPS
+AIS --> RAG
+AIS --> ML
+AIS --> OLL : HTTP localhost
+RAG --> VS
+RAG --> SRC : HTTPS (keywords only)
+RAG --> OLL : embeddings
+ML --> FS : joblib models
+@enduml

@@ -1,0 +1,134 @@
+@startuml
+!include style.iuml
+title ER-2: Execution Plan, Task History, Blockers, Monitoring and Notifications
+hide circle
+skinparam linetype ortho
+
+entity "projects" as projects {
+  * _id <<PK>>
+}
+entity "users" as users {
+  * _id <<PK>>
+}
+
+entity "phases" as phases {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * title
+  description
+  * objectives
+  startDate, endDate
+  deliverables[ ]
+  * completionCriteria
+  * status
+  dependsOn[ ] <<FK phases>>
+  order
+}
+
+entity "sprints" as sprints {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * phaseId <<FK phases>>
+  * title
+  objectives
+  description
+  startDate, endDate
+  deliverables[ ]
+  * status
+}
+
+entity "tasks" as tasks {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * phaseId <<FK phases>>
+  sprintId <<FK sprints>>
+  * title
+  * description
+  * priority : Low | Medium | High | Critical
+  * estimatedEffort
+  dependsOn[ ] <<FK tasks>>
+  assigneeId <<FK users>>
+  assignmentSource : AI | Team Leader
+  startDate
+  * deadline
+  * completionCriteria
+  * status : To Do | In Progress | Under Review | Completed | Blocked
+}
+
+entity "taskHistory" as th {
+  * _id <<PK>>
+  --
+  * taskId <<FK tasks>>
+  * changedBy <<FK users>>
+  * changeType
+  fromValue, toValue
+  reason
+  * at
+}
+
+entity "blockers" as blockers {
+  * _id <<PK>>
+  --
+  * taskId <<FK tasks>>
+  * projectId <<FK projects>>
+  * reportedBy <<FK users>>
+  * description
+  * status
+  resolvedBy <<FK users>>
+  resolution
+  createdAt, resolvedAt
+}
+
+entity "progressSnapshots" as ps {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * percentComplete
+  counts
+  riskLevel : Low | Medium | High
+  * at
+}
+
+entity "aiRecommendations" as air {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * type
+  * content
+  * status : open | accepted | dismissed
+  decidedBy <<FK users>>
+  decidedAt
+}
+
+entity "notifications" as notif {
+  * _id <<PK>>
+  --
+  * userId <<FK users>>
+  projectId <<FK projects>>
+  * type
+  * message
+  * isRead
+  * at
+}
+
+projects ||--o{ phases
+phases ||--o{ sprints
+phases ||--o{ tasks
+sprints |o--o{ tasks
+phases }o..o{ phases : dependsOn
+tasks }o..o{ tasks : dependsOn
+projects ||--o{ tasks
+users |o--o{ tasks : assigned to
+tasks ||--o{ th
+users ||--o{ th : changedBy
+tasks ||--o{ blockers
+users ||--o{ blockers : reportedBy
+projects ||--o{ ps
+projects ||--o{ air
+users |o--o{ air : decidedBy
+users ||--o{ notif
+projects |o--o{ notif
+@enduml

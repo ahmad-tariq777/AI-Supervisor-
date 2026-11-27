@@ -1,0 +1,51 @@
+# Module 1: AI Project Supervisor
+
+## Step 1: AI-Powered Project Idea Discovery
+
+**A. Identify Student Needs**
+- If a student has no project idea, AI asks about their domain, target users or geographical region, interests, skills, budget, and available resources.
+- If a student already has an idea, they can enter it directly and proceed to Step 2.
+
+**B. Market and Problem Research**
+- AI researches current industry trends, user pain points, existing solutions, and unsolved problems using relevant websites, research papers, reports, and other credible sources.
+- It identifies market gaps and evaluates problems from the target users’ perspective.
+- Each finding should include supporting sources and references.
+
+**C. Project Recommendations**
+AI generates ranked project ideas, explaining each idea’s problem statement, target users, proposed solution, existing alternatives, innovation, feasibility, required technologies, expected outcomes, and potential risks.
+
+Students can select a suggested idea or submit their own to continue.
+
+## Step 2: Project Analysis and Planning
+
+**A. Requirement Analysis**
+- AI analyzes the selected idea and any requirements provided by the student.
+- It identifies missing information, asks clarifying questions, defines project scope, and establishes measurable deliverables and acceptance criteria.
+
+**B. Timeline and Methodology**
+- AI asks about the deadline, daily availability, team size, skills, and constraints.
+- It recommends an appropriate development methodology, such as Agile/Scrum, Kanban, or Waterfall, based on project complexity and requirements.
+- It generates a realistic timeline and flags deadlines that appear infeasible.
+
+**C. Team Formation**
+- Students can work individually or invite team members.
+- Invited members join after accepting the invitation.
+- Students can designate a team leader to manage assignments and coordinate work.
+
+## Step 3: AI-Generated Execution Plan
+
+- AI divides the project into phases, sprints where appropriate, and individual tasks.
+- Each task includes a description, priority, estimated effort, dependencies, assigned student, deadline, and completion criteria.
+- Team leaders can assign tasks manually; otherwise, AI recommends and distributes tasks according to skills, workload, and availability.
+- Every phase, sprint, and task has a deadline and a defined completion status.
+
+## Step 4: Progress Monitoring and Delivery
+
+- AI tracks task completion, overdue work, blockers, workload, and overall project progress.
+- It alerts students and team leaders to delays and recommends corrective actions.
+- Students submit deliverables through GitHub repository links and supporting evidence.
+- AI verifies submitted evidence against task acceptance criteria and flags incomplete or unverifiable work.
+
+## Step 5: Project Completion and Certification
+
+Once all required deliverables are submitted and the completion criteria are satisfied, the system generates a verifiable project completion certificate containing the student's name, project title, completion date, and unique certificate ID.

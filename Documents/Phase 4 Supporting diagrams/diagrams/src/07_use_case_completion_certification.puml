@@ -1,0 +1,71 @@
+@startuml
+!include style.iuml
+title UC-6: Component 5 - Project Completion and Certification
+left to right direction
+
+actor "Student" as S
+actor "Team Leader" as TL
+actor "Team Member" as TM
+actor "Supervisor" as SV
+actor "Sub Admin" as SB
+actor "Super Admin" as SA
+actor "AI Supervisor\n<<system>>" as AI
+
+S <|-- TL
+
+rectangle "AI Project Supervisor" {
+  usecase "Request Completion\nEvaluation" as U80
+  usecase "Evaluate Project Completion" as U81
+  usecase "Generate Final Completion\nReport" as U82
+  usecase "View Completion Report" as U83
+  usecase "Approve or Reject\nCompletion" as U84
+  usecase "Determine Certificate\nEligibility" as U85
+  usecase "Generate Completion\nCertificate" as U86
+  usecase "View and Download\nCertificate" as U87
+  usecase "Verify Certificate" as U88
+  usecase "Display Validity Status\nand Certificate Information" as U89
+  usecase "Record Verification\nAttempt" as U90
+  usecase "Manage Certificate Records" as U91
+  usecase "Investigate Certificate\nVerification Issues" as U92
+  usecase "Inspect Certificate Records and\nVerification Activity" as U93
+}
+
+S -- U80
+S -- U83
+S -- U87
+TM -- U87
+S -- U88
+TM -- U88
+SV -- U88
+SV -- U84
+U81 -- AI
+U82 -- AI
+U85 -- AI
+U86 -- AI
+U91 -- SB
+U92 -- SB
+U88 -- SB
+U93 -- SA
+U88 -- SA
+SV -- U86
+
+U80 ..> U81 : <<include>>
+U81 ..> U82 : <<include>>
+U81 ..> U85 : <<include>>
+U84 .> U81 : <<extend>>
+U86 ..> U85 : <<include>>
+U88 ..> U89 : <<include>>
+U88 ..> U90 : <<include>>
+U92 .> U91 : <<extend>>
+
+note bottom of U84
+  Only when supervisor approval is enabled
+  by the institution (system setting).
+end note
+
+note bottom of U86
+  Created only when every mandatory
+  completion condition is satisfied. One
+  certificate per eligible team member.
+end note
+@enduml

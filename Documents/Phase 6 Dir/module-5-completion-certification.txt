@@ -1,0 +1,281 @@
+Module 5: Project Completion and Certification - Directory Structure
+
+AI Project Supervisor (Module 1 of the larger platform) | Based on SRS v1.0 and SDD v1.0 | Draft for review
+
+1. Module summary
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Item                                                             Detail
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  Type                                                             Component 5 of 5
+
+  Purpose                                                          Evaluates whether a project is complete, produces the final
+                                                                   report, issues unique and verifiable certificates to eligible
+                                                                   students, and offers certificate verification and record
+                                                                   management.
+
+  Principal output                                                 Completion report; unique, verifiable certificates.
+
+  Actors                                                           Team Leader, Student, Supervisor (approval where enabled), Sub
+                                                                   Admin (records), Super Admin (view), all human roles
+                                                                   (verification), AI Supervisor
+
+  Use cases                                                        UC-14, UC-15, UC-16
+
+  Workflows                                                        WF-19, WF-20, WF-21
+
+  Requirements                                                     FR-CMP-001..007; FR-CRT-001..012; BR-CRT-1..7; RBAC-012
+
+  MongoDB collections                                              completionReports, certificates, certificateVerifications
+
+  API groups                                                       Completion; Certificates; Certificate administration
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+2. How this module fits the repository
+
+The platform is one Express API (modular monolith), one Python AI service and one React single-page app (SDD 6.2). This module is
+therefore a set of folders inside those three applications, not a separate application. Each backend module folder holds its own
+routes, controller, service, validators and models (SDD 6.5).
+
+-   Backend (Node.js + Express): backend/
+-   AI service (Python + FastAPI, Ollama, Scikit-learn, RAG): ai-service/
+-   Frontend (React): frontend/
+
+3. Backend directory structure
+
+3.1 Node.js + Express API
+
+    backend/
+    ├── src/
+    │   └── modules/
+    │       ├── certificates/
+    │       │   ├── certificate.model.js
+    │       │   ├── certificateAdmin.service.js
+    │       │   ├── certificateId.js
+    │       │   ├── certificatePdf.service.js
+    │       │   ├── certificates.controller.js
+    │       │   ├── certificates.routes.js
+    │       │   ├── certificates.service.js
+    │       │   ├── certificates.validators.js
+    │       │   ├── certificateVerification.model.js
+    │       │   ├── integrityHash.js
+    │       │   └── verification.service.js
+    │       └── completion/
+    │           ├── approval.service.js
+    │           ├── completion.controller.js
+    │           ├── completion.routes.js
+    │           ├── completion.service.js
+    │           ├── completion.validators.js
+    │           ├── completionReport.model.js
+    │           └── eligibility.service.js
+    └── tests/
+        └── completion-certification/
+            ├── certificateId.test.js
+            ├── eligibility.test.js
+            └── verification.test.js
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  src/modules/completion/completion.routes.js                      evaluate, report, approve, reject
+
+  src/modules/completion/completion.controller.js                  HTTP layer
+
+  src/modules/completion/completion.service.js                     Evaluation on request or when all mandatory tasks are Completed
+                                                                   (FR-CMP-001)
+
+  src/modules/completion/eligibility.service.js                    Rule-based checks: tasks, verified deliverables, blockers,
+                                                                   per-member eligibility (FR-CMP-002..005)
+
+  src/modules/completion/approval.service.js                       Supervisor approval when supervisorApprovalRequired is enabled
+                                                                   (FR-CMP-007)
+
+  src/modules/completion/completion.validators.js                  Request schemas
+
+  src/modules/completion/completionReport.model.js                 completionReports collection
+
+  src/modules/certificates/certificates.routes.js                  GET /certificates/me, /:id/download, /verify/:certificateId;
+                                                                   /admin/certificates
+
+  src/modules/certificates/certificates.controller.js              HTTP layer
+
+  src/modules/certificates/certificates.service.js                 Issues one certificate per eligible student, in a transaction
+                                                                   where supported (DBR-005)
+
+  src/modules/certificates/certificateId.js                        Cryptographically random ID with readable prefix (FR-CRT-006)
+
+  src/modules/certificates/integrityHash.js                        Hash of the record content to detect tampering (FR-CRT-011)
+
+  src/modules/certificates/certificatePdf.service.js               Server-side PDF with QR code (FR-CRT-005, proposed)
+
+  src/modules/certificates/verification.service.js                 Validity lookup returning certificate-level fields only; records
+                                                                   attempts (FR-CRT-007..009)
+
+  src/modules/certificates/certificateAdmin.service.js             Sub Admin view, re-issue and revoke, each logged (FR-CRT-010)
+
+  src/modules/certificates/certificates.validators.js              Request schemas
+
+  src/modules/certificates/certificate.model.js                    certificates collection (unique certificateId; valid or revoked)
+
+  src/modules/certificates/certificateVerification.model.js        certificateVerifications collection
+
+  tests/completion-certification/eligibility.test.js               Eligibility and member-level tests
+
+  tests/completion-certification/certificateId.test.js             Uniqueness and format tests
+
+  tests/completion-certification/verification.test.js              Verification exposes only certificate fields
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+3.2 Python AI service
+
+    ai-service/
+    ├── app/
+    │   └── modules/
+    │       └── completion/
+    │           ├── prompts/
+    │           │   └── completion_report_v1.txt
+    │           ├── __init__.py
+    │           ├── router.py
+    │           ├── schemas.py
+    │           └── service.py
+    └── tests/
+        └── completion-certification/
+            └── test_completion_report.py
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  app/modules/completion/__init__.py                               Package marker
+
+  app/modules/completion/router.py                                 POST /v1/completion/evaluate
+
+  app/modules/completion/schemas.py                                Completion report text schema
+
+  app/modules/completion/service.py                                Writes report text from rule-based results; does not decide
+                                                                   eligibility
+
+  app/modules/completion/prompts/completion_report_v1.txt          Final report text
+
+  tests/completion-certification/test_completion_report.py         Schema validation test
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+4. Frontend directory structure (React)
+
+    frontend/
+    └── src/
+        └── features/
+            └── completion-certification/
+                ├── __tests__/
+                │   └── completionCertification.test.jsx
+                ├── api/
+                │   ├── certificatesApi.js
+                │   └── completionApi.js
+                ├── components/
+                │   ├── CertificateCard.jsx
+                │   ├── CertificateDownloadButton.jsx
+                │   ├── CompletionReportView.jsx
+                │   ├── MemberEligibilityTable.jsx
+                │   ├── RecordActionsMenu.jsx
+                │   └── VerificationResult.jsx
+                ├── hooks/
+                │   ├── useCertificates.js
+                │   └── useCompletion.js
+                ├── pages/
+                │   ├── CertificateRecordsPage.jsx
+                │   ├── CompletionApprovalPage.jsx
+                │   ├── CompletionPage.jsx
+                │   ├── MyCertificatesPage.jsx
+                │   └── VerifyCertificatePage.jsx
+                └── routes.jsx
+
+  ---------------------------------------------------------------------------------------------------------------------------------------------------
+  File                                                                               Responsibility
+  ---------------------------------------------------------------------------------- ----------------------------------------------------------------
+  src/features/completion-certification/routes.jsx                                   Route table of this module
+
+  src/features/completion-certification/api/completionApi.js                         Completion API calls
+
+  src/features/completion-certification/api/certificatesApi.js                       Certificate, verification and record API calls
+
+  src/features/completion-certification/hooks/useCompletion.js                       Evaluation job and report
+
+  src/features/completion-certification/hooks/useCertificates.js                     My certificates and downloads
+
+  src/features/completion-certification/pages/CompletionPage.jsx                     Request evaluation; read the final report (WF-19)
+
+  src/features/completion-certification/pages/CompletionApprovalPage.jsx             Supervisor approve or reject with feedback
+
+  src/features/completion-certification/pages/MyCertificatesPage.jsx                 View and download own certificates (WF-20)
+
+  src/features/completion-certification/pages/VerifyCertificatePage.jsx              Enter an ID; see validity (WF-21)
+
+  src/features/completion-certification/pages/CertificateRecordsPage.jsx             Sub Admin manage records; Super Admin view only
+
+  src/features/completion-certification/components/CompletionReportView.jsx          Status, pending items, unresolved blockers
+
+  src/features/completion-certification/components/MemberEligibilityTable.jsx        Individual completion per member (FR-CMP-005)
+
+  src/features/completion-certification/components/CertificateCard.jsx               Name, project, date, ID
+
+  src/features/completion-certification/components/CertificateDownloadButton.jsx     PDF download
+
+  src/features/completion-certification/components/VerificationResult.jsx            Valid, revoked, or no valid certificate
+
+  src/features/completion-certification/components/RecordActionsMenu.jsx             Re-issue or revoke with reason
+
+  src/features/completion-certification/__tests__/completionCertification.test.jsx   Report, download and verification tests
+  ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. API endpoints (SDD Table 33, prefix /api/v1)
+
+Roles: S Student, TL Team Leader, TM Team Member, SV Supervisor, SA Super Admin, SB Sub Admin.
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Roles
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /projects/:id/completion/evaluate; GET Evaluate, read report, supervisor decision  TL, S request; SV decides
+  /projects/:id/completion/report; POST                                                   
+  /projects/:id/completion/approve and                                                    
+  /reject                                                                                 
+
+  GET /certificates/me; GET                   Own certificates; download; verification    Owner; all human roles for verification
+  /certificates/:id/download; GET                                                         
+  /certificates/verify/:certificateId                                                     
+
+  GET /admin/certificates; PATCH              View and manage certificate records         SB; SA (view)
+  /admin/certificates/:id                                                                 
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+6. AI service endpoints (SDD Table 29, internal)
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Uses
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /v1/completion/evaluate                Completion report text                      Language model
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+7. Dependencies on other modules
+
+-   Module 0: authentication, systemSettings (supervisorApprovalRequired), notifications, audit.
+-   Module 3: task statuses. Module 4: verified deliverables and unresolved blockers.
+
+8. Notes, assumptions and open points
+
+-   Certificates are issued automatically when every condition is met (and the Supervisor approved, where enabled); Sub Admins
+    manage, re-issue or revoke records (SDD Appendix A, item 3 - to be confirmed).
+-   Public, no-login certificate verification is an open decision (SDD Appendix A, item 4; FR-CRT-012 is a Could). If adopted,
+    that endpoint must return only certificate-level fields.
+-   Eligibility is decided by rule-based code; the language model only writes report text.
+-   Certificate records are retained permanently and never deleted (DBR-010, BR-CRT-6).
+-   Certificate verification must not require access to the student’s private workspace (BR-CRT-7). Rate-limit this endpoint (SDD
+    Table 34).
+
+9. Suggested build order
+
+1.  Eligibility service and completion report model, with tests.
+2.  Completion evaluation endpoint, report text via AI, Supervisor approval.
+3.  certificateId, integrityHash, certificate model with unique index.
+4.  Transactional issuing per eligible member; notifications.
+5.  PDF with QR code; download endpoint.
+6.  Verification endpoint and page; record administration; frontend pages in the same order.

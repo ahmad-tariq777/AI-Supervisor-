@@ -1,0 +1,50 @@
+@startuml
+!include style.iuml
+title AD-8: Project Completion Evaluation and Certificate Generation (WF-19, WF-20)
+|Student or Team Leader|
+start
+:Request completion evaluation\n(or all mandatory tasks reach Completed);
+|System|
+:Start evaluation;
+|AI Supervisor|
+:Evaluate phases, sprints, tasks and deliverables;
+:List pending tasks, unverified deliverables\nand unresolved blockers;
+|System|
+:Check eligibility rules (including each\nteam member's individual requirements);
+|AI Supervisor|
+:Generate final project completion report;
+|System|
+if (All completion criteria satisfied?) then (no)
+  :Report lists outstanding items;
+  :Execution continues;
+  stop
+else (yes)
+endif
+|AI Supervisor|
+:Recommend completion and certificate eligibility;
+|System|
+if (Supervisor approval enabled?) then (yes)
+  |Supervisor|
+  if (Approve completion?) then (no)
+    |System|
+    :Return feedback to team;
+    :No certificate created;
+    stop
+  else (yes)
+  endif
+else (no)
+endif
+|System|
+:Confirm all configured completion conditions;
+repeat
+  :Generate certificate ID for next eligible member;
+  :Store certificate with name, project title,\ncompletion date, ID and verification information;
+repeat while (More eligible members?) is (yes)
+note right
+  A duplicate ID is rejected by the
+  unique index and a new ID is generated.
+end note
+|Student or Team Leader|
+:View and download own certificate;
+stop
+@enduml

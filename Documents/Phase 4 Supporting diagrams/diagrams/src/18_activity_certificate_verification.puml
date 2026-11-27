@@ -1,0 +1,22 @@
+@startuml
+!include style.iuml
+title AD-9: Certificate Verification (WF-21)
+|User|
+start
+:Open verification page;
+:Enter certificate ID;
+|System|
+:Look up certificate ID;
+if (Certificate found?) then (yes)
+  :Display validity status;
+  :Display student name, project title,\ncompletion date and certificate ID;
+else (no)
+  :Display that no valid certificate exists;
+endif
+:Record verification attempt;
+note right
+  No access to the private
+  project workspace is required.
+end note
+stop
+@enduml

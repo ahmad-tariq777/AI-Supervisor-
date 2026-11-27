@@ -1,0 +1,85 @@
+@startuml
+!include style.iuml
+title ER-4: AI Jobs, AI Traceability, Configuration and Audit Collections
+hide circle
+skinparam linetype ortho
+
+entity "projects" as projects {
+  * _id <<PK>>
+}
+entity "users" as users {
+  * _id <<PK>>
+}
+entity "researchFindings" as rf {
+  * _id <<PK>>
+  jobId <<FK aiJobs>>
+}
+
+entity "aiJobs" as jobs {
+  * _id <<PK>>
+  --
+  * type
+  projectId <<FK projects>>
+  * requestedBy <<FK users>>
+  * status : queued | running | succeeded | failed
+  error
+  createdAt, updatedAt
+}
+
+entity "aiInteractionLogs" as log {
+  * _id <<PK>>
+  --
+  * jobId <<FK aiJobs>>
+  projectId <<FK projects>>
+  * requestedBy <<FK users>>
+  * taskType
+  promptVersion
+  model, parameters
+  retrievedSourceIds[ ]
+  mlVersions
+  output
+  validationResult
+  * at
+}
+
+entity "aiConfigurations" as cfg {
+  * _id <<PK>>
+  --
+  * ollamaBaseUrl
+  * modelName
+  modelParameters
+  ragSettings
+  * isEnabled
+  updatedBy <<FK users>>
+}
+
+entity "systemSettings" as set {
+  * _id <<PK>>
+  --
+  supervisorApprovalRequired
+  notificationSettings
+  otherGlobalFlags
+}
+
+entity "auditLogs" as audit {
+  * _id <<PK>>
+  --
+  * actorId <<FK users>>
+  * actorRole
+  * category : role change | promotion | demotion | account | configuration | certificate | verification decision
+  targetType
+  targetId
+  before, after
+  reason
+  * at
+}
+
+projects |o--o{ jobs
+users ||--o{ jobs : requestedBy
+jobs ||--o| log : traced by
+jobs |o--o{ rf : produces
+users |o--o{ cfg : updatedBy
+users ||--o{ audit : actorId
+projects |o--o{ log
+users ||--o{ log : requestedBy
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-3: Requirement Analysis and Baseline Approval (WF-06)
+actor "Student / Team Leader" as S
+participant "React SPA" as R
+participant "Express API\n(requirements)" as A
+participant "AI Gateway" as G
+participant "Python AI Service" as AI
+participant "Ollama\n(Llama 3.2 3B)" as O
+database "MongoDB" as DB
+
+S -> R : Request analysis of selected idea
+R -> A : POST /projects/:id/requirements/analyze
+A -> G : Create analysis job (authorized context)
+G -> DB : Insert aiJobs (queued)
+G -> AI : POST /v1/requirements/analyze
+AI -> O : Analyze idea (schema output)
+O --> AI : Requirements, scope, deliverables, criteria, questions
+AI --> G : Validated result
+G -> DB : Store requirements (version, status = draft) and logs
+R -> A : GET /projects/:id/requirements
+A --> R : Draft with clarification questions
+loop While critical gaps remain
+  S -> R : Answer clarification questions
+  R -> A : POST /projects/:id/requirements/analyze (answers)
+  A -> G : Create refinement job
+  G -> AI : POST /v1/requirements/analyze
+  AI --> G : Refined result
+  G -> DB : Store refined draft
+end
+S -> R : Edit requirements
+R -> A : PUT /projects/:id/requirements
+A -> DB : Update draft
+S -> R : Approve
+R -> A : POST /projects/:id/requirements/approve
+A -> A : Check account role and project role (Student or Team Leader)
+alt Not permitted
+  A --> R : 403 Forbidden
+else Permitted
+  A -> DB : Set status = approved, approvedBy, approvedAt
+  A -> DB : Set projects.baselineRequirementsId
+  A --> R : 200 OK baseline stored
+end
+@enduml

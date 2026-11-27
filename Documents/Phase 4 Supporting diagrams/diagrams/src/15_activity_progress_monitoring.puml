@@ -1,0 +1,33 @@
+@startuml
+!include style.iuml
+title AD-6: Progress Monitoring and Delay Detection (WF-12)
+|System|
+start
+:Task or deliverable updated, or scheduled scan starts;
+:Recalculate task, sprint, phase and project completion;
+:Store progress snapshot;
+:List completed, pending, overdue and blocked tasks,\nupcoming deadlines, delayed phases and sprints,\nmembers with excessive workload;
+|AI Supervisor|
+:Predict risk level and detect tasks that\nendanger dependent tasks;
+if (Delay or risk detected?) then (yes)
+  |System|
+  :Send in-app alerts to responsible\nstudents and Team Leader;
+  |AI Supervisor|
+  :Generate corrective recommendations\n(reassign, adjust deadlines, redistribute workload,\nresolve blockers, revise timeline);
+  |System|
+  :Store recommendations as open;
+  |Team Leader|
+  if (Accept recommendation?) then (accept)
+    |System|
+    :Record decision as accepted;
+    :Continue to task assignment or plan adjustment;
+  else (dismiss)
+    |System|
+    :Record decision as dismissed;
+  endif
+else (no)
+endif
+|Student, Team Leader and Supervisor|
+:View progress, workload and history\naccording to role;
+stop
+@enduml

@@ -1,0 +1,2552 @@
+SYSTEM DESIGN DOCUMENT
+
+AI Project Supervisor
+
+Module 1
+
+04. System Workflow Document
+
+05. AI Functionality Specification
+
+06. Technical Architecture
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Item                            Detail
+  ------------------------------- -------------------------------------------------------------------------------------------------
+  Document                        System Design (Parts 04 to 06)
+
+  Project                         AI-Powered Platform for Project Idea Discovery, Planning, Progress Monitoring and Certification
+
+  Version                         1.0
+
+  Date                            November 2026
+
+  Status                          Draft for review
+
+  Based on                        Software Requirements Specification: 02. Complete Module Specification and 03. User Roles &
+                                  Permissions; Project Proposal; Project Idea; Technology Stack
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+TABLE OF CONTENTS
+
+04. System Workflow Document
+
+4.1 Purpose and Scope
+
+This document describes the step-by-step workflows of the AI Project Supervisor module for every user role and for each of its
+five components. It translates the requirements of the Software Requirements Specification (Sections 02 and 03) into operational
+flows: who performs each action, how the system and the AI Supervisor respond, which business rules are enforced, and what output
+each workflow produces.
+
+The workflows cover the Student, Team Leader, Team Member, Supervisor, Super Admin, Sub Admin and AI Supervisor roles. How the AI
+performs its work is specified in Section 05, and how the system is built is specified in Section 06.
+
+4.2 Conventions
+
+Table 1: Actor abbreviations and conventions
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Term                      Meaning
+  ------------------------- -------------------------------------------------------------------------------------------------------
+  S                         Student (a registered student account).
+
+  TL                        Team Leader: a student who coordinates a team-based project. The project creator is the initial Team
+                            Leader.
+
+  TM                        Team Member: a student who joined a team by accepting an invitation.
+
+  SV                        Supervisor: a human academic or project supervisor.
+
+  SA / SB                   Super Admin / Sub Admin.
+
+  AI                        AI Supervisor: an automated system role, not a human account. It acts only through the AI services,
+                            within the permissions of the requesting user.
+
+  SYS                       The platform backend (Node.js and Express API, database and background jobs).
+
+  Project-level roles       Team Leader and Team Member are roles held within a project. A user keeps one account-level role (for
+                            example Student) and gains a project-level role through team membership.
+
+  Status names              Task, verification and priority names are written exactly as defined in the SRS.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+4.3 End-to-End Lifecycle Overview
+
+A project moves through five stages that correspond to the five components of the module. Each stage produces a defined output
+that the next stage consumes.
+
+[End-to-end project lifecycle of the AI Project Supervisor]
+
+Figure 1: End-to-end project lifecycle of the AI Project Supervisor
+
+Table 2: Lifecycle stages, actors and outputs
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Stage                    Primary actors        Key activities                                  Output
+  ------------------------ --------------------- ----------------------------------------------- ------------------------------------
+  1. Idea Discovery        Student, AI           Requirement collection, market and problem      Researched and ranked project ideas;
+                                                 research, idea ranking and selection            one selected idea
+
+  2. Project Analysis and  Student, Team Leader, Requirement analysis, scope definition,         Approved requirements, scope and
+  Planning                 AI                    baseline approval, methodology recommendation,  acceptance criteria; timeline and
+                                                 timeline, team formation                        methodology; registered team
+
+  3. Execution Plan        AI, Team Leader       Phase generation, sprint generation             Phases, sprints and individual tasks
+                                                 (Agile/Scrum only), task generation, task       with owners
+                                                 assignment                                      
+
+  4. Monitoring and        All project roles,    Task updates, progress analysis, delay          Progress reports, delay alerts,
+  Verification             Supervisor, AI        detection, blocker handling, evidence           recommendations and verification
+                                                 submission, AI verification, supervisor review  reports
+
+  5. Completion and        AI, Supervisor,       Completion evaluation, approval (where          Final completion report; unique and
+  Certification            System                enabled), certificate generation and            verifiable certificates
+                                                 verification                                    
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+4.4 Workflow Index
+
+Table 3: Index of workflows
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  ID           Workflow                                                      Primary actor(s)                      Section
+  ------------ ------------------------------------------------------------- ------------------------------------- -----------------
+  WF-01        Registration and login                                        All human users                       Platform access
+
+  WF-02        Profile management                                            All human users                       Platform access
+
+  WF-03        Start a new project                                           Student                               Component 1
+
+  WF-04        AI-guided idea discovery                                      Student, AI                           Component 1
+
+  WF-05        Submit an existing idea                                       Student                               Component 1
+
+  WF-06        Requirement analysis and baseline approval                    Student, AI                           Component 2
+
+  WF-07        Methodology recommendation and timeline                       Student, AI                           Component 2
+
+  WF-08        Team formation and invitations                                Student, Team Leader                  Component 2
+
+  WF-09        Execution plan generation                                     AI, Team Leader                       Component 3
+
+  WF-10        Task assignment                                               Team Leader, AI                       Component 3
+
+  WF-11        Task execution and status update                              Student, Team Member, Team Leader     Component 3
+
+  WF-12        Progress monitoring and delay detection                       AI, System                            Component 4
+
+  WF-13        Blocker reporting and handling                                All project roles, Team Leader        Component 4
+
+  WF-14        Deliverable submission                                        Student, Team Member, Team Leader     Component 4
+
+  WF-15        AI evidence verification                                      AI                                    Component 4
+
+  WF-16        Resubmission                                                  Student, Team Member                  Component 4
+
+  WF-17        Supervisor review and override                                Supervisor                            Component 4
+
+  WF-18        Plan adjustment after a change                                Team Leader, AI                       Components 3 and
+                                                                                                                   4
+
+  WF-19        Project completion evaluation                                 AI, Supervisor                        Component 5
+
+  WF-20        Certificate generation                                        System                                Component 5
+
+  WF-21        Certificate verification                                      All human roles                       Component 5
+
+  WF-22        User and role management                                      Super Admin                           Administration
+
+  WF-23        Sub Admin promotion and demotion                              Super Admin                           Administration
+
+  WF-24        Platform oversight                                            Super Admin                           Administration
+
+  WF-25        Project and team administration                               Sub Admin                             Administration
+
+  WF-26        AI configuration                                              Sub Admin                             Administration
+
+  WF-27        System monitoring and certificate records                     Sub Admin                             Administration
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.5 Common Workflows
+
+WF-01 Registration and Login
+
+Actors: Any user (registration is for students).
+
+Preconditions: None.
+
+Outcome: An authenticated session carrying the user identity and role.
+
+Rules enforced: Every user must have an authenticated account and an assigned role; deactivated accounts cannot access protected
+functionality (SRS 3.4, 3.5).
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        User            Opens the registration page and submits name,       SYS validates the input, checks that the email is
+                           email, password and required profile details.       unique, stores a hashed password and assigns the
+                                                                               default Student role.
+
+  2        User            Logs in with email and password.                    SYS verifies the credentials, rejects deactivated
+                                                                               accounts and issues a signed session token that
+                                                                               carries identity and role.
+
+  3        SYS             Routes the user after login.                        The user lands on the dashboard for the account role:
+                                                                               student dashboard, supervisor dashboard, Super Admin
+                                                                               console or Sub Admin console.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+  Role assignment. Registration creates Student accounts. The Super Admin assigns the Supervisor role and promotes users to Sub
+  Admin (SRS 3.5). The first Super Admin account is created when the platform is installed (seeded by the deployment procedure).
+
+WF-02 Profile Management
+
+Actors: All human users.
+
+Preconditions: Logged in.
+
+Outcome: Updated personal profile.
+
+Rules enforced: Users may manage only their own profile.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        User            Opens the profile page and edits personal           SYS validates the input and confirms that the profile
+                           information or changes the password.                belongs to the authenticated user.
+
+  2        SYS             Saves the changes.                                  The updated profile is stored. Technical skills saved
+                                                                               on the profile can pre-fill the planning forms of
+                                                                               WF-07.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.6 Component 1 Workflows: Idea Discovery
+
+WF-03 Start a New Project
+
+Actors: Student.
+
+Preconditions: Logged in.
+
+Outcome: A draft project record linked to the student, and the chosen path (AI discovery or existing idea).
+
+Rules enforced: Every project must have at least one student; the project creator is the initial Team Leader of a team-based
+project.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        S               Selects Start New Project.                          SYS shows two options: Find a project idea using AI,
+                                                                               or Continue with an existing project idea.
+
+  2        S               Chooses one option.                                 SYS creates the draft project and routes the student
+                                                                               to WF-04 or WF-05.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-04 AI-Guided Idea Discovery
+
+Actors: Student, AI.
+
+Preconditions: A project has been started and the student chose to find an idea using AI.
+
+Outcome: Researched, ranked project ideas and a saved selected idea.
+
+Rules enforced: Recommendations must be relevant to the collected requirements; research claims carry references whenever
+available; sourced information is distinguished from AI-generated suggestions; selecting an idea does not finalize the project
+scope.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        AI              Starts an interactive conversation and asks for:    Conversation turns are stored with the project.
+                           preferred domain, personal interests, technical     
+                           skills and experience, target users, target         
+                           geographical region, available budget, available    
+                           hardware, software and other resources, and project 
+                           preferences and constraints.                        
+
+  2        S               Answers the questions.                              AI structures the answers into a requirement profile.
+
+  3        S               Reviews and updates the collected information.      SYS saves the confirmed profile. If the profile
+                                                                               changes after ideas were generated, the student may
+                                                                               request a new set of recommendations.
+
+  4        AI              Identifies relevant real-world problems and         RAG retrieves passages from research papers, academic
+                           researches industry trends, existing products and   publications, industry reports, websites and other
+                           solutions, user pain points, market demand,         credible sources before the answer is generated.
+                           research gaps and innovation opportunities.         
+
+  5        AI              Compares existing solutions, identifies their       Each finding is stored with references and source
+                           limitations and evaluates each problem from the     links and is labelled Sourced. AI-written suggestions
+                           target users’ perspective.                          are labelled AI-generated.
+
+  6        AI              Generates multiple project ideas and ranks them by  Each idea contains: project title, problem statement,
+                           relevance to interests, technical feasibility,      target users, proposed solution, existing
+                           available resources, innovation potential,          alternatives, innovation and uniqueness, required
+                           real-world usefulness and estimated complexity.     technologies, required resources, feasibility
+                                                                               analysis, expected outcomes, potential risks and
+                                                                               challenges, and supporting references.
+
+  7        S               Views and compares the ideas, then selects one      SYS saves the selected idea and forwards it to
+                           recommended idea or submits an own idea (WF-05).    Project Analysis and Planning (WF-06).
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-05 Submit an Existing Idea
+
+Actors: Student.
+
+Preconditions: A project has been started.
+
+Outcome: A saved student-submitted idea forwarded to analysis.
+
+Rules enforced: A project idea must be provided before project analysis; students may use an AI-generated idea or their own.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        S               Chooses Continue with an existing project idea (or  SYS shows the idea submission form and skips the
+                           Submit own idea from WF-04).                        discovery questionnaire.
+
+  2        S               Enters the idea title and description (problem,     SYS validates that an idea has been provided.
+                           target users and proposed solution).                
+
+  3        SYS             Saves the idea.                                     The idea is marked as student-submitted and forwarded
+                                                                               to WF-06.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.7 Component 2 Workflows: Analysis and Planning
+
+WF-06 Requirement Analysis and Baseline Approval
+
+Actors: Student (Team Leader in a team project), AI.
+
+Preconditions: An idea has been selected or submitted.
+
+Outcome: Approved requirements, scope, deliverables and acceptance criteria stored as the project baseline.
+
+Rules enforced: Only approved requirements are used to generate the execution plan; changes to approved requirements may require
+timeline and task-plan updates.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        AI              Analyzes the selected idea.                         AI identifies functional requirements, non-functional
+                                                                               requirements, constraints, dependencies and project
+                                                                               objectives, and detects missing or unclear
+                                                                               requirements.
+
+  2        S               Optionally provides additional requirements.        SYS adds them to the analysis input.
+
+  3        AI              Asks clarification questions about missing or       Questions and answers are stored with the project.
+                           unclear items.                                      
+
+  4        S               Answers the clarification questions.                AI refines the analysis. The loop ends when no
+                                                                               critical gap remains.
+
+  5        AI              Defines the project scope and measurable            A draft requirements document is stored.
+                           deliverables, and generates acceptance criteria for 
+                           each major deliverable.                             
+
+  6        S / TL          Reviews, edits and approves the requirements.       On approval SYS stores them as the versioned project
+                                                                               baseline.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+  Approval authority. In a team project the Team Leader approves the scope; the RBAC matrix gives Team Members no scope-approval
+  permission. The Supervisor may review the requirements.
+
+WF-07 Methodology Recommendation and Timeline
+
+Actors: Student (Team Leader in a team project), AI.
+
+Preconditions: Approved requirements exist.
+
+Outcome: A recommended methodology with its rationale and an approved timeline.
+
+Rules enforced: The timeline must consider the available deadline and resources; unrealistic deadlines are flagged.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        S / TL          Provides the submission deadline, daily working     SYS validates the inputs (for example, the deadline
+                           hours or availability, team size, individual        lies in the future).
+                           members’ skills, technical constraints and          
+                           available resources, and confirms the project       
+                           complexity.                                         
+
+  2        AI              Evaluates the inputs.                               AI recommends Agile/Scrum, Kanban or Waterfall and
+                                                                               explains why the choice suits the project.
+
+  3        AI              Generates the project timeline.                     The timeline contains phases, phase start dates,
+                                                                               phase deadlines, estimated duration, milestones and
+                                                                               dependencies between phases.
+
+  4        AI              Evaluates whether the timeline is achievable.       SYS flags an unrealistic deadline and AI recommends
+                                                                               adjustments, such as reducing scope, extending the
+                                                                               deadline, increasing availability or enlarging the
+                                                                               team.
+
+  5        S / TL          Reviews the timeline, adjusts the inputs if needed  SYS stores the approved timeline. Team Members cannot
+                           and approves it.                                    modify it.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+  Ordering note. Team size and member skills are inputs to this workflow. In a team project, WF-08 should therefore be started
+  before step 1 of WF-07, or the team size entered provisionally and updated as invitations are accepted.
+
+WF-08 Team Formation and Invitations
+
+Actors: Student (project creator and Team Leader), invited students.
+
+Preconditions: A project exists.
+
+Outcome: An individual project, or a registered team with one designated Team Leader.
+
+Rules enforced: A student must accept an invitation before becoming a team member; each team has one designated Team Leader at a
+time.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        S               Chooses individual or team-based development.       For an individual project the student remains the
+                                                                               sole participant. For a team project SYS creates the
+                                                                               team and the project creator becomes Team Leader.
+
+  2        TL              Selects registered students and sends invitations.  SYS creates invitation records with the status
+                                                                               Pending and notifies the invitees. Only registered
+                                                                               students can be invited.
+
+  3        Invitee         Opens the invitation and accepts or rejects it.     On acceptance the student becomes a Team Member and
+                                                                               membership is recorded. On rejection no membership is
+                                                                               created and the Team Leader is notified.
+
+  4        TL              Views members and membership status, and may remove Removal is subject to project rules and supervisor
+                           a member.                                           oversight and is recorded.
+
+  5        TL              Optionally designates another team member as Team   SYS transfers the role so that exactly one Team
+                           Leader.                                             Leader exists, and records the change.
+
+  6        TL / TM         Open their responsibilities view.                   SYS shows each student their assigned
+                                                                               responsibilities.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.8 Component 3 Workflows: Execution Plan
+
+WF-09 Execution Plan Generation
+
+Actors: AI, Team Leader (or Student).
+
+Preconditions: Approved requirements and an approved timeline exist.
+
+Outcome: A structured plan of phases, optional sprints and tasks stored with their relationships.
+
+Rules enforced: Every phase has objectives and completion criteria; every task has a description, priority, estimated effort,
+deadline and completion criteria; task dependencies must be respected.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SYS             Checks that the baseline requirements and timeline  Generation is refused otherwise.
+                           are approved.                                       
+
+  2        AI              Divides the project into logical phases.            Each phase has a title, description, objectives,
+                                                                               start date, end date, expected deliverables,
+                                                                               completion criteria and current status, and
+                                                                               dependencies between phases are set.
+
+  3        AI              Structures the work according to the approved       Agile/Scrum: phases are divided into sprints with
+                           methodology.                                        title, objectives, description, dates, deliverables,
+                                                                               assigned tasks and status, and AI recommends sprint
+                                                                               durations. Kanban or Waterfall: the corresponding
+                                                                               planning structure is used and sprints are not
+                                                                               forced.
+
+  4        AI              Generates the tasks.                                Each task has a title, description, priority (Low,
+                                                                               Medium, High, Critical), estimated effort,
+                                                                               dependencies, start date, deadline, completion
+                                                                               criteria and status.
+
+  5        SYS             Validates the plan.                                 SYS checks that mandatory fields exist, dependencies
+                                                                               contain no cycle and dates fall inside the phase and
+                                                                               the timeline. It then stores the relationships
+                                                                               between phases, sprints and tasks.
+
+  6        S / TL          Reviews the complete project structure.             The Team Leader may modify tasks, priorities and
+                                                                               deadlines. Team Members may view the plan.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-10 Task Assignment
+
+Actors: Team Leader, AI.
+
+Preconditions: Tasks have been generated.
+
+Outcome: Every task has an assigned student.
+
+Rules enforced: Every task must have an assigned student before execution; the Team Leader can override AI assignments.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        AI              Recommends an assignee for each task based on       Recommendations are stored with a short rationale.
+                           technical skills, individual workload, task         
+                           complexity and available working hours.             
+
+  2        TL              Reviews the recommendations and accepts, modifies   SYS records each assignment with its source (AI
+                           or manually assigns and reassigns tasks.            recommendation or Team Leader).
+
+  3        SYS             Applies assignments.                                Tasks the Team Leader leaves untouched take the
+                                                                               AI-recommended assignee. In an individual project all
+                                                                               tasks go to the student. Assignees are notified.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-11 Task Execution and Status Update
+
+Actors: Student, Team Member, Team Leader.
+
+Preconditions: The task is assigned.
+
+Outcome: Updated task status and a complete task history.
+
+Rules enforced: Students update only tasks assigned to them; dependencies are respected; a task cannot be Completed without
+satisfying its completion criteria and submission requirements; completed work stays in the history.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        TM / S          Opens an assigned task and reads its description,   SYS shows only tasks the user may see.
+                           priority, deadline, dependencies and completion     
+                           criteria.                                           
+
+  2        TM / S          Changes the status from To Do to In Progress.       SYS confirms the user is the assignee and that
+                                                                               prerequisite tasks are satisfied, then stores a
+                                                                               history entry (who, when, old and new status).
+
+  3        TM / S          Submits evidence for the task (WF-14).              SYS sets the task to Under Review.
+
+  4        AI / SYS        Receives the verification result (WF-15).           A Verified result moves the task to Completed. Any
+                                                                               other result returns it to In Progress with feedback.
+
+  5        SYS             Recalculates progress.                              Sprint, phase and project completion are derived from
+                                                                               the associated tasks and deliverables.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.9 Component 4 Workflows: Monitoring and Verification
+
+WF-12 Progress Monitoring and Delay Detection
+
+Actors: AI, SYS (automatic); Student, Team Leader, Supervisor, Sub Admin (viewers).
+
+Preconditions: An execution plan exists.
+
+Outcome: Up-to-date progress, alerts, risk indications and corrective recommendations.
+
+Rules enforced: Progress history is maintained; alerts go to the responsible student and the Team Leader.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SYS             On every task or deliverable update, recalculates   A progress snapshot is stored so that progress
+                           task, sprint, phase and project completion          history is kept.
+                           percentages.                                        
+
+  2        SYS             A scheduled job scans the project.                  It lists completed, pending, overdue and blocked
+                                                                               tasks, upcoming deadlines, delayed phases and
+                                                                               sprints, and members with excessive workload.
+
+  3        AI              Analyzes risk.                                      AI detects tasks past their deadline, tasks that
+                                                                               endanger dependent tasks and potential project risks.
+
+  4        SYS             Sends alerts.                                       Responsible students and the Team Leader receive
+                                                                               in-app notifications.
+
+  5        AI              Generates corrective recommendations.               Options include reassigning tasks, adjusting
+                                                                               deadlines, redistributing workloads, resolving
+                                                                               blockers and revising the timeline.
+
+  6        S / TL / SV     View progress.                                      Students see individual progress, the Team Leader
+                                                                               sees team progress and workload, and the Supervisor
+                                                                               monitors assigned projects.
+
+  7        TL              Accepts or dismisses a recommendation.              Acceptance leads to WF-10 or WF-18. The decision is
+                                                                               recorded.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-13 Blocker Reporting and Handling
+
+Actors: Student, Team Member, Team Leader (the RBAC matrix also allows the Supervisor to report blockers).
+
+Preconditions: A task is affected by an obstacle.
+
+Outcome: A recorded blocker with a resolution.
+
+Rules enforced: Unresolved blockers count against project completion.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        Reporter        Selects the task and describes the blocker.         SYS creates a blocker record. If the reporter is the
+                                                                               assignee, the task status becomes Blocked. The Team
+                                                                               Leader is notified.
+
+  2        AI              Assesses the impact.                                AI identifies dependent tasks affected by the blocker
+                                                                               and recommends an action.
+
+  3        TL              Reviews and manages the blocker.                    The Team Leader can resolve it, reassign the task,
+                                                                               adjust a dependency or deadline, or escalate it to
+                                                                               the Supervisor.
+
+  4        SYS             Records the resolution.                             The blocker is closed and the task returns to In
+                                                                               Progress.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-14 Deliverable Submission
+
+Actors: Student, Team Member, Team Leader.
+
+Preconditions: The task is assigned and In Progress.
+
+Outcome: A stored submission linked to its task, queued for verification.
+
+Rules enforced: Every deliverable belongs to an existing task or milestone; evidence must be submitted before verification;
+submission history is kept.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        Assignee        Opens the task and chooses Submit Deliverable.      SYS checks that the user is the assignee.
+
+  2        Assignee        Enters the GitHub repository URL (primary evidence) SYS validates that the URL is a GitHub URL and that
+                           and optionally commit or pull-request links,        uploaded files are of allowed types and sizes.
+                           screenshots, documentation and other supporting     
+                           material where supported.                           
+
+  3        SYS             Stores the submission.                              The evidence is associated with its project, phase,
+                                                                               sprint and task, time-stamped and added to the
+                                                                               submission history. The verification status is
+                                                                               Pending Verification and the task becomes Under
+                                                                               Review.
+
+  4        SYS             Queues AI verification and notifies the Team        WF-15 starts. The Team Leader can review the
+                           Leader.                                             submitted deliverable.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-15 AI Evidence Verification
+
+Actors: AI (started by the system).
+
+Preconditions: A submission exists for a task that has acceptance criteria.
+
+Outcome: A stored verification report and a verification status.
+
+Rules enforced: Verification is based on predefined acceptance criteria; inaccessible or insufficient evidence is never treated as
+verified; AI results are recommendations, not proof of correctness; every result is recorded.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SYS             Confirms that evidence exists and that the          Without evidence verification does not start.
+                           requester is authorized.                            
+
+  2        AI              Checks whether the repository or evidence is        Inaccessible evidence is reported and cannot lead to
+                           accessible.                                         Verified.
+
+  3        AI              Collects repository information.                    The file structure, relevant implementation files,
+                                                                               documentation, linked commits or pull requests and
+                                                                               supplied screenshots or documents are read.
+
+  4        AI              Compares the evidence with each acceptance          AI judges whether relevant files exist, whether the
+                           criterion.                                          required functionality appears implemented, whether
+                                                                               the work is consistent with the task and whether the
+                                                                               supporting evidence is sufficient.
+
+  5        AI              Generates the verification report.                  The report contains the submitted evidence, the
+                                                                               evaluated acceptance criteria, findings, identified
+                                                                               issues, the verification status and recommendations
+                                                                               for improvement.
+
+  6        SYS             Stores the report and sets the status.              The status is one of Pending Verification, Verified,
+                                                                               Partially Verified, Rejected or Requires
+                                                                               Resubmission. The student and Team Leader are
+                                                                               notified.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-16 Resubmission
+
+Actors: Student, Team Member.
+
+Preconditions: A verification report exists with a status other than Verified, or a supervisor or Team Leader requested
+resubmission.
+
+Outcome: A new submission version and a new verification result.
+
+Rules enforced: Previous submissions and verification results remain in the project history.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        Assignee        Reviews the verification feedback (findings, issues SYS shows the report for the latest submission and
+                           and recommendations).                               the earlier ones.
+
+  2        Assignee        Corrects the issues and submits updated evidence.   SYS stores it as a new submission version. The
+                                                                               earlier version and its report stay available.
+
+  3        SYS             Restarts verification.                              WF-15 runs again for the new version.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-17 Supervisor Review and Override
+
+Actors: Supervisor.
+
+Preconditions: The project is assigned to, or explicitly authorized for, the supervisor.
+
+Outcome: Recorded supervisor decisions and feedback.
+
+Rules enforced: Supervisors access only authorized projects; any override of an AI result requires a recorded reason.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SV              Logs in to the supervisor dashboard and opens an    SYS shows project information, objectives, approved
+                           assigned project.                                   requirements, timeline and milestones.
+
+  2        SV              Monitors individual and team progress.              SYS shows task completion reports, overdue tasks,
+                                                                               delays, reported blockers and team workload.
+
+  3        SV              Opens submitted GitHub repositories, evidence and   SYS shows the evidence next to the report.
+                           AI verification reports, and reviews deliverables   
+                           manually.                                           
+
+  4        SV              Approves or rejects a deliverable, requests         SYS stores the decision with its reason, notifies the
+                           resubmission and gives feedback.                    team and keeps the AI result in the history.
+
+  5        SV              Reviews the AI-generated completion report and      SYS stores the decision.
+                           approves or rejects completion (WF-19).             
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+  Open point. The SRS refers to assigned projects but does not say who assigns a supervisor to a project. Appendix A lists this as
+  an open decision.
+
+WF-18 Plan Adjustment After a Change
+
+Actors: Team Leader, AI.
+
+Preconditions: An execution plan exists.
+
+Outcome: An updated plan with the previous version preserved.
+
+Rules enforced: Changes to approved requirements may require timeline and task-plan updates; completed work stays in the history.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        TL              Raises a change (requirement, deadline, team change SYS records the change request. Changes to approved
+                           or an accepted recommendation) or requests          requirements require re-approval (WF-06).
+                           AI-generated adjustments.                           
+
+  2        AI              Analyses the impact on the timeline, phases,        AI recommends changes.
+                           sprints and tasks.                                  
+
+  3        TL              Reviews and approves the changes and edits          The Team Leader remains the only project role that
+                           assignments, priorities and deadlines.              edits these items.
+
+  4        SYS             Applies the changes.                                The previous plan version and completed work remain
+                                                                               recorded. Affected members are notified.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.10 Component 5 Workflows: Completion and Certification
+
+WF-19 Project Completion Evaluation
+
+Actors: AI, Supervisor, Team Leader (or Student).
+
+Preconditions: Mandatory tasks are Completed, or completion evaluation was requested.
+
+Outcome: A final project completion report and a completion decision.
+
+Rules enforced: Every required deliverable has an accepted verification status; no mandatory task is incomplete; team members
+satisfy the individual completion requirements.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        TL / S          Requests completion evaluation (or SYS detects that SYS starts the evaluation.
+                           all mandatory tasks are Completed).                 
+
+  2        AI / SYS        Evaluates the status of required phases, sprints,   AI checks that mandatory requirements are fulfilled
+                           tasks and deliverables.                             and lists pending tasks, missing or unverified
+                                                                               deliverables and unresolved blockers. For team
+                                                                               projects it checks each member’s individual
+                                                                               requirements.
+
+  3        AI              Generates the final project completion report.      The report states whether the completion criteria are
+                                                                               satisfied.
+
+  4        SYS             If the criteria are not satisfied.                  The report lists outstanding items and the team
+                                                                               continues execution.
+
+  5        SYS / SV        If the criteria are satisfied.                      AI recommends completion and certificate eligibility.
+                                                                               Where the institution enabled supervisor approval,
+                                                                               the Supervisor approves or rejects completion; a
+                                                                               rejection returns feedback to the team.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-20 Certificate Generation
+
+Actors: System (AI determines eligibility).
+
+Preconditions: Completion criteria are satisfied and, where enabled, the Supervisor approved completion.
+
+Outcome: One stored, downloadable certificate per eligible student.
+
+Rules enforced: Certificates only for projects meeting all mandatory completion criteria; unique certificate ID; records
+permanently linked to student and project.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SYS             Confirms all configured completion conditions.      No certificate is created if any condition fails.
+
+  2        SYS             Creates an individual certificate for each eligible Each contains the student’s full name, project title,
+                           team member.                                        completion date, a unique certificate ID and
+                                                                               certificate verification information. Duplicate IDs
+                                                                               are prevented.
+
+  3        SYS             Stores the certificate records.                     Each record is permanently associated with its
+                                                                               student and project.
+
+  4        S / TM          Views and downloads the certificate.                SYS serves only the user’s own certificates.
+
+  5        SB              May view and manage certificate records.            Every administrative action on a certificate record
+                                                                               is logged.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-21 Certificate Verification
+
+Actors: All human roles.
+
+Preconditions: The user has a certificate ID.
+
+Outcome: The certificate validity status and basic certificate information.
+
+Rules enforced: Verification does not require access to the student’s private project workspace.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        User            Opens the verification page and enters the          SYS looks the ID up.
+                           certificate ID.                                     
+
+  2        SYS             Returns the result.                                 A known ID shows the validity status and relevant
+                                                                               certificate information (student name, project title,
+                                                                               completion date and ID). An unknown ID shows that no
+                                                                               valid certificate exists.
+
+  3        SYS             Records the verification attempt.                   The Super Admin can inspect verification activity.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.11 Administration Workflows
+
+WF-22 User and Role Management
+
+Actors: Super Admin.
+
+Preconditions: Logged in as Super Admin.
+
+Outcome: Updated accounts and roles with a complete log.
+
+Rules enforced: All account changes and role changes are logged; a Sub Admin cannot change the Super Admin.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SA              Opens the user list and searches or filters users.  SYS shows registered users and profiles.
+
+  2        SA              Activates or deactivates an account.                A deactivated user can no longer log in or use
+                                                                               protected functions, and existing sessions are
+                                                                               rejected.
+
+  3        SA              Assigns or updates a user role (for example,        SYS applies the role and the change takes effect on
+                           assigns the Supervisor role).                       the next authorization check.
+
+  4        SA              Reviews user activity.                              SYS shows activity records.
+
+  5        SYS             Logs every change.                                  The log stores who acted, on whom, the old and new
+                                                                               values and the time.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-23 Sub Admin Promotion and Demotion
+
+Actors: Super Admin (the only role allowed to do this).
+
+Preconditions: The user is registered (promotion) or currently a Sub Admin (demotion).
+
+Outcome: A changed role with a recorded promotion or demotion.
+
+Rules enforced: Only the Super Admin creates or removes Sub Admins; every promotion and demotion is logged.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SA              Selects a registered user and chooses Promote to    SYS asks for confirmation.
+                           Sub Admin.                                          
+
+  2        SYS             Applies the promotion.                              The user gains Sub Admin privileges and the event is
+                                                                               logged.
+
+  3        SA              Selects a Sub Admin and chooses Demote.             SYS asks for confirmation.
+
+  4        SYS             Applies the demotion.                               Sub Admin privileges are removed immediately, the
+                                                                               user returns to a regular user role (Student by
+                                                                               default) and the event is logged.
+
+  5        SA              Reviews all Sub Admins, their privileges, their     SYS shows the records.
+                           activity and the promotion and demotion records.    
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-24 Platform Oversight
+
+Actors: Super Admin.
+
+Preconditions: Logged in as Super Admin.
+
+Outcome: Read-only insight into the platform.
+
+Rules enforced: Oversight is read-only (Inspect); sensitive user information is accessed only when necessary.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SA              Inspects projects, teams, tasks, submitted evidence SYS shows the data without edit controls.
+                           and verification reports.                           
+
+  2        SA              Inspects certificate records and certificate        SYS shows the records.
+                           verification activity.                              
+
+  3        SA              Inspects AI configurations, AI service status and   SYS shows current settings and status.
+                           system logs.                                        
+
+  4        SA              Inspects platform usage statistics, system reports  SYS shows the reports and the audit trail.
+                           and all Sub Admin actions.                          
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-25 Project and Team Administration
+
+Actors: Sub Admin.
+
+Preconditions: Logged in as Sub Admin.
+
+Outcome: Administered project and team records with logged actions.
+
+Rules enforced: Administrative actions affecting project or certificate records are logged; Sub Admins do not manage user accounts
+or roles.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SB              Views all registered projects and teams and         SYS shows the records.
+                           monitors project statuses and team membership.      
+
+  2        SB              Manages inappropriate or invalid project records.   SYS applies the action and stores the reason.
+
+  3        SB              Resolves team management issues, for example an     SYS applies the correction and logs it.
+                           inactive leader or a stuck invitation.              
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-26 AI Configuration
+
+Actors: Sub Admin (the Super Admin can inspect).
+
+Preconditions: Logged in as Sub Admin.
+
+Outcome: A validated AI configuration and visible AI service status.
+
+Rules enforced: Configuration changes are logged.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SB              Opens the AI configuration page.                    SYS shows the current settings and service status.
+
+  2        SB              Sets the local Ollama connection, supported model   SYS validates the input.
+                           settings, RAG-related settings and AI service       
+                           availability.                                       
+
+  3        SYS             Runs a health check.                                It confirms that Ollama answers and that the
+                                                                               configured model is installed, then saves and logs
+                                                                               the change.
+
+  4        SB              Monitors AI service errors and performance.         If the service is disabled or unreachable, AI actions
+                                                                               show an unavailable message while the rest of the
+                                                                               platform keeps working.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+WF-27 System Monitoring and Certificate Records
+
+Actors: Sub Admin.
+
+Preconditions: Logged in as Sub Admin.
+
+Outcome: Monitored platform health and managed certificate records.
+
+Rules enforced: Actions on certificate records are logged.
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step     Actor           Action                                              System / AI response
+  -------- --------------- --------------------------------------------------- -----------------------------------------------------
+  1        SB              Views dashboards for platform usage, registered     SYS aggregates and shows the statistics.
+                           students, active and completed projects, completion 
+                           statistics, AI usage and system errors.             
+
+  2        SB              Monitors system activity, logs, database health and SYS shows health indicators and saves setting changes
+                           backend health, and manages platform-wide settings  with a log entry.
+                           and system-level notifications.                     
+
+  3        SB              Manages certificate records and investigates        SYS shows the record, its verification history and
+                           certificate verification issues.                    the actions taken.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+4.12 AI Supervisor Automated Workflows
+
+The AI Supervisor is a system role. It always acts for an authorized request, inside the project context of the requesting user,
+and every recommendation and verification decision is recorded for traceability. The table summarizes where it acts and which
+human control surrounds each action.
+
+Table 4: AI Supervisor actions and human controls
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  AI function                  Trigger                        Output                                   Human control
+  ---------------------------- ------------------------------ ---------------------------------------- ------------------------------
+  Requirement collection and   Student chooses AI discovery   Requirement profile, findings with       Student reviews, edits and
+  research                     (WF-04)                        references, ranked ideas                 selects
+
+  Requirement analysis         Idea selected or submitted     Requirements, scope, deliverables,       Student or Team Leader
+                               (WF-06)                        acceptance criteria, clarification       approves the baseline
+                                                              questions                                
+
+  Methodology and timeline     Planning inputs provided       Methodology with rationale, timeline,    Student or Team Leader
+                               (WF-07)                        feasibility flags                        approves
+
+  Plan generation              Approved baseline and timeline Phases, sprints, tasks                   Team Leader modifies
+                               (WF-09)                                                                 
+
+  Assignment recommendation    Tasks generated (WF-10)        Ranked assignees with rationale          Team Leader overrides
+
+  Monitoring                   Task update or scheduled scan  Progress, risks, alerts, corrective      Team Leader accepts or
+                               (WF-12)                        recommendations                          dismisses
+
+  Evidence verification        Submission stored (WF-15)      Verification report and status           Supervisor reviews or
+                                                                                                       overrides with a reason
+
+  Completion evaluation        Completion requested (WF-19)   Completion report and eligibility        Supervisor approves where
+                                                                                                       enabled
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+4.13 State Models
+
+The statuses listed in the SRS are fixed. The transitions below are the design rules that implement the SRS business rules.
+
+Table 5: Task status transitions
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  From                  To                    Who or what triggers it          Condition
+  --------------------- --------------------- -------------------------------- -----------------------------------------------------
+  To Do                 In Progress           Assignee                         Task is assigned and its dependencies are satisfied
+
+  In Progress           Blocked               Assignee or Team Leader          A blocker is reported (WF-13)
+
+  Blocked               In Progress           Team Leader                      The blocker is resolved
+
+  In Progress           Under Review          System                           Evidence has been submitted (WF-14)
+
+  Under Review          Completed             System                           Verification status is Verified, or a supervisor
+                                                                               approves the deliverable with a recorded reason
+
+  Under Review          In Progress           System                           Status is Partially Verified, Rejected or Requires
+                                                                               Resubmission
+
+  Completed             In Progress           Team Leader or Supervisor        Only through a plan adjustment (WF-18) with a
+                                                                               recorded reason; the earlier history is kept
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+Table 6: Verification status meanings
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Status                             Meaning
+  ---------------------------------- ----------------------------------------------------------------------------------------------
+  Pending Verification               Evidence was submitted and verification is queued, running, or waiting for a retry after a
+                                     temporary failure.
+
+  Verified                           The evidence satisfies all applicable acceptance criteria. The task becomes Completed.
+
+  Partially Verified                 Some acceptance criteria are satisfied and others are missing or incomplete.
+
+  Rejected                           The submitted work does not satisfy the acceptance criteria or is unrelated to the task.
+
+  Requires Resubmission              The evidence is inaccessible or insufficient to judge, or resubmission was requested.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+Table 7: Invitation and project stages
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Object                             States
+  ---------------------------------- ----------------------------------------------------------------------------------------------
+  Invitation                         Pending, Accepted, Rejected. Only an Accepted invitation creates a membership.
+
+  Project stage                      Idea Discovery, Analysis and Planning, Execution, Completion Review, Completed.
+
+  Requirements document              Draft, Approved (baseline). A change to an approved baseline creates a new version that needs
+                                     approval.
+
+  Priority                           Low, Medium, High, Critical.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+  The project stage names and the invitation state Pending are design terms. The SRS defines the behaviour (invitations are
+  accepted or rejected, and a project passes through the five components) but not these labels.
+
+4.14 Exception and Alternate Flows
+
+Table 8: Exceptions and system behaviour
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Scenario                                 System behaviour
+  ---------------------------------------- ----------------------------------------------------------------------------------------
+  AI service or Ollama unavailable         AI actions return an unavailable message and nothing is half-saved. Non-AI functions
+                                           (login, manual idea submission, team management, viewing, status updates) keep working.
+                                           Sub Admins and the Super Admin see the AI service status.
+
+  AI output fails validation               The AI service retries with a corrective instruction. If validation still fails, the
+                                           user sees an error and the failed attempt is logged. Invalid output is never stored as a
+                                           result.
+
+  Repository private, missing or           The report records that the evidence is inaccessible. The submission is never marked
+  unreachable                              Verified. A confirmed access problem leads to Requires Resubmission; a temporary failure
+                                           keeps Pending Verification and is retried.
+
+  Invitation rejected                      No membership is created and the Team Leader is notified. The leader may invite another
+                                           student.
+
+  Deadline infeasible                      SYS flags the timeline and AI recommends adjustments. The plan cannot be approved
+                                           silently; the student reviews the flag.
+
+  Requirements changed after approval      A new baseline version needs approval, and AI recommends timeline and task-plan updates
+                                           (WF-18).
+
+  Unauthorized request                     The backend rejects it regardless of what the interface shows, and the attempt can be
+                                           logged.
+
+  Deactivated account                      Login and all protected requests are rejected.
+
+  Supervisor rejects completion            Feedback returns to the team, no certificate is created and execution continues.
+
+  Duplicate certificate ID generated       A unique index rejects the insert and the system generates a new ID.
+
+  A team member does not meet individual   That member receives no certificate and sees the completion report; other eligible
+  requirements                             members are not blocked unless the project criteria fail.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+05. AI Functionality Specification
+
+5.1 Purpose and Scope
+
+This section specifies the intelligent functionality of the AI Project Supervisor: what the AI is responsible for, how the locally
+hosted language model is run through Ollama, how Llama 3.2 3B is used, which machine learning models are built with Python and
+Scikit-learn, how Retrieval-Augmented Generation (RAG) grounds research answers, what data is needed to train and operate these
+parts, and what the limitations are and how the design handles them.
+
+Where the SRS fixes a choice (Ollama, Llama 3.2 3B, Python with Scikit-learn, LangChain or LlamaIndex) the choice is stated as a
+requirement. Where the SRS leaves a detail open (for example the exact ML algorithms, the embedding model or the vector store)
+this section gives a proposed design and marks it as proposed.
+
+5.2 AI Architecture Summary
+
+Table 9: AI building blocks (SRS Section 2.3)
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Component                    Technology                         Responsibility
+  ---------------------------- ---------------------------------- ------------------------------------------------------------------
+  Model runner                 Ollama                             Runs the language model locally on the platform host.
+
+  Language model               Llama 3.2 3B                       AI conversations, analysis, planning and recommendations.
+
+  Machine learning             Python + Scikit-learn              Data analysis, ML-based predictions and recommendations.
+
+  RAG framework                LangChain or LlamaIndex            Retrieval of relevant information from external sources before
+                                                                  research-based answers are generated.
+
+  Evidence source              GitHub                             Project repositories and deliverable evidence that the AI
+                                                                  evaluates.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+Design principles. The following principles guide every AI feature.
+
+-   Local and private. The language model runs on the platform host through Ollama; project data is not sent to a hosted model
+    service.
+
+-   Language model for language, code for exactness. Llama 3.2 3B writes, explains and reasons in text. Dates, percentages,
+    dependency checks, status changes and permissions are computed by deterministic code and never left to the model.
+
+-   Structured and validated output. Every AI result is requested in a fixed schema, validated, and rejected if invalid.
+
+-   Grounded research. Research answers are produced only after RAG retrieval and carry the references of the retrieved sources.
+
+-   Recommendations, not decisions. AI results are recommendations. Humans approve baselines, plans and completion, and a
+    supervisor can override verification results with a recorded reason.
+
+-   Traceable. Every AI recommendation and verification decision is recorded with enough detail to be reviewed.
+
+5.3 AI Responsibilities
+
+The table lists the responsibilities of the AI Supervisor from SRS Section 3.2.7 and shows which AI technology supports each of
+them.
+
+Table 10: AI responsibilities by module component
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Component                 AI responsibilities                                               Supporting technology
+  ------------------------- ----------------------------------------------------------------- -------------------------------------
+  1. Idea Discovery         Collect student requirements; analyze interests, skills and       Llama 3.2 3B (conversation,
+                            resources; research industry trends and user problems; identify   synthesis), RAG (research),
+                            market gaps; generate ranked recommendations; provide feasibility Scikit-learn (idea scoring)
+                            analysis and research references.                                 
+
+  2. Analysis and Planning  Analyze selected ideas; identify missing requirements; ask        Llama 3.2 3B, Scikit-learn
+                            clarification questions; generate scope, measurable deliverables  (methodology classifier),
+                            and acceptance criteria; recommend a methodology; generate        deterministic scheduling code
+                            timelines; identify scheduling problems.                          
+
+  3. Execution Plan         Divide projects into phases; generate sprints where appropriate;  Llama 3.2 3B, Scikit-learn (effort
+                            generate tasks; recommend priorities, deadlines and task          estimation, assignment scoring),
+                            assignments.                                                      validation code
+
+  4. Monitoring and         Analyze task completion; detect overdue tasks and delays; analyze Llama 3.2 3B, Scikit-learn (risk
+  Verification              workload; identify potential blockers; generate corrective        classifier), GitHub REST API,
+                            recommendations; analyze GitHub evidence against acceptance       deterministic checks
+                            criteria; generate verification reports; recommend resubmission.  
+
+  5. Completion and         Evaluate completion criteria; generate final project reports;     Rule-based eligibility checks, Llama
+  Certification             determine certificate eligibility; request supervisor approval    3.2 3B (report text)
+                            where required.                                                   
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+5.4 Model Runner: Ollama
+
+Ollama is the local runtime that loads Llama 3.2 3B and serves it through an HTTP API on the host. The Python AI service is the
+only component that calls Ollama; the Node.js backend never talks to it directly. Ollama listens on the local machine by default
+and is not exposed to the network.
+
+Table 11: Ollama configuration (recommended starting values, to be tuned during testing)
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Setting                  Value or guidance                                    Reason
+  ------------------------ ---------------------------------------------------- ---------------------------------------------------
+  Model                    llama3.2:3b (instruction-tuned build)                The model required by the SRS.
+
+  Endpoint                 http://localhost:11434 (Ollama default)              Keeps the model on the host; configurable by the
+                                                                                Sub Admin (WF-26).
+
+  Context window           Set explicitly per request (for example 4096 to 8192 Do not rely on the runtime default; a larger window
+                           tokens)                                              costs memory and time.
+
+  Temperature              About 0.2 for structured tasks (plans, requirements, Low temperature makes structured output more
+                           verification); about 0.6 for conversation            repeatable.
+
+  Output format            JSON schema constrained output for structured tasks  Reduces malformed output; the result is still
+                                                                                validated.
+
+  Keep-alive               Keep the model loaded while the platform is active   Avoids the delay of reloading the model for each
+                                                                                request.
+
+  Health check             Query the list of installed models and run a short   Used by WF-26 and by the AI service status page.
+                           test generation                                      
+
+  Concurrency              Requests go through a job queue; limit simultaneous  A single local machine has limited memory and
+                           generations                                          compute.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+5.5 Language Model: Llama 3.2 3B
+
+Llama 3.2 3B is a small instruction-tuned language model released by Meta in 2024. It was chosen by the project because it can run
+on modest local hardware, which keeps the solution affordable and private. The characteristics that matter for the design are
+listed below.
+
+Table 12: Model characteristics relevant to the design
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Characteristic                  Value                                     Consequence for the design
+  ------------------------------- ----------------------------------------- --------------------------------------------------------
+  Size                            About 3 billion parameters                Fast and affordable locally, but weaker reasoning than
+                                                                            large hosted models.
+
+  Context length                  Up to 128K tokens supported by the model  Practical limit is set by local memory; prompts are kept
+                                                                            short and tasks are decomposed.
+
+  Officially supported languages  English, German, French, Italian,         Urdu is not on the official list, so the platform is
+                                  Portuguese, Hindi, Spanish and Thai       designed for English first; multilingual support is
+                                                                            future scope.
+
+  Training knowledge cutoff       December 2023                             Current information must come from RAG, not from the
+                                                                            model.
+
+  Fine-tuning                     Not used in this project                  The model is used as released, guided by prompts,
+                                                                            schemas and retrieved context.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+5.5.1 Language Model Task Catalogue
+
+Table 13: Tasks performed by the language model
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  ID       Task                             Input                                      Output (validated schema)
+  -------- -------------------------------- ------------------------------------------ --------------------------------------------
+  L1       Discovery conversation           Conversation so far, fields still missing  Next question and updated requirement
+                                                                                       profile
+
+  L2       Research synthesis               Requirement profile, retrieved passages    Findings and gaps, each with source IDs and
+                                            with source IDs                            a Sourced or AI-generated label
+
+  L3       Idea generation and feasibility  Profile, findings, ML scores               Ideas with the twelve required fields
+           analysis                                                                    
+
+  L4       Requirement analysis             Selected idea and student requirements     Functional and non-functional requirements,
+                                                                                       constraints, objectives, scope,
+                                                                                       deliverables, acceptance criteria,
+                                                                                       clarification questions
+
+  L5       Methodology rationale            Planning inputs, ML recommendation         Plain-language explanation of why the
+                                                                                       methodology fits
+
+  L6       Plan generation                  Approved requirements, timeline,           Phases, sprints and tasks with mandatory
+                                            methodology                                fields
+
+  L7       Recommendation text              Risk signals, workload data, ML outputs    Corrective recommendations and assignment
+                                                                                       rationale
+
+  L8       Criterion evaluation             One acceptance criterion and the matching  Result per criterion: met, partially met,
+                                            evidence excerpts                          not met or insufficient evidence, with
+                                                                                       evidence references
+
+  L9       Report writing                   Verification results or completion data    Verification report text and final
+                                                                                       completion report
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+5.5.2 Prompt Design Rules
+
+-   Each call has one task and a short system prompt that states the role, the allowed output schema and the rules (for example,
+    never invent a reference).
+
+-   Large tasks are decomposed: phases are generated first, then tasks per phase, and each requirement is checked against its own
+    acceptance criteria.
+
+-   Only authorized project context is placed in the prompt. Passwords, tokens and keys are never included (SRS technical rule 8).
+
+-   Retrieved web text and repository content are treated as untrusted data. The prompt marks them as quoted material and
+    instructs the model not to follow instructions found inside them.
+
+-   Prompt templates are versioned. The template version is stored with every AI result.
+
+-   Output is requested as JSON that matches a schema. The AI service validates it, retries once with a corrective message if it
+    fails, and then returns an error.
+
+5.6 Division of Work Between AI and Deterministic Code
+
+Because a 3B model is unreliable at arithmetic, scheduling and rule enforcement, the design assigns these duties to ordinary code.
+
+Table 14: Who does what
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Function                       Language model               Machine learning               Deterministic code
+  ------------------------------ ---------------------------- ------------------------------ ----------------------------------------
+  Timeline dates and durations   Explains the timeline        Estimates effort               Computes dates from deadline,
+                                                                                             availability and working days
+
+  Task dependencies              Proposes dependencies        None                           Validates that no cycle exists and dates
+                                                                                             respect dependencies
+
+  Progress percentages           None                         None                           Calculates from task and deliverable
+                                                                                             status
+
+  Overdue and blocked detection  None                         None                           Compares deadlines and statuses
+
+  Delay risk                     Writes the explanation       Predicts risk level            Supplies the input measures
+
+  Task assignment                Writes the rationale         Scores skill, workload and     Applies the Team Leader’s final choice
+                                                              availability fit               
+
+  Verification status            Judges each criterion        None                           Maps criterion results to a status by
+                                                                                             fixed rules
+
+  Permissions and access         None                         None                           Backend RBAC and project membership
+                                                                                             checks
+
+  Certificate eligibility        Writes report text           None                           Checks that every mandatory condition is
+                                                                                             satisfied
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+5.7 Machine Learning Models (Python + Scikit-learn)
+
+The SRS requires Python-based machine learning where applicable. The models below are a proposed design. They are small,
+explainable and trainable on modest data, and each has a rule-based fallback.
+
+Table 15: Proposed machine learning models
+
+  ------------------------------------------------------------------------------------------------------------------------------------
+  ID      Purpose               Technique                      Inputs (features)                            Output
+  ------- --------------------- ------------------------------ -------------------------------------------- --------------------------
+  M1      Methodology           Classifier: Decision Tree or   Team size, weeks to deadline, total          Agile/Scrum, Kanban or
+          recommendation        Random Forest                  available hours, complexity score, number of Waterfall with
+                                                               requirements, skill coverage, number of      probabilities
+                                                               constraints                                  
+
+  M2      Task effort           Regressor: Random Forest or    Task description, task type, priority,       Estimated effort in hours
+          estimation            Gradient Boosting with TF-IDF  number of dependencies, complexity           
+                                text features                                                               
+
+  M3      Task assignment       Weighted scoring with TF-IDF   Member skills, task technologies, current    Ranked assignees with
+          recommendation        cosine similarity (no labels   workload, available hours, task complexity   scores
+                                required at first)                                                          
+
+  M4      Delay and risk        Classifier: Logistic           Progress versus elapsed time, overdue count, Risk level (Low, Medium,
+          prediction            Regression or Gradient         blocked count, tasks due soon, workload      High) with probability
+                                Boosting                       ratio, dependency chain length               
+
+  M5      Idea ranking          Weighted multi-criteria        Profile and idea text, required technologies Scores for the six SRS
+                                scoring with TF-IDF cosine     versus skills, resources, number of existing ranking criteria and an
+                                similarity                     alternatives, evidence strength, estimated   overall rank
+                                                               complexity                                   
+  ------------------------------------------------------------------------------------------------------------------------------------
+
+5.7.1 Training Data
+
+The platform starts without any history, so the models face a cold-start problem. The training data plan is as follows.
+
+Table 16: Training data sources
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Model                     Initial data                                            Later data
+  ------------------------- ------------------------------------------------------- -----------------------------------------------
+  M1 Methodology            Synthetic scenarios generated from agreed methodology   Methodology chosen and final outcome of
+                            rules and reviewed by a supervisor or domain expert     completed platform projects
+
+  M2 Effort                 A curated set of typical software task descriptions     Estimated versus actual effort recorded on
+                            with expert effort estimates; public software-effort    completed tasks
+                            datasets can supplement it                              
+
+  M3 Assignment             No labelled data needed; a skill taxonomy and           Accepted and overridden recommendations can
+                            configurable weights                                    tune the weights
+
+  M4 Risk                   Simulated project timelines with labelled outcomes      Real progress snapshots and on-time or late
+                                                                                    outcomes
+
+  M5 Idea ranking           No labelled data needed; configurable criterion weights Student selections and supervisor feedback can
+                                                                                    tune the weights
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+-   Language model training. Llama 3.2 3B is not trained or fine-tuned in this project. Only the Scikit-learn models are trained.
+
+-   Pipeline. Each model is a Scikit-learn Pipeline (preprocessing plus estimator) so that the same transformations apply in
+    training and in service.
+
+-   Evaluation. Classifiers use stratified k-fold cross-validation with accuracy, macro F1 and a confusion matrix; M4 prioritizes
+    recall for the High risk class. The regressor uses mean absolute error, root mean squared error and R squared. A held-out test
+    set is kept untouched.
+
+-   Starting targets. Suggested initial targets are a macro F1 of at least 0.80 for M1, recall of at least 0.80 for the High class
+    of M4, and a mean absolute error of M2 within 20 percent of the mean task effort. These targets are to be revised once
+    baseline results exist.
+
+-   Storage and versions. Trained pipelines are saved with joblib together with a version tag, training date, data description and
+    metric file. The AI service loads a named version at start-up.
+
+-   Retraining. Retraining is manual and offline, uses project metadata only (no credentials and no direct personal identifiers),
+    and a new version replaces the current one only if it performs at least as well on the test set. The previous version stays
+    available for rollback.
+
+-   Fallback. If a model file is missing or its confidence is low, the service uses a rule-based default and marks the output as
+    rule-based.
+
+5.8 Retrieval-Augmented Generation (RAG)
+
+RAG supplies the language model with relevant passages from external sources so that research answers rest on retrieved material
+instead of the model’s memory. It is required before any research-based response is generated (SRS technical rule 3) and the
+response must include references to the retrieved sources whenever available (rule 4).
+
+[RAG pipeline for market and problem research]
+
+Figure 2: RAG pipeline for market and problem research
+
+Table 17: RAG pipeline stages
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Stage                    Description                                          Notes
+  ------------------------ ---------------------------------------------------- ---------------------------------------------------
+  Query formulation        Turns the requirement profile and research topics    Queries contain topic keywords only. Names,
+                           into search queries.                                 institutions and other personal data are not sent
+                                                                                to external services.
+
+  Source retrieval         Fetches candidate documents from the configured      See the source table below. Fetch failures are
+                           sources.                                             logged and skipped.
+
+  Cleaning and chunking    Extracts text, removes boilerplate, and splits       Suggested start: 500 to 1000 tokens per chunk with
+                           documents into overlapping chunks.                   10 to 20 percent overlap.
+
+  Embedding                Converts each chunk into a vector with an embedding  Proposed: an embedding model served by Ollama. The
+                           model.                                               SRS names only the language model, so the embedding
+                                                                                model is an added dependency (Appendix A).
+
+  Vector store             Stores vectors with metadata: source URL, title,     Proposed: an open-source local vector store such as
+                           authors where available, year, retrieval date.       Chroma or FAISS.
+
+  Retrieval                Finds the chunks closest to the query, then filters  Suggested start: top 4 to 8 chunks; optional
+                           by relevance score.                                  maximal marginal relevance to reduce duplicates.
+
+  Prompt assembly          Places retrieved chunks, each with a source ID, into The model may cite only source IDs that appear in
+                           the prompt with the output schema and citation       the prompt.
+                           rules.                                               
+
+  Generation               Llama 3.2 3B writes findings and ideas from the      Low temperature; structured output.
+                           supplied context.                                    
+
+  Validation and labelling Checks the schema, checks that every cited source ID An item with a reference is Sourced. An item
+                           was retrieved, attaches full reference data, and     without a retrieved source is AI-generated. Invalid
+                           labels each item.                                    references are removed.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+5.8.1 Knowledge Sources
+
+Table 18: Candidate knowledge sources
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Source type (SRS)                     Examples of access methods                       Notes
+  ------------------------------------- ------------------------------------------------ -------------------------------------------
+  Research papers and academic          Open scholarly APIs such as arXiv, Semantic      Subject to each service’s terms of use and
+  publications                          Scholar, Crossref and OpenAlex                   rate limits. Paywalled papers are limited
+                                                                                         to the abstract and metadata that are
+                                                                                         openly available.
+
+  Industry reports                      Publicly available report pages and documents    Only openly accessible documents are
+                                                                                         indexed.
+
+  Relevant websites and other credible  Page fetching and text extraction                Domain allow lists and deny lists are
+  sources                                                                                managed through the RAG settings (WF-26).
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+-   Credibility filtering. Preference is given to scholarly sources, official reports and recognized organizations. The Sub Admin
+    can maintain allow lists and deny lists and a minimum relevance score.
+
+-   Distinguishing sourced from generated content. Every stored item has an origin field with the value Sourced or AI-generated,
+    and sourced items store their references (SRS Section 2.2.1 B).
+
+-   Reference integrity. Reference details (title, URL, retrieval date) are copied from the retrieval metadata, never written by
+    the model. This prevents invented citations.
+
+-   Honest gaps. If retrieval finds nothing relevant, the answer states that no sources were found instead of filling the gap with
+    unsupported claims.
+
+-   Caching. Retrieved and embedded documents are cached with their retrieval date so that repeated topics do not trigger repeated
+    external requests.
+
+Table 19: Choosing between LangChain and LlamaIndex
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Aspect                       LangChain                                          LlamaIndex
+  ---------------------------- -------------------------------------------------- --------------------------------------------------
+  Main strength                General orchestration of chains, tools and         Document indexing and query engines built around
+                               retrievers                                         retrieval
+
+  Fit for this module          Suitable; useful if many non-retrieval chains are  Suitable; source nodes with metadata make
+                               needed                                             citations straightforward
+
+  Ollama support               Available                                          Available
+
+  Recommendation               Acceptable alternative                             Suggested starting point for the retrieval layer;
+                                                                                  the team should confirm with a small prototype
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+The SRS allows either framework. The team should choose one and use it consistently so that the retrieval code stays simple.
+
+5.9 AI Evidence Verification
+
+Evidence verification compares what a student submits with the acceptance criteria of a task. GitHub repositories are the primary
+evidence. The AI checks accessibility, gathers repository data, evaluates each criterion and produces a report. It does not run
+the submitted code.
+
+[Evidence verification pipeline]
+
+Figure 3: Evidence verification pipeline
+
+5.9.1 Data Collected from GitHub
+
+-   Repository metadata: whether the repository exists and is reachable, its default branch and primary languages.
+
+-   File tree and the content of files whose paths or names match the task (selected by path rules and by retrieval over
+    repository files).
+
+-   README and documentation files.
+
+-   Commit and pull-request data, including any commit or pull-request links the student supplied, and commit activity in the
+    period of the task.
+
+-   Supporting evidence supplied with the submission, such as screenshots and documents.
+
+The GitHub REST API is used for this. Unauthenticated requests have a low hourly rate limit, so the backend uses a server-side
+access token for higher limits. The token is held in the server configuration, is never placed in a prompt and is never shown to
+users. A private repository can be read only if the student has granted access in a way the platform supports; otherwise it counts
+as inaccessible.
+
+5.9.2 Evaluation and Status Rules
+
+The language model evaluates one acceptance criterion at a time against a limited set of evidence excerpts. Fixed rules then
+derive the status, so the status never depends on free text.
+
+Table 20: Mapping from evaluation results to verification status (proposed)
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Condition                                                                        Verification status
+  -------------------------------------------------------------------------------- ------------------------------------------------
+  Evidence submitted and verification queued or running; or a temporary access     Pending Verification (retried automatically)
+  failure occurred                                                                 
+
+  Every criterion is met and the evidence is sufficient                            Verified
+
+  At least one criterion is met and others are partially met or not met            Partially Verified
+
+  No criterion is met, or the evidence is unrelated to the task                    Rejected
+
+  The repository is confirmed inaccessible, or the evidence is too thin to judge   Requires Resubmission
+  any criterion, or resubmission was requested                                     
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+Each verification report contains the submitted evidence, the evaluated acceptance criteria, the findings, the identified issues,
+the verification status and recommendations for improvement, as required by SRS Section 2.2.4 D. The report states clearly that it
+is an AI recommendation. A supervisor can review it and override it with a recorded reason.
+
+5.10 AI Safety, Privacy and Governance
+
+Table 21: Controls and the SRS rules they implement
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Control                      How it works                                                           SRS basis
+  ---------------------------- ---------------------------------------------------------------------- ------------------------------
+  Local model                  Llama 3.2 3B runs through Ollama on the platform host.                 Technical rule 1
+
+  Project association          Every AI result stores the project it belongs to.                      Technical rule 2
+
+  RAG before research answers  Research tasks fail if no retrieval step ran.                          Technical rules 3 and 4
+
+  Authorization first          The backend checks role and project membership before it calls the AI  Technical rule 5; business
+                               service. The AI service receives only the authorized project context   rule 13 of Section 3.4
+                               and cannot read other projects.                                        
+
+  No secrets in prompts        A filter removes tokens, keys and passwords from any text before it    Technical rule 8
+                               enters a prompt. Credentials are never part of the project context.    
+
+  Traceability                 An interaction log stores time, project, requester, task type, prompt  Section 3.2.7 restrictions
+                               template version, model and parameters, retrieved source IDs, ML model 
+                               versions, output and validation result.                                
+
+  Human authority              AI cannot override a supervisor decision, cannot treat inaccessible    Section 3.2.7 restrictions
+                               evidence as verified and cannot issue a certificate unless all         
+                               completion conditions are met.                                         
+
+  Prompt injection defence     Retrieved web text and repository files are passed as quoted data with Design addition
+                               an instruction not to obey them. Outputs are schema-validated, so      
+                               injected text cannot trigger actions.                                  
+
+  No permission changes        The AI service has no access to account or role data and cannot change Section 3.2.7 restrictions
+                               Super Admin or Sub Admin permissions.                                  
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+5.11 Limitations and Mitigations
+
+The AI must be described honestly. The limitations below are expected with a 3B model and local deployment, together with the way
+the design reduces their effect.
+
+Table 22: Known limitations
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  ID         Limitation                                                 Mitigation
+  ---------- ---------------------------------------------------------- ------------------------------------------------------------
+  L-1        A small model reasons less reliably and plans less well    Decompose tasks; use deterministic code for dates and rules;
+             over long tasks.                                           require human approval of baselines, plans and completion.
+
+  L-2        The model can produce plausible but wrong statements,      Ground research in RAG; copy references from retrieval
+             including fake references.                                 metadata; validate cited IDs; label origin; let humans
+                                                                        review.
+
+  L-3        Structured output can be malformed.                        Schema-constrained output, validation, one retry, then a
+                                                                        clear error.
+
+  L-4        Large contexts are slow and memory-heavy on local hardware Set the context window explicitly; keep prompts short; chunk
+             even though the model supports 128K tokens.                repository files and evaluate one criterion at a time.
+
+  L-5        The training knowledge ends in December 2023.              Use RAG for current trends and show the retrieval date.
+
+  L-6        Urdu and many other languages are not officially           Build the first version in English; treat multilingual
+             supported; quality is best in English.                     support as future scope (as in the proposal).
+
+  L-7        Verification is static. It cannot run code, prove          Treat results as recommendations; check commit activity and
+             correctness or prove authorship, and a superficial         file presence; allow supervisor review and override;
+             repository can look convincing.                            consider sandboxed test runs as future scope.
+
+  L-8        RAG depends on the availability, quality and licence of    Use multiple sources, cache results, filter by credibility,
+             external sources; paywalled papers are mostly unreadable;  and report gaps honestly.
+             APIs have rate limits.                                     
+
+  L-9        Retrieval queries leave the local machine and reach        Send topic keywords only, never personal data or project
+             external services.                                         credentials.
+
+  L-10       ML models start with synthetic data and may not reflect    Use rule-based fallbacks, show confidence, collect real
+             real student behaviour.                                    outcomes and retrain under control.
+
+  L-11       One local machine limits concurrency and response time.    Queue AI jobs, show progress, limit parallel generations and
+                                                                        keep the model loaded.
+
+  L-12       Idea ranking may favour popular technologies.              Show per-criterion scores, keep weights configurable and
+                                                                        always allow students to submit their own idea.
+
+  L-13       Timeline and effort estimates are uncertain.               Label them as estimates, flag infeasible deadlines and
+                                                                        re-plan when progress differs (WF-18).
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+5.12 AI Quality Assurance
+
+Table 23: How the AI components are tested
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Area                         Method                                                    Measure
+  ---------------------------- --------------------------------------------------------- -------------------------------------------
+  Structured output            Run each task prompt on a fixed set of test inputs        Share of outputs that pass schema
+                                                                                         validation on the first try
+
+  Reference integrity          Check every cited ID and URL against retrieval records    Number of invalid references (target: none
+                                                                                         reach users)
+
+  Research relevance           Supervisor or student rates a sample of findings and      Average relevance rating
+                               ideas                                                     
+
+  Plan quality                 Check generated plans against the mandatory-field and     Share of plans that pass validation without
+                               dependency rules                                          edits
+
+  Verification agreement       Compare AI statuses with supervisor judgement on sample   Agreement rate and the number of false
+                               repositories                                              Verified results
+
+  ML models                    Cross-validation and held-out test set                    Metrics in Section 5.7.1
+
+  Safety                       Test prompts with injected instructions in README files   Injected instructions are not followed
+                               and retrieved pages                                       
+
+  Performance                  Measure response time per task type on the target         Time to result and queue length
+                               hardware                                                  
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+06. Technical Architecture
+
+6.1 Purpose and Scope
+
+This section describes how the AI Project Supervisor is built: the MERN-based web architecture, the Python AI and machine learning
+service, the integration with Ollama, the database design, the API design, security and deployment. It follows the technology
+choices in the SRS and the project proposal and marks every addition as proposed.
+
+6.2 Architecture Overview
+
+The system uses a layered architecture with a separate AI service. The React application talks only to the Node.js and Express
+API. The API enforces authentication, role-based access and project-level access, owns all business rules and is the only
+component that writes business data. It calls an internal Python AI service for anything that needs the language model, RAG or
+machine learning. The AI service calls Ollama, which hosts the language model locally.
+
+[Layered architecture of the AI Project Supervisor]
+
+Figure 4: Layered architecture of the AI Project Supervisor
+
+Table 24: Key architectural decisions
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Decision                                   Rationale
+  ------------------------------------------ --------------------------------------------------------------------------------------
+  Node.js + Express is the only public       One place enforces authentication, RBAC, validation and business rules (SRS Section
+  backend                                    3.5).
+
+  AI logic lives in a separate Python        Scikit-learn, LangChain and LlamaIndex are Python libraries; separating them keeps the
+  service                                    Node.js code simple and lets the AI service be restarted or replaced on its own.
+
+  The AI service returns results; the API    Business rules (permissions, status rules, uniqueness) are applied once, in the API,
+  stores them                                after the result is validated.
+
+  Ollama is reachable only from the AI       Keeps the model private and removes it from the public attack surface.
+  service                                    
+
+  AI work runs as asynchronous jobs          Local generation can take many seconds. A job record lets the interface show progress
+                                             and survive page reloads.
+
+  MongoDB as the primary database            Required by the SRS; flexible documents suit AI-generated plans, reports and logs,
+                                             with references between collections for relationships.
+
+  A modular monolith for the API             One deployable Express application with clear modules is easier to build and test than
+                                             many microservices for a final-year project.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+6.3 Technology Stack
+
+Table 25: Technology stack
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Layer                       Technology                             Status                   Purpose
+  --------------------------- -------------------------------------- ------------------------ --------------------------------------
+  Frontend                    React                                  Proposed (MERN)          Single-page web application with
+                                                                                              role-based dashboards
+
+  Backend                     Node.js + Express.js                   SRS                      REST API and business logic
+
+  Database                    MongoDB (with Mongoose)                SRS (Mongoose proposed)  Users, projects, teams, tasks,
+                                                                                              evidence, certificates
+
+  Model runner                Ollama                                 SRS                      Local execution of the language model
+
+  Language model              Llama 3.2 3B                           SRS                      Conversations, analysis, planning,
+                                                                                              recommendations
+
+  ML and AI service           Python + Scikit-learn                  SRS                      ML models and service logic
+
+  AI service framework        FastAPI with Uvicorn                   Proposed                 HTTP interface of the Python service
+
+  RAG framework               LangChain or LlamaIndex                SRS                      Retrieval of information from external
+                                                                                              sources
+
+  Embedding model and vector  Embedding model served by Ollama;      Proposed                 Semantic search for RAG
+  store                       Chroma or FAISS                                                 
+
+  Version control and         Git and GitHub                         SRS                      Source control and deliverable
+  evidence                                                                                    evidence
+
+  Authentication              JSON Web Tokens, password hashing      Proposed                 Sessions and credential storage
+                              library                                                         
+
+  Validation                  A schema validation library on the API Proposed                 Request validation
+
+  Certificate files           Server-side PDF generation with a QR   Proposed                 Downloadable certificates
+                              code                                                            
+
+  Reverse proxy               Nginx                                  Proposed                 HTTPS termination and static hosting
+
+  Development tools           Visual Studio Code, Python, Node.js,   Proposal                 Development environment on Windows or
+                              Ollama, Git/GitHub                                              Linux
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+6.4 Frontend Architecture (React)
+
+The React application is a single-page application that adapts to the logged-in role. It never replaces backend authorization:
+hiding a button or page is only a convenience (SRS Section 3.5).
+
+Table 26: Dashboards and main screens by role
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Role                               Main screens
+  ---------------------------------- ----------------------------------------------------------------------------------------------
+  Student, Team Leader, Team Member  Project list and creation; AI discovery chat; research findings and idea comparison;
+                                     requirement review and approval; planning inputs, methodology and timeline; team and
+                                     invitations; execution plan (phases, sprints, tasks); my tasks and status updates; blockers;
+                                     submission form; verification reports; progress and workload; notifications; completion
+                                     report; certificates; certificate verification. The Team Leader additionally sees assignment,
+                                     workload and team management screens.
+
+  Supervisor                         Assigned projects; project details and approved requirements; timeline and milestones;
+                                     progress and workload; blockers; submitted evidence and AI verification reports; review and
+                                     override with reason; completion approval.
+
+  Sub Admin                          Projects and teams; AI configuration and service status; system settings and notifications;
+                                     logs and health; usage and completion statistics; certificate records.
+
+  Super Admin                        User list and role management; Sub Admin promotion and demotion with its history; read-only
+                                     oversight of projects, evidence, certificates, AI configuration, logs and Sub Admin actions.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+-   Routing. Protected routes check the session and the role; project routes also check that the user belongs to the project.
+
+-   API client. One module attaches the token, handles token refresh and maps error codes to messages.
+
+-   State. Server data is fetched through the API client; shared session state holds the user and role.
+
+-   AI jobs. For long operations the interface starts a job, shows progress by polling the job status and loads the result when
+    the job succeeds.
+
+-   Certificate verification page. A page where a certificate ID is entered and the validity status is shown.
+
+-   Notifications. In-app notification list with unread count, refreshed by polling. Email notification is an optional
+    enhancement.
+
+6.5 Backend Architecture (Node.js and Express)
+
+The API is organized into modules. Each module has routes, controllers, services and models. A request passes through the same
+middleware chain every time.
+
+6.5.1 Request Pipeline
+
+Table 27: Middleware order for a protected request
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Order        Stage                                 Action
+  ------------ ------------------------------------- ------------------------------------------------------------------------------
+  1            Transport and headers                 HTTPS, CORS rules for the frontend origin, security headers, request size
+                                                     limit
+
+  2            Rate limiting                         Limits per IP and per user, stricter on login and AI endpoints
+
+  3            Authentication                        Verifies the token and loads the user; rejects deactivated accounts
+
+  4            Role authorization                    Checks that the account role may use the endpoint
+
+  5            Project context                       Loads the project and resolves the user’s project-level role (Team Leader,
+                                                     Team Member, assigned Supervisor) from team and project records; rejects users
+                                                     outside the project
+
+  6            Validation                            Validates body, parameters and query against a schema
+
+  7            Controller and service                Applies business rules and calls models or the AI gateway
+
+  8            Audit logging                         Records sensitive actions (role changes, verification decisions, certificate
+                                                     and configuration changes)
+
+  9            Error handler                         Returns a consistent error format without exposing internals
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+6.5.2 Backend Modules
+
+Table 28: Backend modules
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Module                   Responsibility                                                          Main collections
+  ------------------------ ----------------------------------------------------------------------- ---------------------------------
+  auth                     Registration, login, token refresh, logout                              users
+
+  users                    Profiles; Super Admin user, role and Sub Admin management               users, auditLogs
+
+  projects                 Project creation, stages, supervisor link, selected idea                projects
+
+  discovery                Discovery profile, research findings, ideas, selection                  discoveryProfiles,
+                                                                                                   researchFindings, ideas
+
+  requirements             Analysis results, review, approval, baseline versions                   requirements
+
+  planning                 Planning inputs, methodology, timeline, approval                        timelines
+
+  teams                    Teams, invitations, leader transfer, membership                         teams, invitations
+
+  execution                Phases, sprints, tasks, assignments, task history, plan adjustments     phases, sprints, tasks,
+                                                                                                   taskHistory
+
+  monitoring               Progress snapshots, alerts, workload, blockers, recommendations         progressSnapshots, blockers,
+                                                                                                   aiRecommendations, notifications
+
+  submissions              Evidence submission, versions, file handling                            submissions
+
+  verification             Verification requests, reports, supervisor review                       verificationReports
+
+  completion               Completion evaluation and reports, supervisor approval                  completionReports
+
+  certificates             Certificate creation, download, verification, record management         certificates,
+                                                                                                   certificateVerifications
+
+  admin                    AI configuration, settings, statistics, logs, health                    aiConfigurations, systemSettings,
+                                                                                                   auditLogs
+
+  aiGateway                Builds authorized context, creates AI jobs, calls the AI service,       aiJobs, aiInteractionLogs
+                           validates and stores results, writes the AI interaction log             
+
+  github                   Checks repository access and reads repository data with a server-side   none (read-only calls)
+                           token                                                                   
+
+  scheduler                Periodic monitoring scans and job retries                               aiJobs, progressSnapshots
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+A suggested source layout is: a config folder, a routes folder, a controllers folder, a services folder, a models folder, a
+middleware folder, a validators folder, an integrations folder (AI service client and GitHub client), a jobs folder and a utils
+folder, with one file per module in each.
+
+6.6 Python AI and ML Service
+
+The AI service is an internal HTTP service written in Python. It hosts the RAG pipeline, loads the trained Scikit-learn models,
+builds prompts, calls Ollama, validates the output and returns a structured result. It holds no business data apart from the
+vector store and the model files.
+
+Table 29: AI service endpoints (internal, proposed)
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                   Purpose                                                Uses
+  ------------------------------------------ ------------------------------------------------------ -------------------------------
+  POST /v1/discovery/chat                    Next question and updated requirement profile          Language model
+
+  POST /v1/research                          Retrieve sources and produce findings with references  RAG, language model
+
+  POST /v1/ideas/generate                    Generate and rank ideas                                Language model, M5
+
+  POST /v1/requirements/analyze              Requirements, scope, deliverables, acceptance          Language model
+                                             criteria, questions                                    
+
+  POST /v1/planning/methodology              Methodology recommendation with rationale              M1, language model
+
+  POST /v1/planning/timeline                 Timeline draft and feasibility result                  M2, language model, scheduling
+                                                                                                    code
+
+  POST /v1/plan/generate                     Phases, sprints and tasks                              Language model, M2
+
+  POST /v1/assignments/recommend             Ranked assignees with rationale                        M3, language model
+
+  POST /v1/monitoring/analyze                Risk level, recommendations                            M4, language model
+
+  POST /v1/verification/evaluate             Criterion evaluation and report                        Language model, deterministic
+                                                                                                    checks
+
+  POST /v1/completion/evaluate               Completion report text                                 Language model
+
+  GET /health                                Service, model and Ollama status                       Ollama health check
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+-   Request envelope. Every call carries a request ID, the project ID, the requester role, the task type, the authorized context
+    and the prompt template version.
+
+-   Response envelope. Every response carries the request ID, the result in the task schema, the model and ML versions used,
+    retrieved source IDs, a validation flag and timings.
+
+-   Service authentication. The API sends a shared service key. The AI service accepts requests only from the internal network.
+
+-   Stateless calls. The service keeps no conversation state; the API sends the needed history each time.
+
+6.6.1 Integration Flow
+
+The table shows the flow for an AI request using idea generation as an example. Every other AI function follows the same pattern.
+
+Table 30: AI request flow
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Step        Component                       Action
+  ----------- ------------------------------- --------------------------------------------------------------------------------------
+  1           React                           The student requests idea generation.
+
+  2           Express                         Runs authentication, role, project-context and validation checks.
+
+  3           AI gateway                      Builds the authorized context, removes secrets, creates an AI job with the status
+                                              queued and returns the job ID.
+
+  4           React                           Polls the job status.
+
+  5           AI gateway                      Sends the request to the AI service and marks the job running.
+
+  6           AI service                      Retrieves sources (RAG), computes ML scores, builds the prompt, calls Ollama and
+                                              validates the output.
+
+  7           AI gateway                      Validates the result against business rules, stores it with the project ID, writes the
+                                              interaction log and marks the job succeeded (or failed with an error).
+
+  8           React                           Loads the stored result and shows it.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+6.7 Database Design (MongoDB)
+
+MongoDB stores users, projects, teams, tasks, evidence and certificates and keeps the relationships between them through stored
+identifiers (SRS technical rule 6). Small, always-read-together data is embedded in its parent document. Records that grow without
+limit or are queried on their own are separate collections.
+
+Table 31: Collections and key fields
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Collection                  Purpose                        Key fields and references
+  --------------------------- ------------------------------ -----------------------------------------------------------------------
+  users                       Accounts                       fullName, email (unique), passwordHash, role (student, supervisor,
+                                                             sub_admin, super_admin), isActive, profile (including skills),
+                                                             timestamps
+
+  projects                    Project record                 title, creatorId, mode (individual or team), stage, methodology,
+                                                             supervisorId, selectedIdeaId, baselineRequirementsId,
+                                                             approvedTimelineId, deadline, timestamps
+
+  discoveryProfiles           Collected student requirements projectId, domain, interests, skills, targetUsers, region, budget,
+                                                             resources, constraints, conversation messages
+
+  researchFindings            Research results               projectId, text, origin (Sourced or AI-generated), references (title,
+                                                             URL, year, retrieval date), jobId
+
+  ideas                       Recommended and submitted      projectId, source (AI or student), rank, scores per criterion, the
+                              ideas                          twelve idea fields, references, isSelected
+
+  requirements                Requirement versions           projectId, version, functional, nonFunctional, constraints, objectives,
+                                                             scope, deliverables with acceptanceCriteria, status (draft or
+                                                             approved), approvedBy, approvedAt
+
+  timelines                   Planning inputs and timeline   projectId, deadline, dailyHours, teamSize, memberSkills, complexity,
+                                                             methodology and rationale, phases and milestones, feasibility flags,
+                                                             status
+
+  teams                       Team and membership            projectId (unique), leaderId, members (userId, joinedAt)
+
+  invitations                 Team invitations               projectId, inviterId, inviteeId, status (pending, accepted, rejected),
+                                                             timestamps
+
+  phases                      Project phases                 projectId, title, description, objectives, startDate, endDate,
+                                                             deliverables, completionCriteria, status, dependsOn, order
+
+  sprints                     Sprints (Agile/Scrum only)     projectId, phaseId, title, objectives, description, startDate, endDate,
+                                                             deliverables, status
+
+  tasks                       Tasks                          projectId, phaseId, sprintId (optional), title, description, priority,
+                                                             estimatedEffort, dependsOn, assigneeId, assignmentSource, startDate,
+                                                             deadline, completionCriteria, status
+
+  taskHistory                 Task change history            taskId, changedBy, changeType, fromValue, toValue, reason, at
+
+  blockers                    Reported blockers              taskId, projectId, reportedBy, description, status, resolvedBy,
+                                                             resolution, timestamps
+
+  submissions                 Evidence submissions           taskId, projectId, phaseId, sprintId, submittedBy, version, githubUrl,
+                                                             commitLinks, pullRequestLinks, attachments, notes, verificationStatus,
+                                                             submittedAt
+
+  verificationReports         Verification results           submissionId, taskId, criteria evaluations, findings, issues, status,
+                                                             recommendations, model and prompt versions, supervisorReview (decision,
+                                                             reason, by, at)
+
+  progressSnapshots           Progress history               projectId, percentComplete, counts, riskLevel, at
+
+  aiRecommendations           AI recommendations and         projectId, type, content, status (open, accepted, dismissed),
+                              decisions                      decidedBy, decidedAt
+
+  notifications               In-app notifications           userId, projectId, type, message, isRead, at
+
+  completionReports           Completion evaluation          projectId, evaluation, pendingItems, eligibleMembers,
+                                                             supervisorDecision, createdAt
+
+  certificates                Issued certificates            certificateId (unique), userId, projectId, fullName, projectTitle,
+                                                             completionDate, status (valid or revoked), issuedAt, integrityHash
+
+  certificateVerifications    Verification activity          certificateId, result, at
+
+  auditLogs                   Administrative and decision    actorId, actorRole, category (role change, promotion, demotion,
+                              log                            account, configuration, certificate, verification decision),
+                                                             targetType, targetId, before, after, reason, at
+
+  aiJobs                      Asynchronous AI jobs           type, projectId, requestedBy, status (queued, running, succeeded,
+                                                             failed), error, timestamps
+
+  aiInteractionLogs           AI traceability                jobId, projectId, requestedBy, taskType, promptVersion, model and
+                                                             parameters, retrieved source IDs, ML versions, output, validation
+                                                             result, at
+
+  aiConfigurations            AI settings                    ollamaBaseUrl, modelName, model parameters, RAG settings, isEnabled,
+                                                             updatedBy
+
+  systemSettings              Platform settings              supervisorApprovalRequired, notification settings, other global flags
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+  The vector store is separate from MongoDB and holds document chunks and embeddings with source metadata. It can be rebuilt from
+  the sources, so it is not a primary record.
+
+6.7.1 Relationships and Integrity
+
+Table 32: Main relationships
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Relationship                               Cardinality                        Notes
+  ------------------------------------------ ---------------------------------- ---------------------------------------------------
+  User to Project (creator)                  One to many                        A student may create several projects.
+
+  Project to Team                            One to one (team projects)         Individual projects have no team record.
+
+  Team to Users (members)                    Many to many through the members   A user joins a team only through an accepted
+                                             list                               invitation.
+
+  Project to Phase, Sprint, Task             One to many                        Tasks reference their phase and, in Agile/Scrum,
+                                                                                their sprint.
+
+  Task to Submission                         One to many                        Each resubmission is a new version.
+
+  Submission to Verification report          One to many                        Earlier reports are kept.
+
+  Project to Certificate                     One to many                        One certificate per eligible student.
+
+  User to Certificate                        One to many                        Certificates stay linked to the student and project
+                                                                                permanently.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+-   Indexes. Unique indexes on users.email, certificates.certificateId and teams.projectId. Compound indexes on tasks (projectId,
+    status), tasks (assigneeId, status), tasks (projectId, deadline), invitations (inviteeId, status), submissions (taskId,
+    version), and auditLogs (category, at).
+
+-   Referential checks. Mongoose references plus service-level checks stop a task from referencing a phase of another project.
+
+-   History is append-only. Task history, submissions, verification reports, progress snapshots and audit logs are never edited or
+    deleted by ordinary users.
+
+-   Certificate IDs. A certificate ID is generated from a cryptographically random value with a readable prefix, so IDs cannot be
+    guessed in sequence, and the unique index guarantees that no ID repeats. The record also stores a hash of its content so that
+    tampering can be detected.
+
+-   Transactions. Operations that must succeed together (for example, creating all certificates for a project) use multi-document
+    transactions where the MongoDB deployment supports them (a replica set is needed), or are written to be safely repeatable.
+
+6.8 API Design
+
+The API is a REST API that exchanges JSON under the prefix /api/v1. Requests carry a bearer token. Errors use a consistent format
+with a code, message and optional field details. Typical status codes are 200 and 201 for success, 400 for validation errors, 401
+for missing or invalid authentication, 403 for permission failures, 404 for missing records, 409 for conflicts and 429 for rate
+limits. Role abbreviations in the table: S Student, TL Team Leader, TM Team Member, SV Supervisor, SA Super Admin, SB Sub Admin.
+
+Table 33: API groups and example endpoints (proposed)
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Group                 Endpoint                                           Purpose                          Roles
+  --------------------- -------------------------------------------------- -------------------------------- ------------------------
+  Authentication        POST /auth/register, /auth/login, /auth/refresh,   Register, log in, refresh and    Public / authenticated
+                        /auth/logout                                       end sessions                     
+
+  Profile               GET and PATCH /users/me                            View and update own profile      All human roles
+
+  User management       GET /users; PATCH /users/:id/status; PATCH         List users; activate or          SA
+                        /users/:id/role                                    deactivate; assign roles;        
+                                                                           promote or demote Sub Admins     
+
+  Projects              POST /projects; GET /projects; GET /projects/:id   Create and view projects within  S, TL, TM; SV
+                                                                           the user’s access                (assigned); SB; SA
+                                                                                                            (inspect)
+
+  Discovery             POST /projects/:id/discovery/messages; PUT         AI conversation; review and      S, TL
+                        /projects/:id/discovery/profile                    update collected information     
+
+  Research and ideas    POST /projects/:id/research; GET and POST          Start research (job); list and   S, TL
+                        /projects/:id/ideas; POST                          submit ideas; select an idea     
+                        /projects/:id/ideas/:ideaId/select                                                  
+
+  Requirements          POST /projects/:id/requirements/analyze; GET and   Analyze, edit, approve baseline  S, TL; SV (review)
+                        PUT /projects/:id/requirements; POST                                                
+                        /projects/:id/requirements/approve                                                  
+
+  Planning              POST /projects/:id/planning/inputs; POST           Planning inputs, methodology,    S, TL
+                        /projects/:id/planning/methodology; POST           timeline, approval               
+                        /projects/:id/planning/timeline; POST                                               
+                        /projects/:id/planning/timeline/approve                                             
+
+  Teams                 POST /projects/:id/team; POST                      Create team; invite; respond;    S, TL; invitee for
+                        /projects/:id/team/invitations; GET                remove member; transfer          responses; SB
+                        /invitations/me; POST /invitations/:id/accept and  leadership                       (administrative
+                        /reject; DELETE                                                                     resolution)
+                        /projects/:id/team/members/:userId; POST                                            
+                        /projects/:id/team/leader                                                           
+
+  Execution plan        POST /projects/:id/plan/generate; GET              Generate (job) and view the plan TL generates; S, TM, SV,
+                        /projects/:id/plan; GET /projects/:id/phases,                                       SB view; SA inspect
+                        /sprints, /tasks                                                                    
+
+  Tasks                 PATCH /tasks/:id; POST /tasks/:id/assign; PATCH    Edit tasks; assign or reassign;  TL (edit, assign);
+                        /tasks/:id/status; GET /tasks/:id/history          update status; read history      assignee (status)
+
+  Plan adjustment       POST /projects/:id/plan/adjustments                Request and apply plan changes   TL
+
+  Monitoring            GET /projects/:id/progress, /alerts, /workload,    Progress, alerts, workload,      S (own), TL, SV, SB; SA
+                        /recommendations; POST                             recommendations and decisions    inspect
+                        /recommendations/:id/decision                                                       
+
+  Blockers              POST /tasks/:id/blockers; PATCH /blockers/:id      Report and manage blockers       S, TM, TL, SV report; TL
+                                                                                                            manages
+
+  Submissions           POST /tasks/:id/submissions; GET                   Submit and list evidence         Assignee; TL, SV, SB, SA
+                        /tasks/:id/submissions                                                              view
+
+  Verification          GET /submissions/:id/verification; POST            Read reports; supervisor         Members (read); SV
+                        /verifications/:id/review                          decision with reason             (review)
+
+  Completion            POST /projects/:id/completion/evaluate; GET        Evaluate, read report,           TL, S request; SV
+                        /projects/:id/completion/report; POST              supervisor decision              decides
+                        /projects/:id/completion/approve and /reject                                        
+
+  Certificates          GET /certificates/me; GET                          Own certificates; download;      Owner; all human roles
+                        /certificates/:id/download; GET                    verification                     for verification
+                        /certificates/verify/:certificateId                                                 
+
+  Certificate           GET /admin/certificates; PATCH                     View and manage certificate      SB; SA (view)
+  administration        /admin/certificates/:id                            records                          
+
+  AI configuration      GET and PUT /admin/ai-config; GET /admin/ai-status Configure Ollama and RAG; view   SB; SA (view)
+                                                                           status                           
+
+  System                GET /admin/stats, /admin/logs, /admin/health; GET  Statistics, logs, health,        SB; SA (view)
+                        and PUT /admin/settings                            settings                         
+
+  Oversight             GET /admin/audit; GET /admin/role-changes          Audit trail and promotion and    SA
+                                                                           demotion records                 
+
+  Notifications         GET /notifications; PATCH /notifications/:id/read  List and mark notifications      All human roles
+
+  AI jobs               GET /ai-jobs/:id                                   Job status and result reference  Requester
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+  Whether certificate verification is also offered without login is an open decision (Appendix A). If it is, that endpoint returns
+  only the certificate-level information and nothing from the private workspace.
+
+6.9 Security Architecture
+
+Table 34: Security controls
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Area                             Control
+  -------------------------------- ------------------------------------------------------------------------------------------------
+  Authentication                   Email and password login; short-lived access token and longer-lived refresh token (lifetimes
+                                   configurable); every request re-checks that the account is still active.
+
+  Password storage                 Passwords stored only as salted hashes using a modern password hashing algorithm.
+
+  Role-based access                Backend middleware checks the account role for every protected endpoint. The frontend only
+                                   mirrors the rules.
+
+  Project-level access             Membership, project-level role and supervisor assignment are checked in addition to the account
+                                   role. Users and AI jobs cannot reach other projects.
+
+  Super Admin protection           Only the Super Admin can change roles, promote or demote Sub Admins; no Sub Admin action can
+                                   modify the Super Admin account; all changes are logged.
+
+  Input validation                 Schema validation on every request; output encoding in the interface; protection against NoSQL
+                                   injection by rejecting operator keys in user input.
+
+  Rate limiting                    Per-IP and per-user limits, stricter on login, AI and certificate-verification endpoints.
+
+  Transport                        HTTPS for all external traffic; internal services bound to localhost or a private network.
+
+  Secrets                          Keys, tokens and connection strings live in environment configuration, not in source control and
+                                   not in prompts.
+
+  AI-specific                      Secret filter before prompts; untrusted-content handling for retrieved text and repository
+                                   files; schema-validated output; AI service reachable only from the API.
+
+  File uploads                     Allowed types and size limits for screenshots and documents; files stored outside the web root
+                                   and served only to authorized users.
+
+  Audit logging                    Role changes, promotions, demotions, administrative actions, verification decisions and
+                                   certificate changes are recorded with actor, time and reason.
+
+  Privacy                          Sensitive user information is read only when necessary; certificate verification exposes only
+                                   the certificate fields; the AI receives only the data its task needs.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+6.10 Deployment Architecture
+
+The proposal targets a web platform for Windows and Linux. The recommended deployment for the project is a single application
+server that runs all components, optionally as containers managed by Docker Compose. Only the reverse proxy is reachable from
+outside.
+
+[Deployment architecture on a single application server]
+
+Figure 5: Deployment architecture on a single application server
+
+Table 35: Deployment components
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Component                          Runs as                               Example port                 Exposure
+  ---------------------------------- ------------------------------------- ---------------------------- ----------------------------
+  Nginx reverse proxy                Web server                            443 (80 redirects)           Public
+
+  React build                        Static files served by Nginx          none                         Public through Nginx
+
+  Express API                        Node.js process                       5000                         Internal
+
+  Python AI service                  Uvicorn process                       8000                         Internal
+
+  Ollama                             Ollama server                         11434                        Localhost only
+
+  MongoDB                            MongoDB server                        27017                        Internal
+
+  Vector store                       Local files or service                depends on choice            Internal
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+6.10.1 Environments and Sizing
+
+Table 36: Environments
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  Environment                        Purpose                               Notes
+  ---------------------------------- ------------------------------------- ---------------------------------------------------------
+  Development                        Each developer’s machine              Visual Studio Code, Node.js, Python, Ollama, MongoDB, Git
+                                                                           and GitHub. Windows or Linux.
+
+  Demonstration or production        Single application server             Ollama and its model are installed on this host. HTTPS
+                                                                           enabled.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+Table 37: Indicative hardware (to be confirmed by testing)
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Resource                     Guidance
+  ---------------------------- ----------------------------------------------------------------------------------------------------
+  Memory                       About 16 GB is a comfortable target for the model, the Python service, MongoDB and the API together;
+                               less works for development with slower response.
+
+  Processor                    A modern multi-core processor. A supported GPU is optional and speeds up generation.
+
+  Storage                      Enough for the model files (about 2 GB for the default 3B build), the embedding model, MongoDB data,
+                               the vector store, uploaded files and backups.
+
+  Network                      Outbound HTTPS access to GitHub and the research sources.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+6.10.2 Configuration, Operations and Recovery
+
+Table 38: Main configuration variables (proposed names)
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Variable                                      Used by                          Purpose
+  --------------------------------------------- -------------------------------- --------------------------------------------------
+  PORT, FRONTEND_ORIGIN                         Express API                      Listening port and allowed browser origin
+
+  MONGODB_URI                                   Express API                      Database connection
+
+  JWT_SECRET, JWT_REFRESH_SECRET                Express API                      Token signing
+
+  AI_SERVICE_URL, AI_SERVICE_KEY                Express API, AI service          Internal AI service address and shared key
+
+  GITHUB_TOKEN                                  Express API                      Higher GitHub rate limits; never logged or placed
+                                                                                 in prompts
+
+  OLLAMA_BASE_URL, OLLAMA_MODEL,                AI service                       Model runner connection and model names
+  EMBEDDING_MODEL                                                                
+
+  VECTOR_STORE_PATH                             AI service                       Vector store location
+
+  CERT_BASE_URL                                 Express API                      Base address used in certificate verification
+                                                                                 information
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+-   Start-up order. MongoDB, then Ollama (with the model installed), then the Python AI service, then the Express API, then Nginx.
+
+-   Health. The API and the AI service expose health endpoints. The AI health check also tests Ollama and the model. Sub Admins
+    see these in the monitoring screens.
+
+-   Logging. Structured logs from every component, with request IDs shared between the API and the AI service.
+
+-   Backup. Scheduled MongoDB dumps and a copy of uploaded files and trained model files. The vector store and the Ollama model
+    can be rebuilt or downloaded again.
+
+-   Version control and delivery. Source code and configuration templates live in GitHub. Automated checks (lint, tests, build)
+    can run on each push as an optional improvement.
+
+-   Scaling path. If load grows, the AI service and Ollama can move to a separate machine with a stronger processor or GPU, and
+    the API can run several instances behind the proxy, because the API is stateless apart from the database.
+
+6.11 Non-Functional Considerations
+
+Table 39: Quality attributes and how the architecture addresses them
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Attribute                        Approach
+  -------------------------------- ------------------------------------------------------------------------------------------------
+  Performance                      Asynchronous AI jobs; model kept loaded; cached retrieval; indexes on frequent queries.
+
+  Reliability                      The platform keeps working without AI if the AI service is down; failed jobs are retried or
+                                   reported; backups exist.
+
+  Security and privacy             Layered authorization, local model, no secrets in prompts, audit trail (Section 6.9).
+
+  Maintainability                  Modular backend, separate AI service, versioned prompts and model files, consistent API
+                                   conventions.
+
+  Traceability                     Task history, submission history, verification history, audit logs and AI interaction logs.
+
+  Usability                        Role-based dashboards, visible job progress, clear feedback on verification results.
+
+  Portability                      Runs on Windows or Linux; containers are optional.
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+Appendix A. Alignment Notes and Open Decisions
+
+This appendix records places where the SRS is silent, uses different wording in different sections, or where this design adds
+something the SRS does not mention. These points should be confirmed with the project supervisor.
+
+Table 40: Alignment notes
+
+  ----------------------------------------------------------------------------------------------------------------------------------
+  No.     Topic                    What the SRS says                             Design position or open question
+  ------- ------------------------ --------------------------------------------- ---------------------------------------------------
+  1       Supervisor assignment    Supervisors monitor assigned projects         Open. Options: the student selects or requests a
+                                   (Sections 2.2.4, 3.2.4) but no assignment     supervisor when creating the project, or a Sub
+                                   mechanism is defined.                         Admin assigns one. The design stores supervisorId
+                                                                                 on the project in either case.
+
+  2       Deadline changes         Section 2.2.3 says Team Leaders modify        The design lets the Team Leader initiate and apply
+                                   deadlines; Section 3.2.2 says they propose    a change, recorded in task history and visible to
+                                   deadline changes.                             the supervisor. Confirm whether supervisor approval
+                                                                                 is required.
+
+  3       Who generates            The RBAC matrix gives Sub Admin Full access   The system issues certificates automatically when
+          certificates             to generate certificates; Section 3.2.6 says  all conditions are met. Sub Admins manage records
+                                   Sub Admins manage certificate records;        and may re-issue or revoke according to policy.
+                                   students, leaders and members cannot issue    Confirm this reading.
+                                   certificates.                                 
+
+  4       Public certificate       Users can verify a certificate by ID; the     Open. Decide whether to add an unauthenticated
+          verification             matrix lists human roles. Section 2.2.5       verification page (useful for employers and
+                                   requires that verification does not need      institutions).
+                                   access to the private workspace.              
+
+  5       Task completion          A task cannot be Completed without meeting    The design requires evidence for every task and
+                                   its criteria and submission requirements;     moves it to Completed when the status is Verified
+                                   students cannot mark unverified deliverables  or a supervisor approves.
+                                   verified.                                     
+
+  6       Team size as a planning  Component 2 lists timeline planning before    Team formation should start before planning inputs,
+          input                    team formation, but team size and member      or team size is entered provisionally.
+                                   skills are planning inputs.                   
+
+  7       Changing the Team Leader The creator is the initial leader and a team  The design allows a leader transfer that keeps
+                                   has one leader (Section 3.4); the Project     exactly one leader.
+                                   Idea document says students can designate a   
+                                   leader.                                       
+
+  8       Account creation for     Roles are assigned by the system or the Super Registration creates Students; the Super Admin
+          staff roles              Admin (Section 3.5).                          assigns Supervisor and Sub Admin roles; the first
+                                                                                 Super Admin is created at installation.
+
+  9       Sub Admin team actions   The matrix gives Sub Admin Limited access to  The design limits Sub Admin team actions to
+                                   create teams and invite members; Section      administrative resolution, not ordinary team
+                                   3.2.6 lists resolving team management issues. creation.
+
+  10      Supervisor approval for  Supervisor authorizes certificate generation  Stored as a platform setting
+          certificates             if enabled by the institution.                (supervisorApprovalRequired) managed through system
+                                                                                 settings.
+
+  11      Frontend technology      The SRS technology table does not list a      React is used for the frontend.
+                                   frontend; the project calls for a MERN        
+                                   architecture.                                 
+
+  12      Embedding model, vector  The SRS names Llama 3.2 3B and a RAG          Added as proposed dependencies: an embedding model
+          store, AI service        framework but not an embedding model, vector  served by Ollama, Chroma or FAISS, and FastAPI.
+          framework                store or Python web framework.                
+
+  13      Machine learning models  The SRS requires Python and Scikit-learn      Models M1 to M5 in Section 5.7 are proposed and
+                                   where applicable but names no models.         should be adjusted to the data and time available.
+  ----------------------------------------------------------------------------------------------------------------------------------
+
+Appendix B. Abbreviations
+
+Table 41: Abbreviations
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Term                               Meaning
+  ---------------------------------- ----------------------------------------------------------------------------------------------
+  AI                                 Artificial Intelligence
+
+  API                                Application Programming Interface
+
+  FYP                                Final Year Project
+
+  JWT                                JSON Web Token
+
+  LLM / SLM                          Large Language Model / Small Language Model
+
+  MERN                               MongoDB, Express, React, Node.js
+
+  ML                                 Machine Learning
+
+  RAG                                Retrieval-Augmented Generation
+
+  RBAC                               Role-Based Access Control
+
+  REST                               Representational State Transfer
+
+  SRS                                Software Requirements Specification
+
+  TF-IDF                             Term Frequency–Inverse Document Frequency
+  ---------------------------------------------------------------------------------------------------------------------------------

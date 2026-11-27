@@ -1,0 +1,322 @@
+Module 1: AI-Powered Project Idea Discovery - Directory Structure
+
+AI Project Supervisor (Module 1 of the larger platform) | Based on SRS v1.0 and SDD v1.0 | Draft for review
+
+1. Module summary
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Item                                                             Detail
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  Type                                                             Component 1 of 5
+
+  Purpose                                                          Collects student needs through an AI conversation, researches
+                                                                   trends, problems and existing solutions with RAG, and recommends
+                                                                   ranked project ideas. A student who already has an idea can
+                                                                   submit it directly.
+
+  Principal output                                                 Researched and ranked project ideas; one selected idea.
+
+  Actors                                                           Student, Team Leader, AI Supervisor
+
+  Use cases                                                        UC-02, UC-03
+
+  Workflows                                                        WF-03, WF-04, WF-05
+
+  Requirements                                                     FR-DIS-001..020; BR-DIS-1..5; RAG-001..010; AIR (language model
+                                                                   use); MLR-003 (M5 idea ranking); EIR-003
+
+  MongoDB collections                                              discoveryProfiles, researchFindings, ideas
+
+  API groups                                                       Discovery; Research and ideas
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+2. How this module fits the repository
+
+The platform is one Express API (modular monolith), one Python AI service and one React single-page app (SDD 6.2). This module is
+therefore a set of folders inside those three applications, not a separate application. Each backend module folder holds its own
+routes, controller, service, validators and models (SDD 6.5).
+
+-   Backend (Node.js + Express): backend/
+-   AI service (Python + FastAPI, Ollama, Scikit-learn, RAG): ai-service/
+-   Frontend (React): frontend/
+
+3. Backend directory structure
+
+3.1 Node.js + Express API
+
+    backend/
+    ├── src/
+    │   └── modules/
+    │       └── discovery/
+    │           ├── discovery.controller.js
+    │           ├── discovery.routes.js
+    │           ├── discovery.service.js
+    │           ├── discovery.validators.js
+    │           ├── discoveryProfile.model.js
+    │           ├── idea.model.js
+    │           ├── ideas.service.js
+    │           ├── research.service.js
+    │           └── researchFinding.model.js
+    └── tests/
+        └── idea-discovery/
+            └── discovery.test.js
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  src/modules/discovery/discovery.routes.js                        Discovery and research/ideas routes
+
+  src/modules/discovery/discovery.controller.js                    HTTP layer
+
+  src/modules/discovery/discovery.service.js                       Conversation turns, requirement profile review and update
+
+  src/modules/discovery/research.service.js                        Starts the research job and stores findings with origin and
+                                                                   references
+
+  src/modules/discovery/ideas.service.js                           Stores ranked ideas, accepts submitted ideas, selects one idea
+
+  src/modules/discovery/discovery.validators.js                    Request schemas (the twelve idea fields, profile fields)
+
+  src/modules/discovery/discoveryProfile.model.js                  discoveryProfiles collection
+
+  src/modules/discovery/researchFinding.model.js                   researchFindings collection (origin Sourced or AI-generated)
+
+  src/modules/discovery/idea.model.js                              ideas collection (rank, per-criterion scores, isSelected)
+
+  tests/idea-discovery/discovery.test.js                           Profile, research and idea-selection tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+3.2 Python AI service
+
+    ai-service/
+    ├── app/
+    │   ├── ml/
+    │   │   └── idea_ranking/
+    │   │       ├── __init__.py
+    │   │       ├── criteria.py
+    │   │       ├── scoring.py
+    │   │       └── weights.json
+    │   ├── modules/
+    │   │   └── discovery/
+    │   │       ├── prompts/
+    │   │       │   ├── discovery_chat_v1.txt
+    │   │       │   ├── idea_generation_v1.txt
+    │   │       │   └── research_synthesis_v1.txt
+    │   │       ├── __init__.py
+    │   │       ├── router.py
+    │   │       ├── schemas.py
+    │   │       └── service.py
+    │   └── rag/
+    │       ├── sources/
+    │       │   ├── __init__.py
+    │       │   ├── base.py
+    │       │   ├── scholarly.py
+    │       │   └── web_pages.py
+    │       ├── __init__.py
+    │       ├── cache.py
+    │       ├── chunking.py
+    │       ├── embeddings.py
+    │       ├── pipeline.py
+    │       ├── prompt_assembly.py
+    │       ├── query_formulation.py
+    │       ├── reference_validation.py
+    │       ├── retriever.py
+    │       └── vector_store.py
+    └── tests/
+        └── idea-discovery/
+            ├── test_idea_ranking.py
+            └── test_rag_pipeline.py
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  app/modules/discovery/__init__.py                                Package marker
+
+  app/modules/discovery/router.py                                  POST /v1/discovery/chat, /v1/research, /v1/ideas/generate
+
+  app/modules/discovery/schemas.py                                 Task schemas for chat, findings and ideas
+
+  app/modules/discovery/service.py                                 Orchestrates RAG, M5 scoring and the language model
+
+  app/modules/discovery/prompts/discovery_chat_v1.txt              Next question and updated requirement profile
+
+  app/modules/discovery/prompts/research_synthesis_v1.txt          Findings written only from retrieved chunks, with source IDs
+
+  app/modules/discovery/prompts/idea_generation_v1.txt             Ideas with the twelve fields (FR-DIS-016)
+
+  app/rag/__init__.py                                              Package marker
+
+  app/rag/pipeline.py                                              Runs the RAG stages in order (SDD Table 17)
+
+  app/rag/query_formulation.py                                     Topic-keyword queries only; no personal data (EIR-014)
+
+  app/rag/sources/__init__.py                                      Package marker
+
+  app/rag/sources/base.py                                          Source interface; fetch failures are logged and skipped
+
+  app/rag/sources/scholarly.py                                     Open scholarly APIs (arXiv, Semantic Scholar, Crossref,
+                                                                   OpenAlex)
+
+  app/rag/sources/web_pages.py                                     Page fetching and extraction; allow and deny lists
+
+  app/rag/chunking.py                                              Cleaning and overlapping chunks
+
+  app/rag/embeddings.py                                            Embedding model served by Ollama (proposed)
+
+  app/rag/vector_store.py                                          Chroma or FAISS store with source metadata (proposed)
+
+  app/rag/retriever.py                                             Top-k retrieval with relevance filtering
+
+  app/rag/prompt_assembly.py                                       Puts chunks with source IDs into the prompt; retrieved text
+                                                                   treated as untrusted (RAG-010)
+
+  app/rag/reference_validation.py                                  Checks cited IDs, copies reference data from metadata, labels
+                                                                   Sourced or AI-generated (RAG-003/004)
+
+  app/rag/cache.py                                                 Caches retrieved and embedded documents with retrieval date
+                                                                   (RAG-008)
+
+  app/ml/idea_ranking/__init__.py                                  Package marker
+
+  app/ml/idea_ranking/criteria.py                                  The six ranking criteria (FR-DIS-015)
+
+  app/ml/idea_ranking/scoring.py                                   M5: weighted multi-criteria scoring with TF-IDF cosine
+                                                                   similarity
+
+  app/ml/idea_ranking/weights.json                                 Configurable criterion weights
+
+  tests/idea-discovery/test_rag_pipeline.py                        Retrieval, reference integrity and labelling tests
+
+  tests/idea-discovery/test_idea_ranking.py                        M5 scoring tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+4. Frontend directory structure (React)
+
+    frontend/
+    └── src/
+        └── features/
+            └── idea-discovery/
+                ├── __tests__/
+                │   └── discovery.test.jsx
+                ├── api/
+                │   └── discoveryApi.js
+                ├── components/
+                │   ├── ChatWindow.jsx
+                │   ├── FindingCard.jsx
+                │   ├── IdeaCard.jsx
+                │   ├── IdeaScoreTable.jsx
+                │   ├── OriginBadge.jsx
+                │   ├── ProfileForm.jsx
+                │   └── ReferenceList.jsx
+                ├── hooks/
+                │   ├── useDiscoveryChat.js
+                │   ├── useIdeas.js
+                │   └── useResearchJob.js
+                ├── pages/
+                │   ├── DiscoveryChatPage.jsx
+                │   ├── IdeaComparisonPage.jsx
+                │   ├── IdeaDetailPage.jsx
+                │   ├── RequirementProfilePage.jsx
+                │   ├── ResearchFindingsPage.jsx
+                │   ├── StartPathPage.jsx
+                │   └── SubmitIdeaPage.jsx
+                └── routes.jsx
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  src/features/idea-discovery/routes.jsx                           Route table of this module
+
+  src/features/idea-discovery/api/discoveryApi.js                  Discovery, research and idea API calls
+
+  src/features/idea-discovery/hooks/useDiscoveryChat.js            Conversation state
+
+  src/features/idea-discovery/hooks/useResearchJob.js              Starts research and polls the job
+
+  src/features/idea-discovery/hooks/useIdeas.js                    List, submit and select ideas
+
+  src/features/idea-discovery/pages/StartPathPage.jsx              Choose: find an idea with AI, or continue with an existing idea
+                                                                   (WF-03)
+
+  src/features/idea-discovery/pages/DiscoveryChatPage.jsx          AI requirement conversation (WF-04)
+
+  src/features/idea-discovery/pages/RequirementProfilePage.jsx     Review and update the collected profile (FR-DIS-004)
+
+  src/features/idea-discovery/pages/ResearchFindingsPage.jsx       Findings with references and origin labels
+
+  src/features/idea-discovery/pages/IdeaComparisonPage.jsx         Compare ranked ideas and per-criterion scores (FR-DIS-017)
+
+  src/features/idea-discovery/pages/IdeaDetailPage.jsx             All twelve fields of one idea; select it
+
+  src/features/idea-discovery/pages/SubmitIdeaPage.jsx             Submit own idea: title, problem, target users, solution (WF-05)
+
+  src/features/idea-discovery/components/ChatWindow.jsx            Message list and input
+
+  src/features/idea-discovery/components/ProfileForm.jsx           Editable requirement profile
+
+  src/features/idea-discovery/components/FindingCard.jsx           One finding with its references
+
+  src/features/idea-discovery/components/OriginBadge.jsx           Sourced / AI-generated label (EIR-003)
+
+  src/features/idea-discovery/components/ReferenceList.jsx         Title, URL, year, retrieval date
+
+  src/features/idea-discovery/components/IdeaCard.jsx              Idea summary with rank
+
+  src/features/idea-discovery/components/IdeaScoreTable.jsx        Scores for the six criteria
+
+  src/features/idea-discovery/__tests__/discovery.test.jsx         Chat, comparison and selection tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+5. API endpoints (SDD Table 33, prefix /api/v1)
+
+Roles: S Student, TL Team Leader, TM Team Member, SV Supervisor, SA Super Admin, SB Sub Admin.
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Roles
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /projects/:id/discovery/messages; PUT  AI conversation; review and update          S, TL
+  /projects/:id/discovery/profile             collected information                       
+
+  POST /projects/:id/research; GET and POST   Start research (job); list and submit       S, TL
+  /projects/:id/ideas; POST                   ideas; select an idea                       
+  /projects/:id/ideas/:ideaId/select                                                      
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+6. AI service endpoints (SDD Table 29, internal)
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Uses
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /v1/discovery/chat                     Next question and updated requirement       Language model
+                                              profile                                     
+
+  POST /v1/research                           Retrieve sources and produce findings with  RAG, language model
+                                              references                                  
+
+  POST /v1/ideas/generate                     Generate and rank ideas                     Language model, M5
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+7. Dependencies on other modules
+
+-   Module 0: authentication, project record, aiGateway jobs, notifications, audit.
+-   Hands the selected idea to Module 2 (requirements analysis) through projects.selectedIdeaId.
+
+8. Notes, assumptions and open points
+
+-   SDD Table 33 lists no GET endpoints for the discovery profile or research findings, and does not name the endpoint that starts
+    idea generation. The frontend needs them; proposed additions: GET /projects/:id/discovery/profile, GET /projects/:id/research,
+    POST /projects/:id/ideas/generate (to be confirmed).
+-   LangChain or LlamaIndex must be chosen once (RAG-009). SDD 5.8 suggests LlamaIndex as a starting point, to be confirmed by a
+    prototype.
+-   The embedding model and the vector store (Chroma or FAISS) are proposed dependencies, not SRS requirements (SDD Appendix A,
+    item 12).
+-   Selecting an idea does not finalize the project scope (BR-DIS-5).
+
+9. Suggested build order
+
+1.  Models and validators; discovery profile endpoints.
+2.  AI chat endpoint and prompt; frontend chat and profile review.
+3.  RAG pipeline (sources, chunking, embeddings, vector store, retriever, reference validation).
+4.  Research job end to end; findings page with origin labels.
+5.  M5 idea ranking; idea generation; comparison and selection.
+6.  Direct idea submission path (WF-05) and unavailable-AI fallback (UC-02 A3).

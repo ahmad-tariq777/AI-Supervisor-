@@ -1,0 +1,41 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-1: Registration and Login (WF-01)
+actor "User" as U
+participant "React SPA" as R
+participant "Express API\n(auth module)" as A
+database "MongoDB" as DB
+
+U -> R : Submit registration form
+R -> A : POST /auth/register
+activate A
+A -> A : Validate input
+A -> DB : Find user by email
+DB --> A : Result
+alt Email already registered
+  A --> R : 409 Conflict
+else Email available
+  A -> A : Hash password
+  A -> DB : Insert user (role = student, isActive = true)
+  DB --> A : Created
+  A --> R : 201 Created
+end
+deactivate A
+U -> R : Submit email and password
+R -> A : POST /auth/login
+activate A
+A -> DB : Find user by email
+DB --> A : User or none
+alt Unknown user or wrong password
+  A --> R : 401 Unauthorized
+else Account deactivated
+  A --> R : 403 Forbidden
+else Valid credentials
+  A -> A : Issue access token and refresh token
+  A --> R : 200 tokens and role
+end
+deactivate A
+R -> R : Route to dashboard for the role
+@enduml

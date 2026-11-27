@@ -1,0 +1,34 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-12: AI Configuration and Health Check (WF-26)
+actor "Sub Admin" as SB
+participant "React SPA" as R
+participant "Express API\n(admin)" as A
+participant "Python AI Service" as AI
+participant "Ollama" as O
+database "MongoDB" as DB
+
+SB -> R : Edit Ollama, model and RAG settings
+R -> A : PUT /admin/ai-config
+A -> A : Authenticate, role authorization (Sub Admin), validate
+A -> AI : GET /health
+AI -> O : List installed models and run test generation
+alt Ollama or model unavailable
+  O --> AI : Error
+  AI --> A : Unhealthy
+  A --> R : 422 Unprocessable (settings not saved)
+else Healthy
+  O --> AI : Model installed and answering
+  AI --> A : Healthy
+  A -> DB : Store aiConfigurations (updatedBy)
+  A -> DB : Insert auditLogs (category = configuration)
+  A --> R : 200 OK
+end
+SB -> R : Open AI status
+R -> A : GET /admin/ai-status
+A -> AI : GET /health
+AI --> A : Service, model and Ollama status
+A --> R : Status
+@enduml

@@ -1,0 +1,1100 @@
+SOFTWARE REQUIREMENTS SPECIFICATION
+
+
+
+AI Project Supervisor
+                Module 1
+
+
+      02. Complete Module Specification
+        03. User Roles & Permissions
+AI Project Supervisor — Software Requirements Specification
+
+
+
+
+ Table of Contents
+
+ 02. Complete Module Specification . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+
+      2.1 Module Components . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+
+      2.2 Detailed Module Specification . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+
+      2.3 AI and Technical Architecture Specification . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+
+
+ 03. User Roles & Permissions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+
+      3.1 Overview of User Roles . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+
+      3.2 Detailed Role Responsibilities and Permissions . . . . . . . . . . . . . . . . . . . . . . . . 13
+
+      3.3 Role-Based Access Control (RBAC) Matrix . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+
+      3.4 General Business Rules for User Roles . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+
+      3.5 Role and Permission Management Rules . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+
+      3.6 Summary of Module Deliverables . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+
+
+
+
+                                                       Page 1
+AI Project Supervisor — Software Requirements Specification
+
+
+
+
+ 02. Complete Module Specification
+ Module Name: AI Project Supervisor
+ Module Description:
+ The AI Project Supervisor is the core module of the platform. It acts as a virtual project supervisor,
+ guiding students through project idea discovery, requirement analysis, project planning, team
+ formation, task distribution, progress monitoring, deliverable verification, and project completion
+ certification.
+ The module uses a locally hosted Small Language Model (SLM) to provide intelligent
+ recommendations and project supervision. It also uses Retrieval-Augmented Generation (RAG) to
+ retrieve relevant information from credible external sources and Python-based Machine Learning
+ techniques where applicable.
+
+ 2.1 Module Components
+ The AI Project Supervisor consists of the following five major components:
+   1. AI-Powered Project Idea Discovery
+   2. Project Analysis and Planning
+   3. AI-Generated Project Execution Plan
+   4. Progress Monitoring and Deliverable Verification
+   5. Project Completion and Certification
+
+
+ 2.2 Detailed Module Specification
+
+ 2.2.1 Component 1: AI-Powered Project Idea Discovery
+ Purpose: To help students discover suitable project ideas based on their interests, skills, available
+ resources, and real-world problems.
+
+ A. Student Requirement Collection
+    • The system shall allow students to start a new project.
+    • The system shall provide two options:
+        – Find a project idea using AI.
+        – Continue with an existing project idea.
+    • If a student does not have a project idea, AI shall initiate an interactive conversation.
+    • AI shall collect the following information:
+        – Preferred project domain.
+        – Personal interests.
+        – Technical skills and experience.
+        – Target users.
+        – Target geographical region.
+        – Available budget.
+        – Available hardware, software, and other resources.
+
+
+
+
+                                                       Page 2
+AI Project Supervisor — Software Requirements Specification
+
+
+
+        – Project preferences and constraints.
+    • The system shall allow students to review and update their provided information.
+    • If a student already has a project idea, the system shall allow direct submission without
+       completing the idea discovery questionnaire.
+
+ B. Market and Problem Research
+    • AI shall analyze the student's requirements and identify relevant real-world problems.
+    • The system shall research:
+        – Current industry trends.
+        – Existing products and solutions.
+        – User problems and pain points.
+        – Market demands.
+        – Research gaps.
+        – Opportunities for innovation.
+    • The system shall retrieve relevant information from:
+        – Research papers.
+        – Academic publications.
+        – Industry reports.
+        – Relevant websites.
+        – Other credible online sources.
+    • RAG shall retrieve relevant information to support AI-generated responses.
+    • AI shall compare existing solutions and identify limitations.
+    • AI shall evaluate identified problems from the target users' perspectives.
+    • Each research-based finding shall include supporting references and source links.
+    • The system shall distinguish between sourced information and AI-generated suggestions.
+
+ C. Project Idea Recommendation
+    • AI shall generate multiple project ideas based on the collected requirements and research.
+    • The system shall rank recommended ideas according to:
+        – Relevance to student interests.
+        – Technical feasibility.
+        – Available resources.
+        – Innovation potential.
+        – Real-world usefulness.
+        – Estimated complexity.
+    • Each recommended idea shall contain:
+        – Project title.
+        – Problem statement.
+        – Target users.
+        – Proposed solution.
+        – Existing alternatives.
+        – Innovation and uniqueness.
+        – Required technologies.
+
+
+
+                                                       Page 3
+AI Project Supervisor — Software Requirements Specification
+
+
+
+        – Required resources.
+        – Feasibility analysis.
+        – Expected outcomes.
+        – Potential risks and challenges.
+        – Supporting references.
+    • Students shall be able to view and compare recommended ideas.
+    • Students shall be able to select an AI-recommended idea.
+    • Students shall also be able to submit their own project idea.
+    • The selected idea shall be saved and forwarded to Project Analysis and Planning.
+
+ Business Rules:
+   1. A project idea must be provided before proceeding to project analysis.
+   2. Students may use an AI-generated idea or submit their own.
+   3. AI recommendations must be relevant to the student's collected requirements.
+   4. Research-based claims must include supporting references whenever available.
+   5. Selecting an idea shall not automatically finalize the project scope.
+
+ 2.2.2 Component 2: Project Analysis and Planning
+ Purpose: To analyze the selected project idea, define its requirements, establish project boundaries,
+ recommend a development methodology, and prepare a realistic project timeline.
+
+ A. Requirement Analysis
+    • AI shall analyze the selected project idea.
+    • Students shall be able to provide additional project requirements.
+    • AI shall identify functional requirements.
+    • AI shall identify non-functional requirements.
+    • AI shall identify project constraints and dependencies.
+    • AI shall identify missing or unclear requirements.
+    • AI shall ask relevant clarification questions.
+    • AI shall define the project scope.
+    • AI shall identify project objectives.
+    • AI shall establish measurable project deliverables.
+    • AI shall generate acceptance criteria for each major deliverable.
+    • Students shall be able to review, edit, and approve the analyzed requirements.
+    • Approved requirements shall be stored as the project's baseline.
+
+ B. Timeline and Development Methodology
+    • The system shall collect the following planning information:
+        – Project submission deadline.
+        – Daily working hours or availability.
+        – Team size.
+        – Individual team members' skills.
+        – Technical constraints.
+
+
+
+                                                       Page 4
+AI Project Supervisor — Software Requirements Specification
+
+
+
+        – Available resources.
+        – Project complexity.
+    • AI shall evaluate the collected information.
+    • AI shall recommend an appropriate development methodology:
+        – Agile/Scrum.
+        – Kanban.
+        – Waterfall.
+    • AI shall explain why the selected methodology is suitable.
+    • AI shall generate a project timeline.
+    • The timeline shall include:
+        – Project phases.
+        – Phase start dates.
+        – Phase deadlines.
+        – Estimated duration.
+        – Important milestones.
+        – Dependencies between phases.
+    • AI shall evaluate whether the proposed timeline is achievable.
+    • The system shall flag unrealistic deadlines.
+    • AI shall recommend adjustments if the project deadline is infeasible.
+    • Students shall be able to review and approve the proposed timeline.
+
+ C. Team Formation and Management
+    • Students shall be able to choose between individual and team-based project development.
+    • Students shall be able to create a project team.
+    • The project creator shall initially become the team leader.
+    • Team leaders shall be able to invite other registered students.
+    • The system shall send invitations to selected students.
+    • Invited students shall be able to accept or reject invitations.
+    • Only students who accept invitations shall become team members.
+    • Team leaders shall be able to view team members.
+    • Team leaders shall be able to coordinate team activities.
+    • Team leaders shall be able to assign or reassign tasks.
+    • The system shall maintain team membership information.
+    • Students shall be able to view their assigned responsibilities.
+
+ Business Rules:
+   1. Every project must have at least one student.
+   2. A project can be individual or team-based.
+   3. Each team shall have one designated team leader.
+   4. A student must accept an invitation before becoming a team member.
+   5. Only approved project requirements shall be used to generate the final execution plan.
+   6. The project timeline must consider the available deadline and resources.
+
+
+
+                                                       Page 5
+AI Project Supervisor — Software Requirements Specification
+
+
+
+   7. Changes to approved requirements may require timeline and task-plan updates.
+
+ 2.2.3 Component 3: AI-Generated Project Execution Plan
+ Purpose: To convert approved project requirements into a structured execution plan containing
+ phases, sprints, and individual tasks.
+
+ A. Project Phase Generation
+    • AI shall analyze the approved project requirements.
+    • AI shall divide the project into logical development phases.
+    • Each phase shall contain:
+        – Phase title.
+        – Phase description.
+        – Objectives.
+        – Start date.
+        – End date.
+        – Expected deliverables.
+        – Completion criteria.
+        – Current status.
+    • AI shall establish dependencies between phases.
+    • The system shall allow students to view the complete project structure.
+
+ B. Sprint Management
+    • For projects following Agile/Scrum, AI shall divide development phases into sprints.
+    • Each sprint shall contain:
+        – Sprint title.
+        – Sprint objectives.
+        – Sprint description.
+        – Start date.
+        – End date.
+        – Sprint deliverables.
+        – Assigned tasks.
+        – Completion status.
+    • The system shall allow students and team leaders to view sprint progress.
+    • AI shall recommend sprint durations according to project complexity and deadlines.
+    • For Kanban or Waterfall projects, the system shall use the corresponding planning structure
+       rather than forcing sprint-based execution.
+
+ C. Task Generation and Management
+    • AI shall generate individual tasks according to project requirements.
+    • Each task shall include:
+        – Task title.
+        – Task description.
+        – Priority level.
+
+
+
+
+                                                       Page 6
+AI Project Supervisor — Software Requirements Specification
+
+
+
+        – Estimated effort.
+        – Dependencies.
+        – Assigned student.
+        – Start date.
+        – Deadline.
+        – Completion criteria.
+        – Current status.
+    • The system shall support task priorities:
+        – Low.
+        – Medium.
+        – High.
+        – Critical.
+    • The system shall support task statuses:
+        – To Do.
+        – In Progress.
+        – Under Review.
+        – Completed.
+        – Blocked.
+    • AI shall recommend task assignments based on:
+        – Team members' technical skills.
+        – Individual workload.
+        – Task complexity.
+        – Available working hours.
+    • Team leaders shall be able to assign tasks manually.
+    • Team leaders shall be able to modify AI-recommended assignments.
+    • Students shall be able to view their assigned tasks.
+    • Students shall be able to update task progress.
+    • The system shall maintain task history and status changes.
+
+ D. Execution Plan Management
+    • Students shall be able to review the complete execution plan.
+    • Team leaders shall be able to modify task assignments and deadlines.
+    • AI shall recommend changes when project requirements or deadlines change.
+    • The system shall maintain relationships between phases, sprints, and tasks.
+    • The system shall calculate completion status based on associated tasks and deliverables.
+
+ Business Rules:
+   1. Every phase must have defined objectives and completion criteria.
+   2. Every generated task must have a description, priority, estimated effort, deadline, and
+       completion criteria.
+   3. Every task must have an assigned student before execution.
+   4. Task dependencies must be respected.
+
+
+
+
+                                                       Page 7
+AI Project Supervisor — Software Requirements Specification
+
+
+
+   5. Team leaders can manually override AI-generated assignments.
+   6. Students can update only tasks assigned to them, subject to their team permissions.
+   7. A task cannot be marked Completed without satisfying its required completion criteria and
+       submission requirements.
+   8. Completed work must remain recorded in the project's task history.
+
+ 2.2.4 Component 4: Progress Monitoring and Deliverable Verification
+ Purpose: To monitor project execution, identify delays and blockers, evaluate submitted work, and
+ verify project deliverables against defined acceptance criteria.
+
+ A. Project Progress Monitoring
+    • The system shall continuously maintain project progress based on recorded task and
+       deliverable updates.
+    • Students shall be able to view their individual progress.
+    • Team leaders shall be able to view overall team progress.
+    • Supervisors shall be able to monitor assigned projects.
+    • AI shall analyze:
+        – Completed tasks.
+        – Pending tasks.
+        – Overdue tasks.
+        – Blocked tasks.
+        – Upcoming deadlines.
+        – Individual workload.
+        – Overall project progress.
+    • The system shall calculate project completion percentages.
+    • The system shall identify delayed phases and sprints.
+    • The system shall identify team members with excessive workloads.
+    • AI shall identify potential project risks.
+    • The system shall maintain project progress history.
+
+ B. Delay Detection and Recommendations
+    • AI shall detect tasks that exceed their deadlines.
+    • AI shall identify tasks that may affect dependent tasks.
+    • The system shall alert responsible students and team leaders.
+    • AI shall recommend corrective actions.
+    • Recommendations may include:
+        – Reassigning tasks.
+        – Adjusting task deadlines.
+        – Redistributing workloads.
+        – Resolving identified blockers.
+        – Revising the project timeline.
+    • The system shall allow students to report blockers.
+
+
+
+
+                                                       Page 8
+AI Project Supervisor — Software Requirements Specification
+
+
+
+    • Team leaders shall be able to review and manage reported blockers.
+
+ C. Deliverable Submission
+    • Students shall be able to submit completed work for assigned tasks.
+    • The system shall support GitHub repository links as the primary project evidence source.
+    • Students shall be able to provide supporting evidence, such as:
+        – GitHub repository URLs.
+        – Relevant commit or pull request links.
+        – Screenshots.
+        – Documentation.
+        – Other supporting materials, where supported.
+    • The system shall associate submitted evidence with its relevant project, phase, sprint, or task.
+    • The system shall maintain submission history.
+    • Students shall be able to resubmit evidence when requested.
+
+ D. AI-Based Evidence Verification
+    • AI shall analyze submitted deliverables.
+    • The system shall compare submitted evidence against the task's acceptance criteria.
+    • The system shall evaluate whether:
+        – The submitted repository or evidence is accessible.
+        – Relevant implementation files are available.
+        – Required functionality appears to be implemented.
+        – Submitted work is consistent with the task requirements.
+        – Supporting evidence is sufficient.
+    • The system shall identify missing or incomplete deliverables.
+    • AI shall generate a verification report.
+    • Each verification report shall include:
+        – Submitted evidence.
+        – Evaluated acceptance criteria.
+        – Verification findings.
+        – Identified issues.
+        – Verification status.
+        – Recommendations for improvement.
+    • The system shall support the following verification statuses:
+        – Pending Verification.
+        – Verified.
+        – Partially Verified.
+        – Rejected.
+        – Requires Resubmission.
+    • Students shall be able to review verification feedback.
+    • Students shall be able to correct identified issues and submit updated evidence.
+    • Supervisors shall be able to review verification results and intervene when necessary.
+
+
+
+
+                                                       Page 9
+AI Project Supervisor — Software Requirements Specification
+
+
+
+ Business Rules:
+   1. Every deliverable must be associated with an existing project task or milestone.
+   2. Evidence must be submitted before a deliverable can be verified.
+   3. Verification must be based on predefined acceptance criteria.
+   4. Inaccessible or insufficient evidence must not automatically be considered verified.
+   5. AI verification results are recommendations and must not be treated as absolute proof of
+       correctness.
+   6. Supervisors may review or override verification results with a recorded reason.
+   7. A task shall not qualify as verified completion until its required evidence satisfies the
+       applicable criteria.
+   8. Previous submissions and verification results must remain available in the project history.
+
+ 2.2.5 Component 5: Project Completion and Certification
+ Purpose: To evaluate project completion and generate a unique, verifiable project completion
+ certificate for eligible students.
+
+ A. Project Completion Evaluation
+    • The system shall evaluate overall project completion.
+    • AI shall analyze the status of required project phases, sprints, tasks, and deliverables.
+    • The system shall verify that all mandatory project requirements have been fulfilled.
+    • The system shall identify pending tasks.
+    • The system shall identify missing or unverified deliverables.
+    • The system shall identify unresolved project blockers.
+    • The system shall generate a final project completion report.
+    • The system shall determine whether the project satisfies its completion criteria.
+
+ B. Certificate Generation
+    • The system shall generate a project completion certificate when all mandatory completion
+       conditions are satisfied.
+    • The certificate shall contain:
+        – Student's full name.
+        – Project title.
+        – Project completion date.
+        – Unique certificate ID.
+        – Certificate verification information.
+    • For team-based projects, each eligible team member shall receive an individual certificate.
+    • The system shall store generated certificates in the database.
+    • Students shall be able to view and download their certificates.
+
+ C. Certificate Verification
+    • Every certificate shall have a unique identification number.
+    • The system shall provide a certificate verification facility.
+    • Users shall be able to enter a certificate ID to verify its authenticity.
+
+
+
+                                                       Page 10
+AI Project Supervisor — Software Requirements Specification
+
+
+
+    • The system shall display the certificate's validity status.
+    • The system shall display relevant certificate information.
+    • The system shall prevent duplicate certificate IDs.
+    • Sub Admins shall be able to manage certificate records.
+
+ Business Rules:
+   1. Certificates shall only be generated for projects satisfying all mandatory completion criteria.
+   2. Every required deliverable must have an accepted verification status.
+   3. No mandatory task may remain incomplete.
+   4. Each certificate must have a unique certificate ID.
+   5. Team members must satisfy the applicable individual completion requirements.
+   6. Certificate records must be permanently associated with their respective students and projects.
+   7. Certificate verification must not require access to the student's private project workspace.
+
+
+ 2.3 AI and Technical Architecture Specification
+ The AI Project Supervisor shall use the following technologies to implement its intelligent
+ functionalities.
+
+ Component                  Technology                  Responsibility
+ Model Runner               Ollama                      Local execution of the language model
+ Language Model             Llama 3.2 3B                AI conversations, analysis, planning and
+                                                        recommendations
+ Backend                    Node.js + Express.js        API development and business logic
+ Database                   MongoDB                     Storage of users, projects, teams, tasks, evidence and
+                                                        certificates
+ Machine Learning           Python + Scikit-learn       Data analysis, ML-based predictions and
+                                                        recommendations
+ RAG Framework              LangChain or                Retrieval of relevant information from external sources
+                            LlamaIndex
+ Version Control            GitHub                      Project repositories and deliverable evidence
+
+ Technical Business Rules:
+   1. The language model shall run locally through Ollama.
+   2. AI-generated project information shall be associated with the relevant project.
+   3. RAG shall be used to retrieve relevant information before generating research-based
+       responses.
+   4. Research responses shall include references to retrieved sources whenever available.
+   5. The backend shall validate requests and enforce role-based permissions.
+   6. MongoDB shall maintain relationships between students, projects, teams, tasks, submissions
+       and certificates.
+   7. GitHub evidence shall be evaluated against the corresponding task acceptance criteria.
+
+
+
+
+                                                       Page 11
+AI Project Supervisor — Software Requirements Specification
+
+
+
+   8. Sensitive information and authentication credentials shall not be exposed in AI prompts or
+       public project information.
+
+
+
+
+                                                       Page 12
+AI Project Supervisor — Software Requirements Specification
+
+
+
+
+ 03. User Roles & Permissions
+
+ 3.1 Overview of User Roles
+ The AI Project Supervisor module shall support seven primary user roles. Each role shall have
+ specific responsibilities and access permissions.
+
+ Role                         Description
+ Student                      Creates projects, discovers ideas, participates in project execution and submits
+                              deliverables.
+ Team Leader                  Manages a team, coordinates members, assigns tasks and monitors team progress.
+ Team Member                  Participates in team projects, completes assigned tasks and submits evidence.
+ Supervisor                   Monitors assigned projects, reviews progress and verifies project completion.
+ Super Admin                  Holds the highest authority on the platform, inspects all platform data and activity,
+                              manages users and creates Sub Admins by promoting or demoting users.
+ Sub Admin                    Manages projects, teams, configurations and system-wide operations of the
+                              platform, as delegated by the Super Admin.
+ AI Supervisor                Provides automated guidance, analysis, planning, monitoring and verification.
+
+ Important distinction: The AI Supervisor is an automated system role, not a human account. Its
+ actions are performed through the AI services under the permissions and rules configured by the
+ platform.
+
+ 3.2 Detailed Role Responsibilities and Permissions
+
+ 3.2.1 Student
+ Description:
+ A student is the primary user of the platform. Students use the AI Project Supervisor to discover
+ project ideas, analyze requirements, create project plans, execute tasks and obtain project
+ completion certificates.
+ Permissions:
+    • Register and log in to the platform.
+    • Manage personal profile information.
+    • Start a new project.
+    • Discover project ideas using AI.
+    • Submit an existing project idea.
+    • Provide project preferences, skills and available resources.
+    • View AI-generated research and recommendations.
+    • Select a project idea.
+    • Provide project requirements.
+    • Review and approve project scope.
+
+
+
+
+                                                       Page 13
+AI Project Supervisor — Software Requirements Specification
+
+
+
+    • Provide project deadlines and availability.
+    • View recommended development methodologies.
+    • Create individual projects.
+    • Create team-based projects.
+    • Invite other students to join a team.
+    • Accept or reject team invitations when invited.
+    • View project phases, sprints and tasks.
+    • View assigned tasks.
+    • Update task progress.
+    • Report task blockers.
+    • Submit GitHub repository links and supporting evidence.
+    • View AI verification reports.
+    • Resubmit incomplete or rejected deliverables.
+    • View individual project progress.
+    • Receive project notifications.
+    • View project completion reports.
+    • Download eligible completion certificates.
+    • Verify their own certificate.
+ Restrictions:
+    • Students cannot access other students' private project information without appropriate
+       membership or authorization.
+    • Students cannot modify system-wide configurations.
+    • Students cannot assign tasks to other members unless designated as team leader.
+    • Students cannot manually mark unverified deliverables as verified.
+    • Students cannot issue completion certificates.
+
+ 3.2.2 Team Leader
+ Description:
+ A team leader is a student who is responsible for coordinating a team-based project. The team
+ leader manages team members, distributes tasks, monitors progress and ensures that project
+ activities remain aligned with the execution plan.
+ Permissions:
+ All standard student permissions, plus:
+    • Create and manage a project team.
+    • Invite students to join the team.
+    • View team invitations and membership status.
+    • Remove team members, subject to project rules and supervisor oversight.
+    • View all team members' assigned tasks.
+    • Assign tasks to team members.
+    • Reassign tasks when necessary.
+
+
+
+                                                       Page 14
+AI Project Supervisor — Software Requirements Specification
+
+
+
+    • Modify task priorities.
+    • Propose task deadline changes.
+    • Review team workload.
+    • Monitor overall team progress.
+    • Identify delayed tasks.
+    • Review reported blockers.
+    • Coordinate task dependencies.
+    • Review submitted deliverables.
+    • View AI-generated workload recommendations.
+    • Modify AI-recommended task assignments.
+    • Request AI-generated adjustments to the execution plan.
+    • Coordinate project completion activities.
+    • Communicate project progress to the supervisor.
+ Restrictions:
+    • A team leader cannot modify platform-wide configurations.
+    • A team leader cannot issue certificates.
+    • A team leader cannot override supervisor decisions.
+    • A team leader cannot manually mark AI verification results as verified.
+    • A team leader cannot access projects outside their authorized membership.
+
+ 3.2.3 Team Member
+ Description:
+ A team member is a student who joins an existing project team after accepting an invitation. Team
+ members are responsible for completing assigned tasks and contributing to project deliverables.
+ Permissions:
+    • Register and log in to the platform.
+    • Manage personal profile information.
+    • View accepted team projects.
+    • View team members and team leader information.
+    • View project objectives and requirements.
+    • View project phases and sprints.
+    • View assigned tasks.
+    • View task descriptions and acceptance criteria.
+    • View task priorities and deadlines.
+    • Update assigned task statuses.
+    • Report task blockers.
+    • Submit GitHub repository links.
+    • Upload supporting deliverable evidence where supported.
+    • View AI verification feedback.
+    • Resubmit deliverables.
+
+
+
+                                                       Page 15
+AI Project Supervisor — Software Requirements Specification
+
+
+
+    • View personal workload.
+    • View individual project contributions.
+    • Receive task and deadline notifications.
+    • View eligible project completion certificates.
+ Restrictions:
+    • Team members cannot invite or remove other team members.
+    • Team members cannot assign tasks to other students.
+    • Team members cannot modify the overall project scope.
+    • Team members cannot modify the approved project timeline.
+    • Team members cannot access another team's private information.
+    • Team members cannot issue certificates.
+
+ 3.2.4 Supervisor
+ Description:
+ A supervisor is a human academic or project supervisor responsible for overseeing assigned student
+ projects. The supervisor provides guidance, monitors project progress and reviews the quality of
+ submitted deliverables.
+ Permissions:
+    • Log in to the supervisor dashboard.
+    • View assigned projects.
+    • View project information and objectives.
+    • View approved project requirements.
+    • Monitor project phases and milestones.
+    • View project timelines and deadlines.
+    • Monitor individual and team progress.
+    • View task completion reports.
+    • Identify overdue tasks and project delays.
+    • View reported blockers.
+    • Review team workload.
+    • View submitted GitHub repositories and supporting evidence.
+    • Review AI-generated verification reports.
+    • Manually review submitted deliverables.
+    • Approve or reject deliverables.
+    • Request resubmission of incomplete work.
+    • Provide feedback and recommendations.
+    • Review AI-generated project completion reports.
+    • Approve or reject project completion.
+    • Authorize certificate generation, if supervisor approval is enabled by the institution.
+    • Monitor project history and progress records.
+ Restrictions:
+
+
+
+                                                       Page 16
+AI Project Supervisor — Software Requirements Specification
+
+
+
+    • Supervisors cannot manage system-wide user accounts.
+    • Supervisors cannot change platform-wide AI configurations.
+    • Supervisors can only access projects assigned to them or otherwise explicitly authorized.
+    • Supervisors cannot modify student authentication credentials.
+    • Supervisors cannot change Super Admin or Sub Admin permissions.
+
+ 3.2.5 Super Admin
+ Description:
+ The Super Admin is the highest-authority role on the platform. The Super Admin has oversight
+ access to inspect everything on the platform, manages all platform users, and creates Sub Admins
+ by promoting users to the Sub Admin role or removes Sub Admin privileges by demoting them. All
+ other platform administration work is performed by Sub Admins.
+ Permissions:
+ User Management
+    • View registered users.
+    • Search and filter users.
+    • View user profiles.
+    • Activate or deactivate user accounts.
+    • Assign and update user roles.
+    • Manage account access.
+    • Monitor user activity.
+ Sub Admin Management
+    • Create Sub Admins by promoting an existing registered user to the Sub Admin role.
+    • Remove Sub Admin privileges by demoting a Sub Admin to a regular user role.
+    • View all Sub Admins and their assigned privileges.
+    • Monitor and review Sub Admin activity.
+    • Review the records of all promotions and demotions.
+ Platform Oversight
+    • Inspect all projects, teams, tasks, submitted evidence and verification reports.
+    • Inspect all certificate records and certificate verification activity.
+    • Inspect AI configurations, AI service status and system logs.
+    • Inspect platform usage statistics and system reports.
+    • Inspect all actions performed by Sub Admins.
+ Restrictions:
+    • Super Admin access must be authenticated and authorized.
+    • All user account changes, role changes, promotions and demotions must be logged.
+    • Sensitive user information must only be accessed when necessary for authorized
+       administrative purposes.
+    • The Super Admin cannot be promoted, demoted or deactivated by a Sub Admin.
+
+
+
+
+                                                       Page 17
+AI Project Supervisor — Software Requirements Specification
+
+
+
+ 3.2.6 Sub Admin
+ Description:
+ A Sub Admin is a user promoted by the Super Admin to manage the day-to-day operation of the
+ platform. Sub Admins are responsible for managing projects, teams, AI configurations, system
+ settings, certificate records and platform monitoring, and for ensuring the proper operation of the AI
+ Project Supervisor.
+ Permissions:
+ Project Management
+    • View all registered projects.
+    • Monitor project statuses.
+    • View project information.
+    • Manage inappropriate or invalid project records.
+    • Access project records for administrative purposes.
+ Team Management
+    • View all registered teams.
+    • View team leaders and members.
+    • Monitor team membership.
+    • Resolve team management issues.
+ AI Configuration Management
+    • Manage AI system configurations.
+    • Configure the local Ollama model connection.
+    • Manage AI service availability.
+    • Configure RAG-related settings.
+    • Manage supported AI model settings.
+    • Monitor AI service errors and performance.
+ System Management
+    • Manage platform-wide settings.
+    • Monitor system activity.
+    • View system logs.
+    • Monitor database and backend health.
+    • Manage system-level notifications.
+    • Manage certificate records.
+    • Investigate certificate verification issues.
+ Reporting and Monitoring
+    • View platform usage statistics.
+    • Monitor registered students.
+    • Monitor active projects.
+    • Monitor completed projects.
+    • View project completion statistics.
+
+
+
+                                                       Page 18
+AI Project Supervisor — Software Requirements Specification
+
+
+
+    • Monitor AI service usage and system errors.
+ Restrictions:
+    • Sub Admin access must be authenticated and authorized.
+    • Sub Admins cannot manage user accounts or user roles.
+    • Sub Admins cannot promote users to Sub Admin or demote other Sub Admins.
+    • Sub Admins cannot modify Super Admin permissions or accounts.
+    • Administrative actions affecting project or certificate records must be logged.
+    • Sensitive user information must only be accessed when necessary for authorized
+       administrative purposes.
+
+ 3.2.7 AI Supervisor
+ Description:
+ The AI Supervisor is the intelligent component of the platform. It acts as a virtual supervisor and
+ assists students, team leaders and human supervisors throughout the project lifecycle.
+ Permissions and Functional Responsibilities:
+ Project Idea Discovery
+    • Collect student requirements.
+    • Analyze interests, skills and available resources.
+    • Research industry trends and user problems.
+    • Identify market gaps.
+    • Generate ranked project recommendations.
+    • Provide feasibility analysis.
+    • Provide research references.
+ Project Analysis
+    • Analyze selected project ideas.
+    • Identify missing requirements.
+    • Ask clarification questions.
+    • Generate project scope.
+    • Define measurable deliverables.
+    • Establish acceptance criteria.
+ Project Planning
+    • Recommend development methodologies.
+    • Generate project timelines.
+    • Identify potential scheduling problems.
+    • Divide projects into phases.
+    • Generate sprints where appropriate.
+    • Generate individual tasks.
+    • Recommend task priorities and deadlines.
+    • Recommend task assignments.
+
+
+
+
+                                                       Page 19
+AI Project Supervisor — Software Requirements Specification
+
+
+
+ Progress Monitoring
+    • Analyze task completion.
+    • Detect overdue tasks.
+    • Identify project delays.
+    • Analyze workload distribution.
+    • Identify potential blockers.
+    • Generate corrective recommendations.
+ Deliverable Verification
+    • Analyze submitted GitHub evidence.
+    • Evaluate deliverables against acceptance criteria.
+    • Identify missing or incomplete work.
+    • Generate verification reports.
+    • Recommend resubmission when necessary.
+ Project Completion
+    • Evaluate project completion criteria.
+    • Generate final project reports.
+    • Determine certificate eligibility.
+    • Request human supervisor approval where required.
+ Restrictions:
+    • AI cannot independently modify Super Admin or Sub Admin permissions.
+    • AI cannot access projects without authorized context.
+    • AI cannot override human supervisor decisions.
+    • AI cannot automatically treat inaccessible evidence as verified.
+    • AI cannot issue certificates unless all configured completion conditions are satisfied.
+    • AI recommendations and verification decisions must be recorded for traceability.
+
+
+
+
+                                                       Page 20
+AI Project Supervisor — Software Requirements Specification
+
+
+
+
+ 3.3 Role-Based Access Control (RBAC) Matrix
+ The following table defines the primary permissions associated with each role.
+ Legend:
+    • Full: Full access to the specified functionality.
+    • Limited: Access restricted to assigned projects, tasks or responsibilities.
+    • Review: Can review, approve or provide feedback.
+    • Inspect: Read-only oversight access without the ability to modify.
+    • No: No access.
+ Functionality                 Student   Team      Team         Supervisor   Super     Sub       AI
+                                         Leader    Member                    Admin     Admin
+
+ Manage personal profile       Full      Full      Full         Full         Full      Full      No
+
+ Discover project ideas        Full      Full      Full         No           Inspect   No        Full
+
+ Submit project idea           Full      Full      Full         No           Inspect   No        No
+
+ Analyze requirements          Full      Full      Limited      Review       Inspect   No        Full
+
+ Approve project scope         Full      Full      No           Review       Inspect   No        No
+
+ Create project team           Full      Full      No           No           Inspect   Limited   No
+
+ Invite team members           Limited   Full      No           No           Inspect   Limited   No
+
+ Manage team members           No        Full      No           Review       Inspect   Full      No
+
+ View project execution plan   Full      Full      Limited      Full         Inspect   Full      Full
+
+ Generate project phases       No        No        No           No           Inspect   No        Full
+
+ Generate sprints              No        No        No           No           Inspect   No        Full
+
+ Generate tasks                No        No        No           No           Inspect   No        Full
+
+ Assign tasks                  No        Full      No           Review       Inspect   No        Recommendation
+
+ Update task progress          Limited   Full      Limited      Review       Inspect   No        Monitoring
+
+ Monitor project progress      Limited   Full      Limited      Full         Inspect   Full      Full
+
+ Report blockers               Full      Full      Full         Full         Inspect   No        No
+
+ Submit deliverables           Full      Full      Full         No           Inspect   No        No
+
+ Verify submitted evidence     No        No        No           Review       Inspect   No        Full
+
+ Review verification reports   Limited   Full      Limited      Full         Inspect   Full      No
+
+ Approve project completion    No        No        No           Review       Inspect   No        Recommendation
+
+ Generate certificates         No        No        No           Review       Inspect   Full      Conditional
+
+ Verify certificates           Full      Full      Full         Full         Full      Full      No
+
+ Manage user accounts          No        No        No           No           Full      No        No
+
+ Manage user roles             No        No        No           No           Full      No        No
+
+ Promote or demote Sub         No        No        No           No           Full      No        No
+ Admins
+
+ Configure AI services         No        No        No           No           Inspect   Full      No
+
+ View system reports           No        No        No           Limited      Full      Full      No
+
+
+ Note: The matrix represents the intended access model. Limited permissions depend on project
+ membership, assigned tasks and configured institutional policies. AI actions are system-executed
+
+
+
+                                                          Page 21
+AI Project Supervisor — Software Requirements Specification
+
+
+
+ functions rather than ordinary user permissions.
+
+ 3.4 General Business Rules for User Roles
+   1. Every user must have an authenticated account before accessing protected platform features.
+   2. Every user must have an assigned role.
+   3. Users shall only access functionality permitted by their assigned role.
+   4. A student who creates a team-based project shall initially become its team leader.
+   5. A team member must accept an invitation before joining a team.
+   6. Only one designated team leader shall manage a particular project team at a time.
+   7. A student may participate in individual or team-based projects.
+   8. Team leaders may assign and reassign tasks within their project teams.
+   9. Team members may update the progress of their assigned tasks.
+   10. Supervisors may monitor and review only authorized projects.
+   11. The Super Admin shall have system-wide oversight and user management permissions, and
+       shall be the only role able to create Sub Admins by promoting users or remove Sub Admin
+       privileges by demoting them.
+   12. Sub Admins shall have platform operation management permissions, excluding user
+       management and Sub Admin management.
+   13. AI operations must follow the permissions and project access restrictions of the requesting
+       user.
+   14. All important project changes, verification decisions, promotions, demotions and
+       administrative actions shall be recorded.
+   15. Certificate generation must follow the configured project completion and approval rules.
+   16. Users must not be able to access private information belonging to unauthorized users or
+       projects.
+
+ 3.5 Role and Permission Management Rules
+ The platform shall implement Role-Based Access Control (RBAC) to manage user permissions.
+    • Each user account shall have a role assigned by the system or the Super Admin.
+    • The backend shall validate user permissions before executing protected operations.
+    • The frontend shall display functionality according to the user's permissions.
+    • Hiding a button or page in the frontend shall not replace backend authorization.
+    • Project-level permissions shall be checked in addition to general role permissions.
+    • Unauthorized requests shall be rejected.
+    • Role changes, including promotions to and demotions from the Sub Admin role, shall be
+       recorded in the system logs.
+    • Deactivated accounts shall not be allowed to access protected functionality.
+    • AI services shall operate within the access permissions of the requesting user.
+ Proposed authorization hierarchy:
+
+ Super Admin                       Platform-wide oversight, user management and Sub Admin management
+
+
+
+                                                       Page 22
+AI Project Supervisor — Software Requirements Specification
+
+
+
+ Sub Admin                         Platform operations, configuration and administrative management
+ Supervisor                        Academic supervision and project review
+ Team Leader                       Team coordination and task management
+ Student / Team Member             Project participation and task execution
+ AI Supervisor                     Automated intelligence operating across authorized project workflows
+
+ Conceptual responsibility hierarchy, not an unrestricted inheritance of permissions.
+
+ 3.6 Summary of Module Deliverables
+ The AI Project Supervisor module shall provide the following outputs:
+
+ Component                         Expected Deliverable
+ Idea Discovery                    Researched and ranked project ideas
+ Project Analysis                  Approved requirements, scope and acceptance criteria
+ Project Planning                  Timeline and recommended methodology
+ Team Formation                    Registered project teams and membership
+ Execution Planning                Phases, sprints and individual tasks
+ Progress Monitoring               Progress reports, delay alerts and recommendations
+ Evidence Verification             AI-generated verification reports
+ Project Completion                Final project completion report
+ Certification                     Unique and verifiable completion certificate
+
+ Overall Expected Result:
+ A complete AI-powered project supervision system that guides students from initial project idea
+ discovery through requirement analysis, planning, team coordination, task execution, progress
+ monitoring and evidence-based verification, ultimately generating verifiable project completion
+ certificates.
+
+
+
+
+                                                       Page 23
+

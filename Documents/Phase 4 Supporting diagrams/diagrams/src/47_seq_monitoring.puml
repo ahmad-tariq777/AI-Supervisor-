@@ -1,0 +1,44 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-8: Scheduled Progress Monitoring, Alerts and Recommendation Decision (WF-12)
+participant "Scheduler" as SC
+participant "Express API\n(monitoring)" as A
+participant "AI Gateway" as G
+participant "Python AI Service" as AI
+participant "Ollama\n(Llama 3.2 3B)" as O
+database "MongoDB" as DB
+actor "Team Leader" as TL
+participant "React SPA" as R
+
+SC -> A : Start periodic scan
+A -> DB : Read tasks, phases, sprints, workload
+DB --> A : Current data
+A -> A : Calculate progress, overdue, blocked, upcoming deadlines
+A -> DB : Insert progressSnapshots
+A -> G : Request risk analysis
+G -> AI : POST /v1/monitoring/analyze
+AI -> AI : Predict risk level (ML model M4)
+AI -> O : Write corrective recommendations
+O --> AI : Recommendations
+AI --> G : Risk level and recommendations
+alt Delay or risk detected
+  G -> DB : Insert aiRecommendations (status = open)
+  A -> DB : Insert notifications for responsible students and Team Leader
+else No risk detected
+  G -> DB : Update snapshot riskLevel only
+end
+TL -> R : Open recommendations
+R -> A : GET /projects/:id/recommendations
+A --> R : Open recommendations
+alt Accept
+  R -> A : POST /recommendations/:id/decision (accepted)
+  A -> DB : Set status = accepted, decidedBy, decidedAt
+  A --> R : 200 OK then reassign or plan adjustment (WF-10, WF-18)
+else Dismiss
+  R -> A : POST /recommendations/:id/decision (dismissed)
+  A -> DB : Set status = dismissed, decidedBy, decidedAt
+  A --> R : 200 OK
+end
+@enduml

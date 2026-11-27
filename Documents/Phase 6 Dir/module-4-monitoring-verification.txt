@@ -1,0 +1,470 @@
+Module 4: Progress Monitoring and Deliverable Verification - Directory Structure
+
+AI Project Supervisor (Module 1 of the larger platform) | Based on SRS v1.0 and SDD v1.0 | Draft for review
+
+1. Module summary
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Item                                                             Detail
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  Type                                                             Component 4 of 5
+
+  Purpose                                                          Tracks progress, detects delays and blockers, accepts
+                                                                   GitHub-based evidence, and verifies it against acceptance
+                                                                   criteria. AI verification is static and advisory: the code is
+                                                                   never executed, and a Supervisor can override a result with a
+                                                                   recorded reason.
+
+  Principal output                                                 Progress reports, alerts, recommendations and verification
+                                                                   reports.
+
+  Actors                                                           Student, Team Member, Team Leader, Supervisor, Sub Admin (view),
+                                                                   Super Admin (inspect), AI Supervisor
+
+  Use cases                                                        UC-09, UC-10, UC-11, UC-12, UC-13
+
+  Workflows                                                        WF-12, WF-13, WF-14, WF-15, WF-16, WF-17
+
+  Requirements                                                     FR-MON-001..015; FR-SUB-001..007; BR-SUB-1..2; FR-VER-001..015;
+                                                                   BR-VER-1..4; AIV-001..004; EIR-004/011/013; MLR (M4 risk)
+
+  MongoDB collections                                              progressSnapshots, blockers, aiRecommendations, submissions,
+                                                                   verificationReports
+
+  API groups                                                       Monitoring; Blockers; Submissions; Verification
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+2. How this module fits the repository
+
+The platform is one Express API (modular monolith), one Python AI service and one React single-page app (SDD 6.2). This module is
+therefore a set of folders inside those three applications, not a separate application. Each backend module folder holds its own
+routes, controller, service, validators and models (SDD 6.5).
+
+-   Backend (Node.js + Express): backend/
+-   AI service (Python + FastAPI, Ollama, Scikit-learn, RAG): ai-service/
+-   Frontend (React): frontend/
+
+3. Backend directory structure
+
+3.1 Node.js + Express API
+
+    backend/
+    ├── src/
+    │   ├── integrations/
+    │   │   └── githubClient.js
+    │   ├── jobs/
+    │   │   ├── jobRetry.job.js
+    │   │   └── monitoringScan.job.js
+    │   └── modules/
+    │       ├── github/
+    │       │   ├── evidenceCollector.js
+    │       │   ├── github.service.js
+    │       │   └── rateLimit.js
+    │       ├── monitoring/
+    │       │   ├── aiRecommendation.model.js
+    │       │   ├── alert.service.js
+    │       │   ├── blocker.model.js
+    │       │   ├── blocker.service.js
+    │       │   ├── monitoring.controller.js
+    │       │   ├── monitoring.routes.js
+    │       │   ├── monitoring.service.js
+    │       │   ├── monitoring.validators.js
+    │       │   ├── progressCalculator.js
+    │       │   ├── progressSnapshot.model.js
+    │       │   ├── recommendation.service.js
+    │       │   └── workload.service.js
+    │       ├── submissions/
+    │       │   ├── fileStorage.service.js
+    │       │   ├── submission.model.js
+    │       │   ├── submissions.controller.js
+    │       │   ├── submissions.routes.js
+    │       │   ├── submissions.service.js
+    │       │   ├── submissions.validators.js
+    │       │   └── upload.middleware.js
+    │       └── verification/
+    │           ├── review.service.js
+    │           ├── statusRules.js
+    │           ├── verification.controller.js
+    │           ├── verification.routes.js
+    │           ├── verification.service.js
+    │           ├── verification.validators.js
+    │           └── verificationReport.model.js
+    ├── storage/
+    │   └── uploads/
+    │       └── .gitkeep
+    └── tests/
+        └── monitoring-verification/
+            ├── blocker.test.js
+            ├── progressCalculator.test.js
+            ├── statusRules.test.js
+            └── submissions.test.js
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  src/integrations/githubClient.js                                 GitHub REST client using the server-side token; never logged or
+                                                                   put in prompts (EIR-011)
+
+  src/jobs/monitoringScan.job.js                                   Periodic scan of active projects; interval configurable
+                                                                   (FR-MON-007)
+
+  src/jobs/jobRetry.job.js                                         Retries failed AI jobs and temporary GitHub access failures
+
+  src/modules/monitoring/monitoring.routes.js                      progress, alerts, workload, recommendations, decision, blockers
+
+  src/modules/monitoring/monitoring.controller.js                  HTTP layer
+
+  src/modules/monitoring/monitoring.service.js                     Snapshots and AI risk analysis requests
+
+  src/modules/monitoring/progressCalculator.js                     Deterministic completion percentages (FR-MON-001)
+
+  src/modules/monitoring/alert.service.js                          Overdue, blocked, due-soon, delayed phases and sprints; in-app
+                                                                   alerts (FR-MON-004/008/009)
+
+  src/modules/monitoring/workload.service.js                       Per-member workload and overload detection
+
+  src/modules/monitoring/recommendation.service.js                 Stores recommendations; Team Leader accepts or dismisses
+                                                                   (FR-MON-011)
+
+  src/modules/monitoring/blocker.service.js                        Report, assess impact, resolve, reassign, escalate
+                                                                   (FR-MON-012..015)
+
+  src/modules/monitoring/monitoring.validators.js                  Request schemas
+
+  src/modules/monitoring/progressSnapshot.model.js                 progressSnapshots collection (append-only)
+
+  src/modules/monitoring/blocker.model.js                          blockers collection
+
+  src/modules/monitoring/aiRecommendation.model.js                 aiRecommendations collection (open, accepted, dismissed)
+
+  src/modules/submissions/submissions.routes.js                    POST/GET /tasks/:id/submissions
+
+  src/modules/submissions/submissions.controller.js                HTTP layer
+
+  src/modules/submissions/submissions.service.js                   Versioned submissions; sets Pending Verification and Under
+                                                                   Review; queues verification; notifies leader (FR-SUB-005)
+
+  src/modules/submissions/upload.middleware.js                     Allowed file types and size limits (FR-SUB-003)
+
+  src/modules/submissions/fileStorage.service.js                   Files stored outside the web root; served only to authorized
+                                                                   users
+
+  src/modules/submissions/submissions.validators.js                GitHub URL validation and other schemas (FR-SUB-002)
+
+  src/modules/submissions/submission.model.js                      submissions collection (version, links, attachments,
+                                                                   verificationStatus)
+
+  src/modules/verification/verification.routes.js                  GET /submissions/:id/verification; POST
+                                                                   /verifications/:id/review
+
+  src/modules/verification/verification.controller.js              HTTP layer
+
+  src/modules/verification/verification.service.js                 Collects evidence, calls the AI, stores the report, updates task
+                                                                   status (FR-VER-010)
+
+  src/modules/verification/statusRules.js                          Criterion results to verification status (SRS Table 30)
+
+  src/modules/verification/review.service.js                       Supervisor approve, reject, override with reason; AI result kept
+                                                                   in history (FR-VER-012)
+
+  src/modules/verification/verification.validators.js              Request schemas
+
+  src/modules/verification/verificationReport.model.js             verificationReports collection (append-only; supervisorReview)
+
+  src/modules/github/github.service.js                             Repository access check, metadata, file tree, README, commits,
+                                                                   pull requests
+
+  src/modules/github/evidenceCollector.js                          Selects task-relevant files by path rules within size limits
+
+  src/modules/github/rateLimit.js                                  Handles GitHub rate limits and temporary failures (EIR-013)
+
+  storage/uploads/.gitkeep                                         Uploaded evidence files (outside the web root; not committed)
+
+  tests/monitoring-verification/progressCalculator.test.js         Percentage calculation tests
+
+  tests/monitoring-verification/statusRules.test.js                Table 30 mapping tests
+
+  tests/monitoring-verification/blocker.test.js                    Blocker flow tests
+
+  tests/monitoring-verification/submissions.test.js                Versioning and GitHub URL tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+3.2 Python AI service
+
+    ai-service/
+    ├── app/
+    │   ├── ml/
+    │   │   └── risk/
+    │   │       ├── __init__.py
+    │   │       ├── evaluate.py
+    │   │       ├── fallback_rules.py
+    │   │       ├── features.py
+    │   │       ├── generate_simulated.py
+    │   │       ├── predict.py
+    │   │       └── train.py
+    │   └── modules/
+    │       ├── monitoring/
+    │       │   ├── prompts/
+    │       │   │   ├── blocker_impact_v1.txt
+    │       │   │   ├── corrective_actions_v1.txt
+    │       │   │   └── risk_explanation_v1.txt
+    │       │   ├── __init__.py
+    │       │   ├── router.py
+    │       │   ├── schemas.py
+    │       │   └── service.py
+    │       └── verification/
+    │           ├── prompts/
+    │           │   └── criterion_evaluation_v1.txt
+    │           ├── __init__.py
+    │           ├── criterion_evaluator.py
+    │           ├── deterministic_checks.py
+    │           ├── evidence_selector.py
+    │           ├── report_builder.py
+    │           ├── router.py
+    │           ├── schemas.py
+    │           └── service.py
+    ├── ml_data/
+    │   └── risk/
+    │       └── .gitkeep
+    ├── ml_models/
+    │   └── M4_risk/
+    │       └── .gitkeep
+    └── tests/
+        └── monitoring-verification/
+            ├── test_criterion_evaluator.py
+            ├── test_deterministic_checks.py
+            └── test_risk.py
+
+  ---------------------------------------------------------------------------------------------------------------------------------
+  File                                                             Responsibility
+  ---------------------------------------------------------------- ----------------------------------------------------------------
+  app/modules/monitoring/__init__.py                               Package marker
+
+  app/modules/monitoring/router.py                                 POST /v1/monitoring/analyze
+
+  app/modules/monitoring/schemas.py                                Risk level, explanation, recommendations
+
+  app/modules/monitoring/service.py                                M4 risk plus language-model explanation
+
+  app/modules/monitoring/prompts/risk_explanation_v1.txt           Explains the delay risk level
+
+  app/modules/monitoring/prompts/corrective_actions_v1.txt         Reassign, adjust deadlines, redistribute, revise timeline
+
+  app/modules/monitoring/prompts/blocker_impact_v1.txt             Impact of a blocker on dependent tasks
+
+  app/modules/verification/__init__.py                             Package marker
+
+  app/modules/verification/router.py                               POST /v1/verification/evaluate
+
+  app/modules/verification/schemas.py                              Criterion result: met, partially met, not met, insufficient
+                                                                   evidence
+
+  app/modules/verification/service.py                              Orchestrates deterministic checks and per-criterion evaluation
+
+  app/modules/verification/evidence_selector.py                    Chooses limited excerpts by path rules and relevance (AIV-002)
+
+  app/modules/verification/deterministic_checks.py                 Accessibility, file presence, commit activity (AIV-003)
+
+  app/modules/verification/criterion_evaluator.py                  One criterion per model call; repository text treated as
+                                                                   untrusted (FR-VER-004, AIV-001)
+
+  app/modules/verification/report_builder.py                       Report with findings, issues, recommendations; marked as AI
+                                                                   recommendation
+
+  app/modules/verification/prompts/criterion_evaluation_v1.txt     Single-criterion evaluation prompt
+
+  app/ml/risk/__init__.py                                          Package marker
+
+  app/ml/risk/features.py                                          Progress vs elapsed time, overdue, blocked, due soon, workload
+                                                                   ratio, chain length
+
+  app/ml/risk/generate_simulated.py                                Simulated project timelines with labelled outcomes
+
+  app/ml/risk/train.py                                             M4 training: Logistic Regression or Gradient Boosting
+
+  app/ml/risk/evaluate.py                                          Recall for the High class; stratified k-fold
+
+  app/ml/risk/predict.py                                           Risk level Low, Medium, High with probability
+
+  app/ml/risk/fallback_rules.py                                    Rule-based default (MLR-002)
+
+  ml_models/M4_risk/.gitkeep                                       Versioned M4 artifacts
+
+  ml_data/risk/.gitkeep                                            M4 training data
+
+  tests/monitoring-verification/test_risk.py                       M4 and fallback tests
+
+  tests/monitoring-verification/test_criterion_evaluator.py        Schema and injection-resistance tests
+
+  tests/monitoring-verification/test_deterministic_checks.py       Evidence check tests
+  ---------------------------------------------------------------------------------------------------------------------------------
+
+4. Frontend directory structure (React)
+
+    frontend/
+    └── src/
+        └── features/
+            └── monitoring-verification/
+                ├── __tests__/
+                │   └── monitoringVerification.test.jsx
+                ├── api/
+                │   ├── monitoringApi.js
+                │   ├── submissionsApi.js
+                │   └── verificationApi.js
+                ├── components/
+                │   ├── AiAdvisoryNotice.jsx
+                │   ├── AlertList.jsx
+                │   ├── BlockerList.jsx
+                │   ├── CriterionResultList.jsx
+                │   ├── EvidenceForm.jsx
+                │   ├── OverrideDialog.jsx
+                │   ├── ProgressHistoryChart.jsx
+                │   ├── ProgressSummary.jsx
+                │   ├── RecommendationCard.jsx
+                │   ├── ReportBlockerDialog.jsx
+                │   ├── RiskBadge.jsx
+                │   ├── VerificationStatusBadge.jsx
+                │   └── WorkloadChart.jsx
+                ├── hooks/
+                │   ├── useBlockers.js
+                │   ├── useProgress.js
+                │   └── useSubmission.js
+                ├── pages/
+                │   ├── AlertsPage.jsx
+                │   ├── BlockersPage.jsx
+                │   ├── ProgressDashboardPage.jsx
+                │   ├── RecommendationsPage.jsx
+                │   ├── SubmissionFormPage.jsx
+                │   ├── SubmissionHistoryPage.jsx
+                │   ├── SupervisorReviewPage.jsx
+                │   ├── VerificationReportPage.jsx
+                │   └── WorkloadPage.jsx
+                └── routes.jsx
+
+  -------------------------------------------------------------------------------------------------------------------------------------------------
+  File                                                                             Responsibility
+  -------------------------------------------------------------------------------- ----------------------------------------------------------------
+  src/features/monitoring-verification/routes.jsx                                  Route table of this module
+
+  src/features/monitoring-verification/api/monitoringApi.js                        Progress, alerts, workload, recommendations, blockers
+
+  src/features/monitoring-verification/api/submissionsApi.js                       Submission API calls
+
+  src/features/monitoring-verification/api/verificationApi.js                      Verification and review API calls
+
+  src/features/monitoring-verification/hooks/useProgress.js                        Progress, alerts and workload loading
+
+  src/features/monitoring-verification/hooks/useBlockers.js                        Blocker list and actions
+
+  src/features/monitoring-verification/hooks/useSubmission.js                      Submit, resubmit and poll verification
+
+  src/features/monitoring-verification/pages/ProgressDashboardPage.jsx             Own progress, team progress, or assigned project (WF-12)
+
+  src/features/monitoring-verification/pages/AlertsPage.jsx                        Delay alerts
+
+  src/features/monitoring-verification/pages/WorkloadPage.jsx                      Workload per member
+
+  src/features/monitoring-verification/pages/RecommendationsPage.jsx               Accept or dismiss AI recommendations
+
+  src/features/monitoring-verification/pages/BlockersPage.jsx                      Reported blockers; Team Leader management (WF-13)
+
+  src/features/monitoring-verification/pages/SubmissionFormPage.jsx                GitHub URL, commit and pull-request links, attachments (WF-14)
+
+  src/features/monitoring-verification/pages/SubmissionHistoryPage.jsx             All versions of a task’s submissions
+
+  src/features/monitoring-verification/pages/VerificationReportPage.jsx            Per-criterion results and feedback (WF-15, WF-16)
+
+  src/features/monitoring-verification/pages/SupervisorReviewPage.jsx              Approve, reject, request resubmission, override with reason
+                                                                                   (WF-17)
+
+  src/features/monitoring-verification/components/ProgressSummary.jsx              Percentages and counts
+
+  src/features/monitoring-verification/components/RiskBadge.jsx                    Low, Medium, High with explanation
+
+  src/features/monitoring-verification/components/ProgressHistoryChart.jsx         Snapshots over time
+
+  src/features/monitoring-verification/components/WorkloadChart.jsx                Workload comparison
+
+  src/features/monitoring-verification/components/AlertList.jsx                    Alerts list
+
+  src/features/monitoring-verification/components/RecommendationCard.jsx           Recommendation with accept and dismiss
+
+  src/features/monitoring-verification/components/ReportBlockerDialog.jsx          Report a blocker on a task
+
+  src/features/monitoring-verification/components/BlockerList.jsx                  Blockers with actions
+
+  src/features/monitoring-verification/components/EvidenceForm.jsx                 Evidence inputs with GitHub URL validation
+
+  src/features/monitoring-verification/components/CriterionResultList.jsx          Each criterion, result and evidence references (EIR-004)
+
+  src/features/monitoring-verification/components/VerificationStatusBadge.jsx      Pending Verification, Verified, Partially Verified, Rejected,
+                                                                                   Requires Resubmission
+
+  src/features/monitoring-verification/components/AiAdvisoryNotice.jsx             States that the report is an AI recommendation (FR-VER-008)
+
+  src/features/monitoring-verification/components/OverrideDialog.jsx               Supervisor override requires a reason
+
+  src/features/monitoring-verification/__tests__/monitoringVerification.test.jsx   Progress, submission and review tests
+  -------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. API endpoints (SDD Table 33, prefix /api/v1)
+
+Roles: S Student, TL Team Leader, TM Team Member, SV Supervisor, SA Super Admin, SB Sub Admin.
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Roles
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  GET /projects/:id/progress, /alerts,        Progress, alerts, workload, recommendations S (own), TL, SV, SB; SA inspect
+  /workload, /recommendations; POST           and decisions                               
+  /recommendations/:id/decision                                                           
+
+  POST /tasks/:id/blockers; PATCH             Report and manage blockers                  S, TM, TL, SV report; TL manages
+  /blockers/:id                                                                           
+
+  POST /tasks/:id/submissions; GET            Submit and list evidence                    Assignee; TL, SV, SB, SA view
+  /tasks/:id/submissions                                                                  
+
+  GET /submissions/:id/verification; POST     Read reports; supervisor decision with      Members (read); SV (review)
+  /verifications/:id/review                   reason                                      
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+6. AI service endpoints (SDD Table 29, internal)
+
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Endpoint                                    Purpose                                     Uses
+  ------------------------------------------- ------------------------------------------- -------------------------------------------
+  POST /v1/monitoring/analyze                 Risk level, recommendations                 M4, language model
+
+  POST /v1/verification/evaluate              Criterion evaluation and report             Language model, deterministic checks
+  -----------------------------------------------------------------------------------------------------------------------------------
+
+7. Dependencies on other modules
+
+-   Module 0: authentication, project context, aiGateway, notifications, audit, scheduler registration.
+-   Module 3: reads phases, sprints and tasks; changes task status only through taskStatus.js.
+-   Module 5 depends on this module: unresolved blockers count against completion (FR-MON-015) and every required deliverable
+    needs an accepted verification status (BR-CRT-2).
+
+8. Notes, assumptions and open points
+
+-   GitHub is read by the Express API with a server-side GITHUB_TOKEN (SDD Table 38); the AI service receives only limited
+    evidence excerpts, never the token.
+-   The verification status is derived by fixed rules from criterion results, not from free text (FR-VER-005). Table 30 is marked
+    Proposed in the SRS.
+-   Inaccessible or insufficient evidence is never treated as verified (FR-VER-009). Submitted code is never executed
+    (FR-VER-014).
+-   Students and Team Leaders cannot mark an unverified deliverable as verified (FR-VER-013). The AI cannot override a Supervisor
+    decision (AIS-004).
+-   progressSnapshots, submissions, verificationReports and taskHistory are append-only (FR-AUD-002).
+-   Only the Supervisor assigned to the project may review it (RBAC-007); the assignment mechanism is an open decision (SDD
+    Appendix A, item 1).
+
+9. Suggested build order
+
+1.  Submission model, GitHub URL validation, upload middleware, versioning.
+2.  githubClient and github module (access check, metadata, tree, files, rate limits).
+3.  progressCalculator, snapshots, workload, alerts; monitoringScan job.
+4.  M4 risk model and /v1/monitoring/analyze; recommendations and decisions.
+5.  Blockers module logic.
+6.  Verification: evidence selector, deterministic checks, criterion evaluator, statusRules, report.
+7.  Supervisor review and override; resubmission; frontend pages in the same order.

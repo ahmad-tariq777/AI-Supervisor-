@@ -1,0 +1,19 @@
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Liberation Serif"
+skinparam defaultFontSize 14
+skinparam dpi 170
+skinparam roundcorner 10
+skinparam backgroundColor white
+skinparam ArrowFontSize 12
+skinparam TitleFontSize 20
+skinparam NoteFontSize 12
+skinparam sequenceMessageAlign center
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 14
+skinparam BoxPadding 10
+skinparam wrapWidth 220
+skinparam maxMessageSize 220
+skinparam ActivityFontSize 13
+skinparam swimlaneWidth same
+skinparam packageStyle rectangle

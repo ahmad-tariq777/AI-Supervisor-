@@ -1,0 +1,43 @@
+@startuml
+!include style.iuml
+title UC-2: Component 2 - Project Analysis and Planning
+left to right direction
+
+actor "Student" as S
+actor "Team Leader" as TL
+actor "Supervisor" as SV
+actor "AI Supervisor\n<<system>>" as AI
+
+S <|-- TL
+
+rectangle "AI Project Supervisor" {
+  usecase "Analyze Requirements" as U20
+  usecase "Provide Additional\nRequirements" as U21
+  usecase "Answer Clarification\nQuestions" as U22
+  usecase "Review, Edit and Approve\nRequirements (Baseline)" as U23
+  usecase "Review Requirements" as U24
+  usecase "Provide Planning Inputs" as U25
+  usecase "Recommend Development\nMethodology" as U26
+  usecase "Generate Project Timeline" as U27
+  usecase "Evaluate Timeline\nFeasibility" as U28
+  usecase "Review and Approve\nTimeline" as U29
+}
+
+S -- U21
+S -- U22
+S -- U23
+S -- U25
+S -- U29
+SV -- U24
+U20 -- AI
+U26 -- AI
+U27 -- AI
+U28 -- AI
+
+U21 .> U20 : <<extend>>
+U22 .> U20 : <<extend>>
+U27 ..> U28 : <<include>>
+U26 ..> U25 : <<include>>
+U27 ..> U25 : <<include>>
+U24 .> U23 : <<extend>>
+@enduml

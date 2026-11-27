@@ -1,0 +1,49 @@
+@startuml
+!include style.iuml
+title AD-4: Execution Plan Generation and Task Assignment (WF-09, WF-10)
+|System|
+start
+if (Baseline requirements and timeline approved?) then (no)
+  :Refuse generation;
+  stop
+else (yes)
+endif
+|AI Supervisor|
+:Divide project into phases with objectives,\ndates, deliverables, completion criteria;
+if (Methodology is Agile/Scrum?) then (yes)
+  :Divide phases into sprints\nand recommend sprint durations;
+else (Kanban or Waterfall)
+  :Use corresponding planning structure\n(no sprints);
+endif
+:Generate tasks with priority, estimated effort,\ndependencies, dates and completion criteria;
+|System|
+:Validate plan: mandatory fields, no dependency cycle,\ndates within phase and timeline;
+if (Plan valid?) then (no)
+  |AI Supervisor|
+  :Retry once with corrective instruction;
+  |System|
+  if (Valid after retry?) then (no)
+    :Show error and log failed attempt\n(nothing stored);
+    stop
+  else (yes)
+  endif
+else (yes)
+endif
+:Store phases, sprints and tasks with relationships;
+|Team Leader|
+:Review project structure and modify\ntasks, priorities and deadlines;
+|AI Supervisor|
+:Recommend assignee per task using skills,\nworkload, complexity and availability;
+|System|
+:Store recommendations with rationale;
+|Team Leader|
+:Review recommendations;
+if (Accept, modify or assign manually?) then (decide)
+  |System|
+  :Record each assignment with its source;
+endif
+|System|
+:Assign untouched tasks to AI-recommended assignee\n(individual project: all tasks to the student);
+:Notify assignees;
+stop
+@enduml

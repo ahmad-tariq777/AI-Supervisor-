@@ -1,0 +1,55 @@
+@startuml
+!include style.iuml
+title AD-2: Requirement Analysis, Baseline Approval, Methodology and Timeline (WF-06, WF-07)
+|Student or Team Leader|
+start
+|System|
+:Check that an idea is selected or submitted;
+|AI Supervisor|
+:Analyze idea: functional and non-functional requirements,\nconstraints, dependencies, objectives;
+|Student or Team Leader|
+:Optionally provide additional requirements;
+|AI Supervisor|
+repeat
+  :Detect missing or unclear requirements;
+  :Ask clarification questions;
+  |Student or Team Leader|
+  :Answer clarification questions;
+  |AI Supervisor|
+  :Refine analysis;
+repeat while (Critical gap remains?) is (yes)
+:Define scope, measurable deliverables\nand acceptance criteria;
+|System|
+:Store draft requirements document;
+|Student or Team Leader|
+repeat
+  :Review and edit requirements;
+repeat while (Approved?) is (no)
+|System|
+:Store approved requirements as versioned baseline;
+|Student or Team Leader|
+repeat
+  :Provide deadline, daily availability, team size,\nmember skills, constraints, resources, complexity;
+  |System|
+  :Validate inputs (deadline in the future);
+  |AI Supervisor|
+  :Evaluate inputs;
+  :Recommend Agile/Scrum, Kanban or Waterfall\nwith explanation;
+  :Generate timeline: phases, dates, durations,\nmilestones, dependencies;
+  |System|
+  :Compute dates and check feasibility\nagainst deadline and resources;
+  if (Timeline feasible?) then (no)
+    :Flag unrealistic deadline;
+    |AI Supervisor|
+    :Recommend adjustments;
+    |Student or Team Leader|
+    :Review flag and adjust inputs;
+  else (yes)
+    |Student or Team Leader|
+    :Review timeline;
+  endif
+repeat while (Timeline approved?) is (no)
+|System|
+:Store approved timeline and methodology;
+stop
+@enduml

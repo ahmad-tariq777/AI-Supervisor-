@@ -1,0 +1,215 @@
+ID,Sprint,Sprint goal,Module,Task,Type,Hours,Priority,Status
+S0-01,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Create the GitHub repo with backend/, ai-service/, frontend/ folders",OPS,1,Must,Todo
+S0-02,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Set branch rules (main, develop, feature/*) and a PR template",OPS,1,Must,Todo
+S0-03,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Create backend skeleton: package.json, server.js, app.js, env.js",BE,3,Must,Review
+S0-04,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,Connect MongoDB with Mongoose in db.js,BE,2,Must,Review
+S0-05,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Create ai-service skeleton: FastAPI main.py, config.py, requirements.txt",AI,3,Must,Review
+S0-06,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Install Ollama, pull Llama 3.2 3B, run a test prompt",AI,2,Must,Todo
+S0-07,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Create the React app with Vite, router and global.css",FE,3,Must,Review
+S0-08,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,Add .env.example files for all three apps,OPS,1,Must,Review
+S0-09,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Add AppError, error codes, asyncHandler and logger",BE,3,Must,Review
+S0-10,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,Write the README with run steps for each app,DOC,1,Should,Review
+S0-11,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,Create the task board and load this backlog,DOC,1,Must,Review
+S0-12,0,"everyone can run the backend, AI service, frontend and Ollama on their own machine.",Setup,"Confirm open decisions with your supervisor (supervisor assignment, deadline changes, public certificate verification, who issues certificates)",DOC,2,Must,Todo
+S1-01,1,"a student can register, log in and stay logged in.",Module 0,Define roles.js and statuses.js constants,BE,1,Must,Todo
+S1-02,1,"a student can register, log in and stay logged in.",Module 0,"Create user.model.js (unique email, passwordHash, role, isActive, skills)",BE,2,Must,Todo
+S1-03,1,"a student can register, log in and stay logged in.",Module 0,Add password hashing helper,BE,2,Must,Todo
+S1-04,1,"a student can register, log in and stay logged in.",Module 0,Register endpoint (Student role) with validators,BE,3,Must,Todo
+S1-05,1,"a student can register, log in and stay logged in.",Module 0,Login endpoint,BE,3,Must,Todo
+S1-06,1,"a student can register, log in and stay logged in.",Module 0,token.service.js: access and refresh tokens,BE,3,Must,Todo
+S1-07,1,"a student can register, log in and stay logged in.",Module 0,Refresh and logout endpoints,BE,2,Must,Todo
+S1-08,1,"a student can register, log in and stay logged in.",Module 0,authenticate.js middleware (reject deactivated accounts),BE,2,Must,Todo
+S1-09,1,"a student can register, log in and stay logged in.",Module 0,"validate.js middleware (schema check, block NoSQL operator keys)",BE,2,Must,Todo
+S1-10,1,"a student can register, log in and stay logged in.",Module 0,seedSuperAdmin.js script,BE,2,Must,Todo
+S1-11,1,"a student can register, log in and stay logged in.",Module 0,Write auth tests,BE,3,Must,Todo
+S1-12,1,"a student can register, log in and stay logged in.",Module 0,"apiClient.js (attach token, refresh on expiry)",FE,3,Must,Todo
+S1-13,1,"a student can register, log in and stay logged in.",Module 0,AuthContext.jsx,FE,2,Must,Todo
+S1-14,1,"a student can register, log in and stay logged in.",Module 0,LoginPage and RegisterPage,FE,4,Must,Todo
+S1-15,1,"a student can register, log in and stay logged in.",Module 0,ProtectedRoute and roleHome,FE,2,Must,Todo
+S2-01,2,users have profiles and can create and open projects with correct access.,Module 0,authorizeRole.js middleware,BE,2,Must,Todo
+S2-02,2,users have profiles and can create and open projects with correct access.,Module 0,GET and PATCH /users/me,BE,3,Must,Todo
+S2-03,2,users have profiles and can create and open projects with correct access.,Module 0,Change password endpoint,BE,2,Must,Todo
+S2-04,2,users have profiles and can create and open projects with correct access.,Module 0,Technical skills in the profile,BE,2,Must,Todo
+S2-05,2,users have profiles and can create and open projects with correct access.,Module 0,project.model.js,BE,2,Must,Todo
+S2-06,2,users have profiles and can create and open projects with correct access.,Module 0,Create project endpoint (individual or team mode),BE,3,Must,Todo
+S2-07,2,users have profiles and can create and open projects with correct access.,Module 0,List and view projects within the user's access,BE,3,Must,Todo
+S2-08,2,users have profiles and can create and open projects with correct access.,Module 0,projectContext.js middleware (project-level role),BE,3,Must,Todo
+S2-09,2,users have profiles and can create and open projects with correct access.,Module 0,Write RBAC tests,BE,3,Must,Todo
+S2-10,2,users have profiles and can create and open projects with correct access.,Module 0,"ProfilePage, SkillsEditor, ChangePasswordForm",FE,4,Must,Todo
+S2-11,2,users have profiles and can create and open projects with correct access.,Module 0,"AppLayout, Sidebar (filtered by role), Topbar",FE,4,Must,Todo
+S2-12,2,users have profiles and can create and open projects with correct access.,Module 0,ProjectListPage and CreateProjectPage,FE,4,Must,Todo
+S2-13,2,users have profiles and can create and open projects with correct access.,Module 0,ProjectOverviewPage and StageTracker,FE,3,Must,Todo
+S2-14,2,users have profiles and can create and open projects with correct access.,Module 0,StudentDashboard,FE,2,Should,Todo
+S3-01,3,in-app notifications work and sensitive actions are logged.,Module 0,"notification.model.js and notifications.service (create, list, unread count)",BE,3,Must,Todo
+S3-02,3,in-app notifications work and sensitive actions are logged.,Module 0,"Notification routes (list, mark as read)",BE,2,Must,Todo
+S3-03,3,in-app notifications work and sensitive actions are logged.,Module 0,"NotificationBell, useNotifications, NotificationsPage",FE,4,Must,Todo
+S3-04,3,in-app notifications work and sensitive actions are logged.,Module 0,auditLog.model.js and audit.service (append-only),BE,3,Must,Todo
+S3-05,3,in-app notifications work and sensitive actions are logged.,Module 0,auditLogger.js middleware,BE,2,Must,Todo
+S3-06,3,in-app notifications work and sensitive actions are logged.,Module 0,"requestId.js and security.js (headers, CORS, size limit)",BE,2,Must,Todo
+S3-07,3,in-app notifications work and sensitive actions are logged.,Module 0,rateLimiter.js (stricter on login and AI routes),BE,2,Should,Todo
+S3-08,3,in-app notifications work and sensitive actions are logged.,Module 0,errorHandler.js (no internals in responses),BE,2,Must,Todo
+S3-09,3,in-app notifications work and sensitive actions are logged.,Module 0,Wire the full middleware chain in app.js and routes/index.js,BE,2,Must,Todo
+S4-01,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,security.py: shared service-key check,AI,2,Must,Todo
+S4-02,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,"ollama_client.py (context window, low temperature, JSON output)",AI,4,Must,Todo
+S4-03,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,envelope.py request and response models,AI,2,Must,Todo
+S4-04,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,prompt_loader.py for versioned prompt templates,AI,2,Must,Todo
+S4-05,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,output_validation.py (reject invalid model output),AI,3,Must,Todo
+S4-06,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,GET /health with model and Ollama status,AI,1,Must,Todo
+S4-07,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,aiServiceClient.js in the backend,BE,2,Must,Todo
+S4-08,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,aiJob.model.js and aiInteractionLog.model.js,BE,2,Must,Todo
+S4-09,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,"Job lifecycle: queued, running, succeeded, failed",BE,4,Must,Todo
+S4-10,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,"contextBuilder.js (minimal, authorized context)",BE,3,Must,Todo
+S4-11,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,"secretFilter.js (remove tokens, keys, passwords)",BE,2,Must,Todo
+S4-12,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,resultValidator.js,BE,2,Must,Todo
+S4-13,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,GET /ai-jobs/:id,BE,1,Must,Todo
+S4-14,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,"usePolling, useAiJob, JobProgress",FE,3,Must,Todo
+S4-15,4,"the backend can start an AI job, the Python service runs it on Ollama, and the result comes back validated.",Module 0,"Tests: gateway, envelope, health",BE,3,Should,Todo
+S5-01,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,Users list and activate/deactivate endpoints,BE,3,Must,Todo
+S5-02,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,Role change and Sub Admin promote/demote with history,BE,3,Must,Todo
+S5-03,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,aiConfiguration.model.js and AI config endpoints,BE,3,Must,Todo
+S5-04,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,systemSettings.model.js and settings endpoints (supervisorApprovalRequired),BE,2,Must,Todo
+S5-05,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,"health.service.js (database, backend, AI service)",BE,2,Should,Todo
+S5-06,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,stats.service.js (usage and completion statistics),BE,3,Should,Todo
+S5-07,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,"Oversight, audit log and AI log endpoints",BE,3,Should,Todo
+S5-08,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,UserManagementPage and SubAdminManagementPage,FE,4,Must,Todo
+S5-09,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,AiConfigPage and AiStatusPage,FE,3,Must,Todo
+S5-10,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,SystemSettingsPage and LogsHealthPage,FE,3,Should,Todo
+S5-11,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,AuditLogPage and RoleChangeHistoryPage,FE,3,Should,Todo
+S5-12,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,"OversightPage, ProjectAdminPage, StatisticsPage",FE,4,Should,Todo
+S5-13,5,"Super Admin and Sub Admin can manage users, AI settings and view system status.",Module 0,"Supervisor, Sub Admin and Super Admin dashboards",FE,3,Must,Todo
+S6-01,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,discoveryProfiles model,BE,2,Must,Todo
+S6-02,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,Start-project choice: need ideas or have an idea,BE,3,Must,Todo
+S6-03,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,L1 discovery conversation prompt and output schema,AI,4,Must,Todo
+S6-04,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,"Discovery endpoint: answer in, next question and updated profile out",BE,4,Must,Todo
+S6-05,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,"Rule check for missing profile fields (domain, users, skills, budget)",BE,3,Must,Todo
+S6-06,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,Submit an existing idea endpoint,BE,3,Must,Todo
+S6-07,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,Discovery chat page,FE,4,Must,Todo
+S6-08,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,Profile summary review and edit,FE,3,Should,Todo
+S6-09,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,Existing idea form page,FE,2,Must,Todo
+S6-10,6,a student with no idea answers AI questions; a student with an idea submits it directly.,Module 1,Tests for the discovery flow,BE,3,Should,Todo
+S7-01,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,Choose vector store (Chroma or FAISS) and embedding model; note the decision,AI,2,Must,Todo
+S7-02,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,Ingest knowledge sources into the vector store,AI,4,Must,Todo
+S7-03,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,RAG retrieval function that returns source IDs,AI,4,Must,Todo
+S7-04,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,L2 research synthesis prompt (Sourced or AI- generated labels),AI,4,Must,Todo
+S7-05,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,researchFindings model and research job endpoint,BE,4,Must,Todo
+S7-06,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,M5 scoring rules for the six ranking criteria,AI,3,Must,Todo
+S7-07,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,M5 TF-IDF similarity for skills and idea match,AI,3,Should,Todo
+S7-08,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,L3 idea generation with the twelve required fields,AI,4,Must,Todo
+S7-09,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,ideas model and ranked ideas endpoint,BE,3,Must,Todo
+S7-10,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,Select an idea endpoint,BE,2,Must,Todo
+S7-11,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,Research findings page with sources,FE,3,Must,Todo
+S7-12,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,"Ranked ideas list, idea detail and select button",FE,4,Must,Todo
+S7-13,7,the AI researches with sources and shows ranked project ideas the student can select.,Module 1,Tests for RAG and ranking,AI,3,Should,Todo
+S8-01,8,the selected idea becomes an approved requirements baseline.,Module 2,requirements model,BE,2,Must,Todo
+S8-02,8,the selected idea becomes an approved requirements baseline.,Module 2,L4 requirement analysis prompt and schema,AI,4,Must,Todo
+S8-03,8,the selected idea becomes an approved requirements baseline.,Module 2,Requirement analysis job endpoint,BE,3,Must,Todo
+S8-04,8,the selected idea becomes an approved requirements baseline.,Module 2,Clarifying questions: submit answers and regenerate,BE,3,Must,Todo
+S8-05,8,the selected idea becomes an approved requirements baseline.,Module 2,"Store scope, deliverables and acceptance criteria",BE,2,Must,Todo
+S8-06,8,the selected idea becomes an approved requirements baseline.,Module 2,Baseline approval endpoint (locks the baseline),BE,3,Must,Todo
+S8-07,8,the selected idea becomes an approved requirements baseline.,Module 2,Supervisor comment on the baseline,BE,3,Should,Todo
+S8-08,8,the selected idea becomes an approved requirements baseline.,Module 2,Requirements page: view and edit,FE,4,Must,Todo
+S8-09,8,the selected idea becomes an approved requirements baseline.,Module 2,Clarifying questions screen,FE,3,Must,Todo
+S8-10,8,the selected idea becomes an approved requirements baseline.,Module 2,Baseline approval screen,FE,2,Must,Todo
+S8-11,8,the selected idea becomes an approved requirements baseline.,Module 2,Tests for requirements flow,BE,3,Should,Todo
+S9-01,9,"students form a team, and the system recommends a methodology.",Module 2,teams and invitations models,BE,2,Must,Todo
+S9-02,9,"students form a team, and the system recommends a methodology.",Module 2,Create team and set the leader,BE,3,Must,Todo
+S9-03,9,"students form a team, and the system recommends a methodology.",Module 2,Send invitation endpoint,BE,3,Must,Todo
+S9-04,9,"students form a team, and the system recommends a methodology.",Module 2,"Accept or reject invitation, with notification",BE,3,Must,Todo
+S9-05,9,"students form a team, and the system recommends a methodology.",Module 2,Leader transfer that keeps exactly one leader,BE,2,Should,Todo
+S9-06,9,"students form a team, and the system recommends a methodology.",Module 2,"Team pages: create, invite, member list",FE,4,Must,Todo
+S9-07,9,"students form a team, and the system recommends a methodology.",Module 2,Invitation inbox and accept screen,FE,3,Must,Todo
+S9-08,9,"students form a team, and the system recommends a methodology.",Module 2,TeamAdminPage for Sub Admin,FE,3,Could,Todo
+S9-09,9,"students form a team, and the system recommends a methodology.",Module 2,M1 data: build synthetic methodology scenarios,AI,4,Must,Todo
+S9-10,9,"students form a team, and the system recommends a methodology.",Module 2,Train M1 and check macro F1,AI,4,Must,Todo
+S9-11,9,"students form a team, and the system recommends a methodology.",Module 2,Save M1 with joblib and metadata; add rule-based fallback,AI,3,Must,Todo
+S9-12,9,"students form a team, and the system recommends a methodology.",Module 2,L5 methodology rationale prompt,AI,2,Should,Todo
+S10-01,10,the team enters constraints and approves a realistic timeline.,Module 2,timelines model,BE,2,Must,Todo
+S10-02,10,the team enters constraints and approves a realistic timeline.,Module 2,Deterministic date and duration calculator,BE,4,Must,Todo
+S10-03,10,the team enters constraints and approves a realistic timeline.,Module 2,Methodology recommendation endpoint (M1 and L5),BE,3,Must,Todo
+S10-04,10,the team enters constraints and approves a realistic timeline.,Module 2,Feasibility check that flags impossible deadlines,BE,3,Must,Todo
+S10-05,10,the team enters constraints and approves a realistic timeline.,Module 2,"Timeline generation (phases, start dates, deadlines)",BE,4,Must,Todo
+S10-06,10,the team enters constraints and approves a realistic timeline.,Module 2,"Review, regenerate and approve timeline endpoints",BE,3,Must,Todo
+S10-07,10,the team enters constraints and approves a realistic timeline.,Module 2,"Planning inputs form (deadline, daily hours, team size, constraints)",FE,3,Must,Todo
+S10-08,10,the team enters constraints and approves a realistic timeline.,Module 2,Methodology result page,FE,2,Must,Todo
+S10-09,10,the team enters constraints and approves a realistic timeline.,Module 2,Timeline page with approve button,FE,4,Must,Todo
+S10-10,10,the team enters constraints and approves a realistic timeline.,Module 2,Tests for timeline logic,BE,3,Should,Todo
+S11-01,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,"phases, sprints, tasks and taskHistory models",BE,3,Must,Todo
+S11-02,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,L6 plan generation prompt and schema,AI,4,Must,Todo
+S11-03,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,Plan generation job with mandatory field validation,BE,4,Must,Todo
+S11-04,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,Create sprints only for Agile/Scrum projects,BE,2,Must,Todo
+S11-05,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,M2 data: curated task descriptions with effort,AI,4,Must,Todo
+S11-06,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,Train M2 and check mean absolute error,AI,4,Should,Todo
+S11-07,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,Dependency check (no circular dependencies),BE,3,Must,Todo
+S11-08,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,"Plan overview page (phases, sprints, tasks)",FE,4,Must,Todo
+S11-09,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,Task detail page,FE,3,Must,Todo
+S11-10,11,"the approved project is split into phases, sprints and tasks with all required fields.",Module 3,Tests for plan generation,BE,3,Should,Todo
+S12-01,12,tasks get owners and move through allowed statuses.,Module 3,M3 skill match with TF-IDF cosine similarity,AI,3,Must,Todo
+S12-02,12,tasks get owners and move through allowed statuses.,Module 3,M3 workload and availability weights,AI,2,Must,Todo
+S12-03,12,tasks get owners and move through allowed statuses.,Module 3,Assignment recommendation endpoint with L7 rationale,BE,3,Must,Todo
+S12-04,12,tasks get owners and move through allowed statuses.,Module 3,Manual assignment by Team Leader,BE,2,Must,Todo
+S12-05,12,tasks get owners and move through allowed statuses.,Module 3,Auto-distribute tasks,BE,2,Should,Todo
+S12-06,12,tasks get owners and move through allowed statuses.,Module 3,Task status transition rules in the service,BE,3,Must,Todo
+S12-07,12,tasks get owners and move through allowed statuses.,Module 3,Task update endpoint with history entry,BE,3,Must,Todo
+S12-08,12,tasks get owners and move through allowed statuses.,Module 3,Block a task while its dependencies are open,BE,2,Must,Todo
+S12-09,12,tasks get owners and move through allowed statuses.,Module 3,My Tasks page,FE,3,Must,Todo
+S12-10,12,tasks get owners and move through allowed statuses.,Module 3,Assignment screen for the Team Leader,FE,3,Must,Todo
+S12-11,12,tasks get owners and move through allowed statuses.,Module 3,Status update control,FE,2,Must,Todo
+S12-12,12,tasks get owners and move through allowed statuses.,Module 3,Tests for assignment and status rules,BE,3,Should,Todo
+S13-01,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,progressSnapshots model,BE,2,Must,Todo
+S13-02,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,"Progress calculation (completion, overdue, workload)",BE,3,Must,Todo
+S13-03,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,Scheduled snapshot job in jobs/index.js,BE,2,Must,Todo
+S13-04,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,M4 data: simulated project timelines with outcomes,AI,4,Should,Todo
+S13-05,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,Train M4 and check recall for High risk,AI,4,Should,Todo
+S13-06,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,Risk endpoint and delay alerts through notifications,BE,3,Must,Todo
+S13-07,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,aiRecommendations model and L7 corrective advice,BE,3,Should,Todo
+S13-08,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,"blockers model, report and resolve endpoints",BE,4,Must,Todo
+S13-09,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,Progress dashboard page,FE,4,Must,Todo
+S13-10,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,Blocker form and list,FE,3,Must,Todo
+S13-11,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,Alerts and recommendations panel,FE,2,Should,Todo
+S13-12,13,"the system tracks progress, predicts risk and handles blockers.",Module 4,Tests for monitoring,BE,3,Should,Todo
+S14-01,14,students submit GitHub evidence and the system collects it safely.,Module 4,submissions model,BE,2,Must,Todo
+S14-02,14,students submit GitHub evidence and the system collects it safely.,Module 4,Submit GitHub link and notes endpoint with URL check,BE,3,Must,Todo
+S14-03,14,students submit GitHub evidence and the system collects it safely.,Module 4,"GitHub collector (commits, file list, README; read- only)",BE,4,Must,Todo
+S14-04,14,students submit GitHub evidence and the system collects it safely.,Module 4,Evidence excerpt extractor with size limits,AI,4,Must,Todo
+S14-05,14,students submit GitHub evidence and the system collects it safely.,Module 4,Resubmission flow,BE,3,Must,Todo
+S14-06,14,students submit GitHub evidence and the system collects it safely.,Module 4,Submission page,FE,3,Must,Todo
+S14-07,14,students submit GitHub evidence and the system collects it safely.,Module 4,Submission history view,FE,2,Should,Todo
+S14-08,14,students submit GitHub evidence and the system collects it safely.,Module 4,Tests for submission,BE,3,Should,Todo
+S15-01,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,verificationReports model,BE,2,Must,Todo
+S15-02,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,L8 criterion evaluation prompt and schema,AI,4,Must,Todo
+S15-03,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,"Status rules: met, partially met, not met, insufficient evidence",AI,3,Must,Todo
+S15-04,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Verification job endpoint,BE,4,Must,Todo
+S15-05,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,L9 verification report writing,AI,3,Should,Todo
+S15-06,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Move task to Completed when Verified,BE,2,Must,Todo
+S15-07,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Supervisor review and override with recorded reason,BE,4,Must,Todo
+S15-08,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Verification report page,FE,4,Must,Todo
+S15-09,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Supervisor review page,FE,4,Must,Todo
+S15-10,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Plan adjustment after a change (backend),BE,4,Should,Todo
+S15-11,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Plan adjustment screen,FE,3,Should,Todo
+S15-12,15,AI checks evidence against acceptance criteria and a supervisor can override.,Module 4 and 3,Tests for verification,BE,3,Should,Todo
+S16-01,16,"finished projects produce unique, verifiable certificates.",Module 5,completionReports model,BE,2,Must,Todo
+S16-02,16,"finished projects produce unique, verifiable certificates.",Module 5,Completion check (all deliverables verified),BE,4,Must,Todo
+S16-03,16,"finished projects produce unique, verifiable certificates.",Module 5,Final report writing with L9,AI,3,Should,Todo
+S16-04,16,"finished projects produce unique, verifiable certificates.",Module 5,Supervisor approval when the setting is on,BE,3,Should,Todo
+S16-05,16,"finished projects produce unique, verifiable certificates.",Module 5,certificates model with unique certificate ID,BE,3,Must,Todo
+S16-06,16,"finished projects produce unique, verifiable certificates.",Module 5,Eligibility check per student,BE,3,Must,Todo
+S16-07,16,"finished projects produce unique, verifiable certificates.",Module 5,Certificate PDF with QR code,BE,4,Must,Todo
+S16-08,16,"finished projects produce unique, verifiable certificates.",Module 5,Verify-by-ID endpoint,BE,3,Must,Todo
+S16-09,16,"finished projects produce unique, verifiable certificates.",Module 5,certificateVerifications logging,BE,2,Should,Todo
+S16-10,16,"finished projects produce unique, verifiable certificates.",Module 5,"Sub Admin: records, re-issue and revoke",BE,4,Should,Todo
+S16-11,16,"finished projects produce unique, verifiable certificates.",Module 5,Completion page,FE,3,Must,Todo
+S16-12,16,"finished projects produce unique, verifiable certificates.",Module 5,Certificate view and download page,FE,3,Must,Todo
+S16-13,16,"finished projects produce unique, verifiable certificates.",Module 5,Certificate verification page,FE,3,Must,Todo
+S16-14,16,"finished projects produce unique, verifiable certificates.",Module 5,Certificate records admin page,FE,4,Should,Todo
+S16-15,16,"finished projects produce unique, verifiable certificates.",Module 5,Tests for certificates,BE,3,Should,Todo
+S17-01,17,"the full system is tested, secure and ready to demo.",Release,End-to-end test of the full student journey,BE,4,Must,Todo
+S17-02,17,"the full system is tested, secure and ready to demo.",Release,Check every role against the permission matrix,BE,4,Must,Todo
+S17-03,17,"the full system is tested, secure and ready to demo.",Release,"Security review (injection, rate limits, secrets)",BE,4,Must,Todo
+S17-04,17,"the full system is tested, secure and ready to demo.",Release,"AI quality check (invalid output, fallbacks, slow responses)",AI,4,Must,Todo
+S17-05,17,"the full system is tested, secure and ready to demo.",Release,Test response speed on the demo machine,OPS,3,Should,Todo
+S17-06,17,"the full system is tested, secure and ready to demo.",Release,Fix known bugs,BE,5,Must,Todo
+S17-07,17,"the full system is tested, secure and ready to demo.",Release,Docker Compose and Nginx configuration,OPS,4,Should,Todo
+S17-08,17,"the full system is tested, secure and ready to demo.",Release,"HTTPS, backup and recovery notes",OPS,3,Should,Todo
+S17-09,17,"the full system is tested, secure and ready to demo.",Release,Seed demo data and demo accounts,OPS,2,Must,Todo
+S17-10,17,"the full system is tested, secure and ready to demo.",Release,Short user guide,DOC,3,Should,Todo
+S17-11,17,"the full system is tested, secure and ready to demo.",Release,Final demo and retrospective,DOC,2,Must,Todo

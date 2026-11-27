@@ -1,0 +1,53 @@
+@startuml
+!include style.iuml
+title UC-3: Team Formation and Management
+left to right direction
+
+actor "Student" as S
+actor "Team Leader" as TL
+actor "Team Member" as TM
+actor "Supervisor" as SV
+actor "Sub Admin" as SB
+
+S <|-- TL
+
+rectangle "AI Project Supervisor" {
+  usecase "Choose Individual or\nTeam Project" as U30
+  usecase "Create Project Team" as U31
+  usecase "Invite Registered Students" as U32
+  usecase "Accept or Reject Invitation" as U33
+  usecase "View Team Members and\nMembership Status" as U34
+  usecase "Remove Team Member" as U35
+  usecase "Designate Team Leader" as U36
+  usecase "View Assigned\nResponsibilities" as U37
+  usecase "Resolve Team\nManagement Issues" as U38
+}
+
+S -- U30
+S -- U33
+S -- U37
+TL -- U31
+TL -- U32
+TL -- U34
+TL -- U35
+TL -- U36
+TM -- U37
+TM -- U34
+SV -- U35
+U38 -- SB
+
+U31 .> U30 : <<extend>>
+U35 ..> U34 : <<include>>
+U36 ..> U34 : <<include>>
+
+note bottom of U31
+  The project creator becomes the
+  initial Team Leader. Exactly one
+  Team Leader exists per team.
+end note
+
+note bottom of U35
+  Supervisor role: review and oversight
+  of removals (Review in RBAC matrix).
+end note
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-9: Completion Evaluation and Certificate Generation (WF-19, WF-20)
+actor "Team Leader / Student" as S
+actor "Supervisor" as SV
+participant "React SPA" as R
+participant "Express API\n(completion, certificates)" as A
+participant "AI Gateway" as G
+participant "Python AI Service" as AI
+database "MongoDB" as DB
+
+S -> R : Request completion evaluation
+R -> A : POST /projects/:id/completion/evaluate
+A -> DB : Read tasks, deliverables, verification status, blockers
+A -> A : Apply deterministic eligibility rules
+A -> G : Request report text
+G -> AI : POST /v1/completion/evaluate
+AI --> G : Completion report text
+G -> DB : Store completionReports, interaction log
+A --> R : Report with outstanding items or eligibility
+alt Criteria not satisfied
+  R --> S : Show outstanding items (execution continues)
+else Criteria satisfied
+  A -> DB : Read systemSettings.supervisorApprovalRequired
+  opt Supervisor approval enabled
+    A -> DB : Insert notification for supervisor
+    SV -> R : Review completion report
+    alt Reject
+      R -> A : POST /projects/:id/completion/reject
+      A -> DB : Store decision, notify team (no certificate)
+    else Approve
+      R -> A : POST /projects/:id/completion/approve
+      A -> DB : Store supervisor decision
+    end
+  end
+  group Certificate creation (transaction where supported)
+    loop Each eligible member
+      A -> A : Generate random certificate ID with readable prefix
+      A -> DB : Insert certificate (unique certificateId, integrityHash)
+      alt Duplicate key
+        A -> A : Generate new ID and insert again
+      end
+    end
+    A -> DB : Insert notifications for members
+  end
+end
+S -> R : View and download certificate
+R -> A : GET /certificates/:id/download
+A -> A : Check requester owns certificate, generate PDF with QR code
+A --> R : Certificate file
+@enduml

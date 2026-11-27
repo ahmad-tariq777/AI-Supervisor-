@@ -1,0 +1,25 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-10: Certificate Verification (WF-21)
+actor "User" as U
+participant "React SPA" as R
+participant "Express API\n(certificates)" as A
+database "MongoDB" as DB
+
+U -> R : Enter certificate ID
+R -> A : GET /certificates/verify/:certificateId
+A -> A : Apply rate limit
+A -> DB : Find certificate by certificateId
+DB --> A : Certificate or none
+alt Certificate found
+  A -> DB : Insert certificateVerifications (result = found)
+  A --> R : 200 status, full name, project title, completion date, ID
+  R --> U : Show validity status and certificate information
+else Not found
+  A -> DB : Insert certificateVerifications (result = not found)
+  A --> R : 404 no valid certificate
+  R --> U : Show that no valid certificate exists
+end
+@enduml

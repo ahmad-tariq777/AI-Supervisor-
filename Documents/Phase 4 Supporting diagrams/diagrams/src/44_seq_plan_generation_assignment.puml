@@ -1,0 +1,55 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-5: Execution Plan Generation and Task Assignment (WF-09, WF-10)
+actor "Team Leader" as TL
+participant "React SPA" as R
+participant "Express API\n(execution)" as A
+participant "AI Gateway" as G
+participant "Python AI Service" as AI
+participant "Ollama\n(Llama 3.2 3B)" as O
+database "MongoDB" as DB
+
+TL -> R : Generate plan
+R -> A : POST /projects/:id/plan/generate
+A -> DB : Check approved baseline and approved timeline
+alt Baseline or timeline not approved
+  A --> R : 409 Conflict (generation refused)
+else Both approved
+  A -> G : Create plan job
+  G -> DB : Insert aiJobs (queued)
+  A --> R : 202 Accepted with job ID
+  G -> AI : POST /v1/plan/generate
+  activate AI
+  AI -> O : Generate phases, then tasks per phase
+  O --> AI : Structured plan
+  AI -> AI : Estimate effort (ML model M2), validate schema
+  AI --> G : Phases, sprints (Agile/Scrum only), tasks
+  deactivate AI
+  G -> G : Check mandatory fields, no dependency cycle, dates in range
+  alt Plan invalid
+    G -> AI : Retry once with corrective instruction
+    AI --> G : Second result
+    G -> G : Validate again
+    opt Still invalid
+      G -> DB : Set job failed and write interaction log
+    end
+  end
+  G -> DB : Store phases, sprints, tasks, relationships
+  G -> AI : POST /v1/assignments/recommend
+  AI -> AI : Score members (ML model M3)
+  AI -> O : Write assignment rationale
+  AI --> G : Ranked assignees
+  G -> DB : Store recommendations, interaction log, job succeeded
+end
+R -> A : GET /projects/:id/plan
+A --> R : Plan with recommended assignees
+TL -> R : Accept, modify or assign task manually
+R -> A : POST /tasks/:id/assign
+A -> A : Check caller is Team Leader of the project
+A -> DB : Update task assigneeId and assignmentSource
+A -> DB : Insert taskHistory entry
+A -> DB : Insert notification for assignee
+A --> R : 200 OK
+@enduml

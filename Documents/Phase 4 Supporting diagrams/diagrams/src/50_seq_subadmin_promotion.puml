@@ -1,0 +1,34 @@
+@startuml
+!include style.iuml
+autonumber
+skinparam responseMessageBelowArrow true
+title SD-11: Sub Admin Promotion and Demotion by Super Admin (WF-23)
+actor "Super Admin" as SA
+participant "React SPA" as R
+participant "Express API\n(middleware, users)" as A
+database "MongoDB" as DB
+
+SA -> R : Select user, choose Promote to Sub Admin
+R -> R : Ask for confirmation
+R -> A : PATCH /users/:id/role (sub_admin)
+A -> A : Authenticate, check account is active
+A -> A : Role authorization (Super Admin only)
+alt Caller is not Super Admin
+  A -> DB : Insert auditLogs (rejected attempt)
+  A --> R : 403 Forbidden
+else Super Admin
+  A -> DB : Find target user
+  alt Target missing or is the Super Admin
+    A --> R : 404 or 409
+  else Valid target
+    A -> DB : Set users.role = sub_admin
+    A -> DB : Insert auditLogs (category = promotion, actor, before, after)
+    A --> R : 200 OK
+  end
+end
+SA -> R : Select Sub Admin, choose Demote
+R -> A : PATCH /users/:id/role (student)
+A -> DB : Set users.role = student
+A -> DB : Insert auditLogs (category = demotion, actor, before, after)
+A --> R : 200 OK (privileges removed immediately)
+@enduml

@@ -1,0 +1,157 @@
+@startuml
+!include style.iuml
+title ER-1: Users, Projects, Teams, Discovery and Planning Collections
+hide circle
+skinparam linetype ortho
+
+entity "users" as users {
+  * _id <<PK>>
+  --
+  * fullName
+  * email <<unique>>
+  * passwordHash
+  * role : student | supervisor | sub_admin | super_admin
+  * isActive
+  profile : embedded (skills)
+  createdAt, updatedAt
+}
+
+entity "projects" as projects {
+  * _id <<PK>>
+  --
+  * title
+  * creatorId <<FK users>>
+  * mode : individual | team
+  * stage
+  methodology
+  supervisorId <<FK users>>
+  selectedIdeaId <<FK ideas>>
+  baselineRequirementsId <<FK requirements>>
+  approvedTimelineId <<FK timelines>>
+  deadline
+  createdAt, updatedAt
+}
+
+entity "teams" as teams {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects, unique>>
+  * leaderId <<FK users>>
+}
+
+entity "teams.members[ ]" as members <<embedded>> {
+  * userId <<FK users>>
+  * joinedAt
+}
+
+entity "invitations" as invitations {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * inviterId <<FK users>>
+  * inviteeId <<FK users>>
+  * status : pending | accepted | rejected
+  createdAt, updatedAt
+}
+
+entity "discoveryProfiles" as dp {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  domain
+  interests
+  skills
+  targetUsers
+  region
+  budget
+  resources
+  constraints
+  messages[ ] : conversation
+}
+
+entity "researchFindings" as rf {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * text
+  * origin : Sourced | AI-generated
+  references[ ] : title, URL, year, retrievalDate
+  jobId <<FK aiJobs>>
+}
+
+entity "ideas" as ideas {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * source : AI | student
+  rank
+  scores : per ranking criterion
+  title
+  problemStatement
+  targetUsers
+  proposedSolution
+  existingAlternatives
+  innovation
+  requiredTechnologies
+  requiredResources
+  feasibilityAnalysis
+  expectedOutcomes
+  risksAndChallenges
+  references[ ]
+  isSelected
+}
+
+entity "requirements" as req {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  * version
+  * status : draft | approved
+  functional[ ]
+  nonFunctional[ ]
+  constraints[ ]
+  objectives[ ]
+  scope
+  approvedBy <<FK users>>
+  approvedAt
+}
+
+entity "requirements.deliverables[ ]" as deliv <<embedded>> {
+  * title
+  acceptanceCriteria[ ]
+}
+
+entity "timelines" as tl {
+  * _id <<PK>>
+  --
+  * projectId <<FK projects>>
+  deadline
+  dailyHours
+  teamSize
+  memberSkills
+  complexity
+  methodology, rationale
+  phases[ ], milestones[ ]
+  feasibilityFlags
+  * status
+}
+
+users ||--o{ projects : creates
+users |o--o{ projects : supervises
+projects ||--o| teams : has
+users ||--o{ teams : leads
+teams ||..o{ members : embeds
+users ||--o{ members : userId
+projects ||--o{ invitations
+users ||--o{ invitations : invites
+users ||--o{ invitations : is invited
+projects ||--o| dp
+projects ||--o{ rf
+projects ||--o{ ideas
+projects |o--o| ideas : selected
+projects ||--o{ req
+projects |o--o| req : baseline
+req ||..o{ deliv : embeds
+projects ||--o{ tl
+projects |o--o| tl : approved
+@enduml
